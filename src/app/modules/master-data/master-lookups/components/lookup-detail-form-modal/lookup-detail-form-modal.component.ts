@@ -1,11 +1,12 @@
-import { Component, Input, Output, EventEmitter, inject, ChangeDetectionStrategy, ViewChild, TemplateRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, ChangeDetectionStrategy, ViewChild, ViewContainerRef, TemplateRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ErpFormFieldComponent } from 'src/app/shared/components/erp-form-field/erp-form-field.component';
 import { ErpNotificationService } from 'src/app/shared/services/erp-notification.service';
+import { DrawerService } from 'src/app/shared/overlay/drawer/drawer.service';
+import { AvlOverlayRef } from 'src/app/shared/overlay/avl-overlay-ref';
 
 import { LookupDetailDto, CreateLookupDetailRequest, UpdateLookupDetailRequest } from '../../models/master-lookup.model';
 
@@ -14,7 +15,7 @@ export interface DetailFormSaveEvent {
   createRequest?: CreateLookupDetailRequest;
   updateRequest?: UpdateLookupDetailRequest;
   detailId?: number;
-  modalRef: NgbModalRef;
+  modalRef: AvlOverlayRef;
 }
 
 /**
@@ -37,7 +38,8 @@ export interface DetailFormSaveEvent {
 })
 export class LookupDetailFormModalComponent {
   private fb = inject(FormBuilder);
-  private modalService = inject(NgbModal);
+  private drawerService = inject(DrawerService);
+  private viewContainerRef = inject(ViewContainerRef);
   private notificationService = inject(ErpNotificationService);
 
   @Input() masterLookupId!: number;
@@ -49,7 +51,7 @@ export class LookupDetailFormModalComponent {
 
   detailForm!: FormGroup;
   editingDetail: LookupDetailDto | null = null;
-  private modalInstance: NgbModalRef | null = null;
+  private modalInstance: AvlOverlayRef | null = null;
 
   constructor() {
     this.initForm();
@@ -82,10 +84,13 @@ export class LookupDetailFormModalComponent {
       this.detailForm.get('code')?.enable();
     }
 
-    this.modalInstance = this.modalService.open(this.detailModalRef, {
-      backdrop: 'static',
-      keyboard: false,
-      centered: true
+    // Drawer, not Dialog: this is a create/edit form (Drawer.prompt.md's
+    // own example use case).
+    this.modalInstance = this.drawerService.open(this.detailModalRef, {
+      size: 'md',
+      closeOnScrim: false,
+      closeOnEscape: false,
+      viewContainerRef: this.viewContainerRef
     });
   }
 

@@ -1,24 +1,11 @@
-<div class="erp-empty-state">
-  @if (icon) {
-    <div class="erp-empty-state__icon">
-      <i [class]="icon" aria-hidden="true"></i>
-    </div>
-  }
-
-  @if (titleKey) {
-    <h4 class="erp-empty-state__title">{{ titleKey | translate }}</h4>
-  }
-  @if (messageKey) {
-    <p class="erp-empty-state__message">{{ messageKey | translate }}</p>
-  }
-
+<avl-empty-state
+  [icon]="icon"
+  [title]="titleKey ? (titleKey | translate) : undefined"
+  [message]="messageKey ? (messageKey | translate) : undefined"
+>
   @if (actionLabelKey) {
-    <button
-      type="button"
-      class="btn btn-primary"
-      (click)="actionClicked.emit()"
-    >
+    <avl-button empty-state-action variant="primary" (clicked)="actionClicked.emit()">
       {{ actionLabelKey | translate }}
-    </button>
+    </avl-button>
   }
-</div>
+</avl-empty-state>

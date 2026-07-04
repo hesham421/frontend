@@ -1,4 +1,8 @@
-<!-- Dialog Header -->
+<!-- Dialog Header (kept as legacy self-rendered markup — see report:
+     native Dialog header mode would leave modal-footer unstyled, since
+     overlays.scss targets ".avl-dialog__panel > .modal-footer" with a
+     direct-child selector that only matches when the whole legacy trio
+     renders together) -->
 <div class="modal-header">
   <h5 class="modal-title">{{ dialogTitle() | translate }}</h5>
   <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'COMMON.CLOSE' | translate"></button>
@@ -8,22 +12,12 @@
 <div class="modal-body">
   <!-- Search Bar -->
   <div class="mb-3">
-    <div class="input-group">
-      <span class="input-group-text"><i class="ti ti-search"></i></span>
-      <input
-        type="text"
-        class="form-control"
-        [attr.placeholder]="'LOOKUP.SEARCH_PLACEHOLDER' | translate"
-        [ngModel]="searchTerm()"
-        (ngModelChange)="onSearchChange($event)"
-        autocomplete="off"
-      />
-      @if (isLoading()) {
-        <span class="input-group-text">
-          <span class="spinner-border spinner-border-sm" role="status"></span>
-        </span>
-      }
-    </div>
+    <avl-input
+      iconLeft="ti ti-search"
+      [placeholder]="'LOOKUP.SEARCH_PLACEHOLDER' | translate"
+      [value]="searchTerm()"
+      (valueChange)="onSearchChange($event)"
+    />
   </div>
 
   <!-- Results Table (Dynamic Columns) -->
@@ -35,12 +29,16 @@
             <th
               class="erp-lookup-dialog__th"
               [style.width]="col.width || 'auto'"
-              (click)="onSort(col)"
-              role="button"
             >
               <span class="d-flex align-items-center gap-1">
                 {{ col.label | translate }}
-                <i class="{{ getSortIcon(col) }} fs-6"></i>
+                <avl-icon-button
+                  [icon]="getSortIcon(col)"
+                  variant="ghost"
+                  size="sm"
+                  [label]="col.label | translate"
+                  (clicked)="onSort(col)"
+                />
               </span>
             </th>
           }
@@ -75,31 +73,24 @@
       <small class="text-muted">
         {{ 'LOOKUP.TOTAL_RESULTS' | translate: { count: totalElements() } }}
       </small>
-      <ngb-pagination
-        [collectionSize]="totalElements()"
+      <avl-pagination
+        [total]="totalElements()"
         [page]="currentPage()"
         [pageSize]="pageSize()"
-        [maxSize]="5"
-        [rotate]="true"
-        [boundaryLinks]="true"
-        (pageChange)="onPageChange($event)"
+        [showInfo]="false"
         size="sm"
-      ></ngb-pagination>
+        (pageChange)="onPageChange($event)"
+      />
     </div>
   }
 </div>
 
 <!-- Dialog Footer -->
 <div class="modal-footer">
-  <button type="button" class="btn btn-outline-secondary" (click)="cancel()">
+  <avl-button variant="secondary" (clicked)="cancel()">
     {{ 'COMMON.CANCEL' | translate }}
-  </button>
-  <button
-    type="button"
-    class="btn btn-primary"
-    [disabled]="!hasSelection()"
-    (click)="confirmSelection()"
-  >
+  </avl-button>
+  <avl-button variant="primary" [disabled]="!hasSelection()" (clicked)="confirmSelection()">
     {{ 'LOOKUP.SELECT' | translate }}
-  </button>
+  </avl-button>
 </div>

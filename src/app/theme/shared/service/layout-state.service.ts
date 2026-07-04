@@ -7,7 +7,9 @@ import { MantisConfig } from 'src/app/app-config';
  */
 @Injectable({ providedIn: 'root' })
 export class LayoutStateService {
-  private readonly MOBILE_BREAKPOINT = 1025;
+  // Matches AVELYNQ's --bp-lg (1024px) / avl-sidebar's max-width:1023px
+  // drawer breakpoint exactly, so JS state and CSS media queries agree.
+  private readonly MOBILE_BREAKPOINT = 1024;
 
   /** Desktop sidebar collapsed (icon-only or hidden) */
   readonly sidebarCollapsed = signal<boolean>(MantisConfig.isCollapseMenu);

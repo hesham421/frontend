@@ -1,0 +1,111 @@
+<!-- @dsCard group="ERP Application" viewport="1440x900" name="AVELYNQ ERP — Application" subtitle="Interactive rebrand: login → dashboard → GL → form" -->
+<!-- @startingPoint section="ERP Application" subtitle="Full AVELYNQ ERP shell — sidebar, topbar, dashboard, data table, form" viewport="1440x900" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AVELYNQ ERP</title>
+<link rel="stylesheet" href="../../styles.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<script src="./data.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--surface-page); font-family: var(--font-sans); color: var(--text-body); }
+  #root { height: 100vh; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 5px; border: 2px solid var(--surface-page); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--slate-400); }
+  @keyframes avl-spin { to { transform: rotate(360deg); } }
+  @keyframes avl-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .avl-screen { animation: avl-fade var(--dur-slow) var(--ease-out); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="./Shell.jsx"></script>
+<script type="text/babel" src="./LoginScreen.jsx"></script>
+<script type="text/babel" src="./DashboardScreen.jsx"></script>
+<script type="text/babel" src="./AccountsScreen.jsx"></script>
+<script type="text/babel" src="./AccountFormScreen.jsx"></script>
+<script type="text/babel" data-presets="react">
+  const { useState } = React;
+
+  const TITLES = {
+    dashboard: { title: 'Dashboard', crumb: 'Overview' },
+    accounts: { title: 'Chart of Accounts', crumb: 'Finance · General Ledger' },
+    journals: { title: 'Journals', crumb: 'Finance · General Ledger' },
+    rules: { title: 'Posting Rules', crumb: 'Finance · General Ledger' },
+    users: { title: 'User Management', crumb: 'Security' },
+    roles: { title: 'Roles & Access', crumb: 'Security' },
+    pages: { title: 'Pages Registry', crumb: 'Security' },
+    master: { title: 'Master Data', crumb: 'Administration' },
+    reports: { title: 'Reports', crumb: 'Administration' },
+    hr: { title: 'Human Resources', crumb: 'Modules' },
+    inventory: { title: 'Inventory', crumb: 'Modules' },
+    procurement: { title: 'Procurement', crumb: 'Modules' },
+    sales: { title: 'Sales', crumb: 'Modules' },
+    maintenance: { title: 'Maintenance', crumb: 'Modules' },
+  };
+
+  function Placeholder({ id }) {
+    const { EmptyState, Button } = window.AVELONDesignSystem_a21abd;
+    const meta = TITLES[id] || { title: id };
+    return (
+      <div className="avl-page">
+        <div style={{ background: 'var(--surface-card)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}>
+          <EmptyState icon="ti ti-layout-grid-add" title={meta.title + ' module'}
+            message="This surface follows the same AVELYNQ layout system. Connect the module data source to bring it online."
+            action={<Button variant="secondary" iconLeft={<i className="ti ti-plug" />}>Connect data source</Button>} />
+        </div>
+      </div>
+    );
+  }
+
+  function App() {
+    const [authed, setAuthed] = useState(false);
+    const [route, setRoute] = useState('dashboard');
+    const [lang, setLang] = useState('en');
+    const [navOpen, setNavOpen] = useState(false);
+    const meta = TITLES[route] || { title: 'AVELYNQ' };
+
+    const go = (id) => { setRoute(id); setNavOpen(false); };
+
+    if (!authed) {
+      return <div className="avl-screen" style={{ height: '100%' }}>
+        <LoginScreen onLogin={() => setAuthed(true)} lang={lang} onToggleLang={() => setLang(l => l === 'en' ? 'ar' : 'en')} />
+      </div>;
+    }
+
+    let body;
+    if (route === 'dashboard') body = <DashboardScreen onNavigate={go} />;
+    else if (route === 'accounts') body = <AccountsScreen onOpenForm={() => setRoute('account-form')} />;
+    else if (route === 'account-form') body = <AccountFormScreen onBack={() => setRoute('accounts')} />;
+    else body = <Placeholder id={route} />;
+
+    const headerMeta = route === 'account-form' ? { title: 'New Account', crumb: 'Finance · General Ledger' } : meta;
+
+    return (
+      <div className="avl-app">
+        <div className={'avl-scrim' + (navOpen ? ' is-open' : '')} onClick={() => setNavOpen(false)} />
+        <Sidebar active={route === 'account-form' ? 'accounts' : route} onNavigate={go} open={navOpen} onClose={() => setNavOpen(false)} />
+        <div className="avl-app__body">
+          <Topbar title={headerMeta.title} breadcrumb={headerMeta.crumb} lang={lang} onMenu={() => setNavOpen(o => !o)}
+            onToggleLang={() => setLang(l => l === 'en' ? 'ar' : 'en')} onLogout={() => { setAuthed(false); setRoute('dashboard'); setNavOpen(false); }} />
+          <main className="avl-app__main">
+            <div className="avl-screen" key={route}>{body}</div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

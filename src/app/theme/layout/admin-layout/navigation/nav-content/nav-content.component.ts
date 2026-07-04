@@ -17,6 +17,7 @@ import { MenuService } from 'src/app/theme/shared/service/menu.service';
 import { LanguageService } from 'src/app/core/services/language.service';
 import { Role } from 'src/app/theme/shared/components/_helpers/role';
 import { ScrollbarComponent } from 'src/app/theme/shared/components/scrollbar/scrollbar.component';
+import { AvlDropdownDirective, AvlDropdownToggleDirective, AvlDropdownItemDirective } from 'src/app/shared/overlay/dropdown/dropdown.directive';
 
 // icon
 import { IconService } from '@ant-design/icons-angular';
@@ -120,7 +121,7 @@ import {
 
 @Component({
   selector: 'app-nav-content',
-  imports: [SharedModule, CommonModule, RouterModule, NavCollapseComponent, NavGroupComponent, NavItemComponent, ScrollbarComponent],
+  imports: [SharedModule, CommonModule, RouterModule, NavCollapseComponent, NavGroupComponent, NavItemComponent, ScrollbarComponent, AvlDropdownDirective, AvlDropdownToggleDirective, AvlDropdownItemDirective],
   templateUrl: './nav-content.component.html',
   styleUrls: ['./nav-content.component.scss']
 })

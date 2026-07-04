@@ -8,6 +8,7 @@
     "CREATE": "Create",
     "UPDATE": "Update",
     "SEARCH": "Search",
+    "LANGUAGE": "Switch language",
     "FILTER": "Filter",
     "CLEAR": "Clear",
     "CLOSE": "Close",

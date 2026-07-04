@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ErpPermissionDirective } from '../../directives/erp-permission.directive';
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
 
 /**
  * ErpPageHeaderComponent
- * 
+ *
  * Generic page header with title and action buttons.
  * Entity-agnostic - contains no business logic.
- * 
+ * Composed from the AVELYNQ Button primitive (Phase 4).
+ *
  * @requirement FE-REQ-SHARED-001
  * @task TASK-FE-SHARED-001
  */
@@ -19,35 +21,25 @@ import { ErpPermissionDirective } from '../../directives/erp-permission.directiv
   imports: [
     CommonModule,
     TranslateModule,
-    ErpPermissionDirective
+    ErpPermissionDirective,
+    AvlButtonComponent
   ],
   template: `
     <div class="erp-page-header">
       <h1 class="erp-page-title">{{ titleKey | translate }}</h1>
-      
+
       <div class="erp-page-actions">
-        <button
-          *ngIf="showRefresh"
-          type="button"
-          class="btn btn-outline-secondary btn-sm"
-          [attr.aria-label]="'COMMON.REFRESH' | translate"
-          (click)="onRefresh()"
-        >
-          <i class="fas fa-sync-alt" aria-hidden="true"></i>
-          <span class="d-none d-sm-inline ms-1">{{ 'COMMON.REFRESH' | translate }}</span>
-        </button>
-        
-        <button
-          *ngIf="showAdd"
-          [erpPermission]="addPermission"
-          type="button"
-          class="btn btn-primary btn-sm"
-          [attr.aria-label]="'COMMON.ADD' | translate"
-          (click)="onAdd()"
-        >
-          <i class="fas fa-plus" aria-hidden="true"></i>
-          <span class="d-none d-sm-inline ms-1">{{ 'COMMON.ADD' | translate }}</span>
-        </button>
+        @if (showRefresh) {
+          <avl-button variant="secondary" size="sm" iconLeft="ti ti-refresh" (clicked)="onRefresh()">
+            <span class="d-none d-sm-inline">{{ 'COMMON.REFRESH' | translate }}</span>
+          </avl-button>
+        }
+
+        @if (showAdd) {
+          <avl-button [erpPermission]="addPermission" variant="primary" size="sm" iconLeft="ti ti-plus" (clicked)="onAdd()">
+            <span class="d-none d-sm-inline">{{ 'COMMON.ADD' | translate }}</span>
+          </avl-button>
+        }
       </div>
     </div>
   `,
@@ -55,29 +47,29 @@ import { ErpPermissionDirective } from '../../directives/erp-permission.directiv
     :host {
       display: block;
     }
-    
+
     .erp-page-header {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: var(--erp-page-header-gap, 1rem);
-      padding-block: var(--erp-page-header-padding-block, 1rem);
+      gap: var(--space-4, 16px);
+      padding-block: var(--space-4, 16px);
     }
-    
+
     .erp-page-title {
       margin: 0;
-      font-size: var(--erp-font-size-heading, 1.75rem);
-      font-weight: var(--erp-font-weight-semibold, 600);
-      line-height: var(--erp-line-height-tight, 1.25);
-      color: var(--erp-color-text, inherit);
+      font-size: var(--fs-display, clamp(28px, 3.6vw, 44px));
+      font-weight: var(--fw-semibold, 600);
+      line-height: var(--lh-snug, 1.3);
+      color: var(--text-strong, inherit);
     }
-    
+
     .erp-page-actions {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: var(--erp-spacing-sm, 0.75rem);
+      gap: var(--space-3, 12px);
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush

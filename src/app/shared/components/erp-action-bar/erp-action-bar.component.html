@@ -1,14 +1,9 @@
 <div class="erp-action-bar">
   <div class="erp-action-bar__start">
     @if (showBack) {
-      <button
-        type="button"
-        class="btn btn-outline-secondary btn-sm"
-        (click)="onBack()"
-      >
-        <i class="ti ti-arrow-left" aria-hidden="true"></i>
-        <span class="ms-1">{{ 'COMMON.BACK' | translate }}</span>
-      </button>
+      <avl-button variant="secondary" size="sm" iconLeft="ti ti-arrow-left" (clicked)="onBack()">
+        {{ 'COMMON.BACK' | translate }}
+      </avl-button>
     }
     <ng-content select="[actionBarStart]"></ng-content>
   </div>
@@ -16,34 +11,20 @@
   <div class="erp-action-bar__end">
     <ng-content select="[actionBarEnd]"></ng-content>
     @if (showCancel) {
-      <button
-        type="button"
-        class="btn btn-outline-secondary btn-sm"
-        [disabled]="loading"
-        (click)="onCancel()"
-      >
+      <avl-button variant="secondary" size="sm" [disabled]="loading" (clicked)="onCancel()">
         {{ cancelKey | translate }}
-      </button>
+      </avl-button>
     }
     @if (showSave) {
-      <button
-        type="button"
-        class="btn btn-primary"
-        [disabled]="loading || disabled"
-        (click)="onSave()"
+      <avl-button
+        variant="primary"
+        [loading]="loading"
+        [disabled]="disabled"
+        [iconLeft]="loading ? undefined : 'ti ti-device-floppy'"
+        (clicked)="onSave()"
       >
-        @if (loading) {
-          <span
-            class="spinner-border spinner-border-sm me-1"
-            role="status"
-            aria-hidden="true"
-          ></span>
-        }
-        @if (!loading) {
-          <i class="ti ti-device-floppy me-1" aria-hidden="true"></i>
-        }
         {{ (loading ? loadingKey : saveKey) | translate }}
-      </button>
+      </avl-button>
     }
   </div>
 </div>

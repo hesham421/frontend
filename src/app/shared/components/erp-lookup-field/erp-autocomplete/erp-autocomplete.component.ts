@@ -9,8 +9,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
-  signal,
-  ViewChild
+  signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -20,6 +19,8 @@ import { debounceTime, distinctUntilChanged, filter, switchMap, tap } from 'rxjs
 
 import { LookupConfig, LookupItem } from 'src/app/core/lookup/lookup.model';
 import { LookupDataService } from 'src/app/core/lookup/lookup-data.service';
+import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
+import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
 
 /**
  * ErpAutocompleteComponent
@@ -42,7 +43,7 @@ import { LookupDataService } from 'src/app/core/lookup/lookup-data.service';
 @Component({
   selector: 'erp-autocomplete',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TranslateModule, AvlInputComponent, AvlIconButtonComponent],
   templateUrl: './erp-autocomplete.component.html',
   styleUrls: ['./erp-autocomplete.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -59,8 +60,6 @@ export class ErpAutocompleteComponent implements OnInit, OnDestroy {
 
   /** Emitted when the input is cleared */
   @Output() readonly cleared = new EventEmitter<void>();
-
-  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
   // ── Internal State (Signals) ─────────────────────────────────────
 

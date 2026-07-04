@@ -7,6 +7,16 @@ File: style.css
 =========================================================================
 =================================================================================== */
 
+// AVELYNQ design tokens — single source of truth, loaded first so
+// everything downstream (Bootstrap variable overrides, theme SCSS,
+// ERP component styles) can reference --brand-*/--text-*/--space-* etc.
+@import 'scss/avelynq/tokens/index';
+
+// CDK Overlay base positioning/backdrop CSS — required for any
+// @angular/cdk Overlay-based component (Dialog, Drawer, Dropdown,
+// Tooltip, Typeahead built in Phase 3) to position/render correctly.
+@import '@angular/cdk/overlay-prebuilt.css';
+
 @import 'node_modules/bootstrap/scss/functions';
 @import 'node_modules/bootstrap/scss/variables';
 @import 'node_modules/bootstrap/scss/variables-dark';
@@ -24,15 +34,6 @@ File: style.css
 
 @import 'scss/theme/components/components.scss';
 
-// theme
-@import 'scss/theme/layouts/menu/sidebar.scss';
-@import 'scss/theme/layouts/navbar/navbar.scss';
-@import 'scss/theme/layouts/pc-common.scss';
-@import 'scss/theme/layouts/breadcrumb/breadcrumb.scss';
-@import 'scss/theme/layouts/footer/footer.scss';
-@import 'scss/theme/layouts/menu/horizontal.scss';
-@import 'scss/theme/layouts/menu/compact.scss';
-
 // isRTLMode
 @import 'scss/theme/layouts/RTL/rtl.scss';
 
@@ -42,6 +43,15 @@ File: style.css
 
 // ERP Design System (tokens layer)
 @import 'scss/erp/erp-tokens';
+
+// AVELYNQ Shell (Phase 2) — visual treatment for the admin shell.
+// Replaces the deleted scss/theme/layouts/{menu/sidebar,navbar,
+// pc-common,breadcrumb,footer,menu/horizontal,menu/compact}.scss.
+@import 'scss/avelynq/shell/sidebar';
+@import 'scss/avelynq/shell/topbar';
+
+// AVELYNQ Overlay primitives (Phase 3) — Dialog/Drawer/Dropdown/Tooltip
+@import 'scss/avelynq/shell/overlays';
 
 body.mantis-ltr {
   @import 'node_modules/bootstrap/scss/utilities';
@@ -53,10 +63,15 @@ body.mantis-rtl {
 }
 
 // font
-@import 'scss/fonts/feather.css';
-@import 'scss/fonts/fontawesome.css';
-@import 'scss/fonts/material.css';
-@import 'scss/fonts/tabler-icons.min.css';
+// feather.css, fontawesome.css, and material.css removed — icons consolidated
+// onto Tabler per design-system/ICON-MIGRATION-MAP.md. A handful of `fa-*`
+// classes remain in code (needs-review compound glyphs + the fa-2x sizing
+// utility) pending human decision; they will render without an icon/at
+// default size until that decision lands.
+// Tabler stylesheet source is now @tabler/icons-webfont v3.44.0 (copied into
+// scss/fonts/ — see design-system/TABLER-VERSION-AUDIT.md), replacing the
+// old bundled v1.41.1 file.
+@import 'scss/fonts/tabler-icons-v3.min.css';
 
 // ============================================
 // RTL (Right-to-Left) Supplementary Overrides

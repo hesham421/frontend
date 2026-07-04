@@ -1,0 +1,253 @@
+/* ============================================================
+   AVELYNQ — Shell Sidebar (Phase 2)
+   Replaces the visual treatment previously provided by
+   src/scss/theme/layouts/menu/sidebar.scss. Targets the SAME
+   Mantis class names the nav templates already render
+   (.pc-sidebar, .coded-hasmenu, .coded-trigger, .nav-link,
+   .active, .coded-submenu, .coded-micon, .coded-mtext) because
+   those exact names are read by querySelector/classList calls in
+   navigation.component.ts, nav-item.component.ts,
+   nav-collapse.component.ts, and nav-group.component.ts — do not
+   rename them. Layout/responsiveness (flex sizing, off-canvas
+   drawer, scrim) comes from the avl-sidebar/avl-scrim contract in
+   src/scss/avelynq/tokens/responsive.css; this file is visual
+   treatment only.
+   ============================================================ */
+
+.pc-sidebar {
+  width: var(--sidebar-width);
+  background: var(--navy-850);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  border-inline-end: 1px solid var(--border-inverse);
+  overflow: hidden;
+
+  a {
+    color: inherit;
+    cursor: pointer;
+  }
+
+  ul {
+    list-style: none;
+    padding-inline-start: 0;
+    margin-bottom: 0;
+  }
+
+  .navbar-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  // ---- Brand row -------------------------------------------------
+  .m-header {
+    flex-shrink: 0;
+    height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3, 12px);
+    padding-inline: var(--space-5, 20px);
+    border-block-end: 1px solid var(--border-inverse);
+
+    .b-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3, 12px);
+      min-width: 0;
+    }
+
+    .logo {
+      height: 30px;
+      width: auto;
+    }
+  }
+
+  // ---- Scrollable nav body ----------------------------------------
+  .navbar-content {
+    flex: 1;
+    min-height: 0;
+    padding: var(--space-3, 12px);
+  }
+
+  .coded-inner-navbar {
+    display: flex;
+    flex-direction: column;
+  }
+
+  // ---- Group captions (colors only — layout/transition rules live
+  // in nav-group.component.scss, added during Phase 1) --------------
+  .coded-menu-caption {
+    color: rgba(255, 255, 255, 0.38);
+    font-size: var(--fs-2xs, 11px);
+    font-weight: var(--fw-semibold, 600);
+    letter-spacing: var(--ls-eyebrow, 0.14em);
+    padding: 0 var(--space-2, 8px) var(--space-2, 8px);
+    margin-block-start: var(--space-4, 16px);
+
+    &:first-child {
+      margin-block-start: 0;
+    }
+  }
+
+  // ---- Nav items (leaf + parent-with-children) --------------------
+  li.nav-item {
+    position: relative;
+    padding-block-end: 2px;
+
+    > a.nav-link {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: var(--space-3, 12px);
+      width: 100%;
+      padding: var(--space-2, 8px) var(--space-3, 12px);
+      margin-block-end: 2px;
+      border-radius: var(--radius-sm, 5px);
+      font-family: var(--font-sans);
+      font-size: var(--fs-body, 14px);
+      font-weight: var(--fw-medium, 500);
+      color: rgba(255, 255, 255, 0.78);
+      text-decoration: none;
+      transition: background-color var(--dur-fast, 120ms) var(--ease-standard, cubic-bezier(0.2, 0, 0.1, 1));
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        text-decoration: none;
+      }
+
+      &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+    }
+
+    // active leaf item (routerLinkActive) — brand-tinted bg + teal rail
+    &.active > a.nav-link {
+      background: color-mix(in srgb, var(--brand-primary, #2466D8) 18%, transparent);
+      color: #fff;
+      font-weight: var(--fw-semibold, 600);
+      box-shadow: inset 2px 0 0 var(--brand-accent, var(--teal-500));
+
+      .coded-micon i {
+        color: var(--brand-accent, var(--teal-500));
+      }
+    }
+  }
+
+  .coded-micon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+
+    i {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .coded-mtext {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // ---- Parent items with children (coded-hasmenu) -----------------
+  // Chevron drawn with borders (same technique as the group-toggle
+  // icon in nav-group.component.scss) instead of a feather icon-font
+  // glyph — the old ::after rule in the retired sidebar.scss depended
+  // on feather.css, which was removed in Phase 1, so this chevron had
+  // been rendering as a missing glyph since then. This restores it.
+  li.coded-hasmenu {
+    position: relative;
+
+    > a.nav-link:after {
+      content: '';
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+      border-inline-start: 5px solid currentColor;
+      opacity: 0.5;
+      margin-inline-start: auto;
+      transition: transform var(--dur-fast, 120ms) var(--ease-standard, cubic-bezier(0.2, 0, 0.1, 1));
+    }
+
+    &.coded-trigger > a.nav-link:after {
+      transform: rotate(90deg);
+    }
+
+    // Submenu is a normal expand/collapse block, not the old
+    // rotateX(-90deg) 3D-flip popover — collapsed by default, shown
+    // when the parent carries .coded-trigger (still the exact class
+    // nav-collapse.component.ts toggles — see constraint #1).
+    .coded-submenu {
+      display: none;
+      padding-inline-start: var(--space-6, 24px);
+    }
+
+    &.coded-trigger > .coded-submenu {
+      display: block;
+    }
+
+    // sub-item treatment (smaller, muted, no icon background)
+    .coded-submenu li.nav-item > a.nav-link {
+      padding-block: var(--space-2, 8px);
+      font-size: var(--fs-sm, 13px);
+      color: rgba(255, 255, 255, 0.62);
+
+      &:hover {
+        color: #fff;
+        background: transparent;
+      }
+    }
+
+    .coded-submenu li.nav-item.active > a.nav-link {
+      color: #fff;
+      font-weight: var(--fw-semibold, 600);
+      background: transparent;
+      box-shadow: none;
+    }
+  }
+
+  // ---- Footer strip (help/support card) ---------------------------
+  .nav-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-inverse);
+    border-radius: var(--radius-md, 7px);
+    color: rgba(255, 255, 255, 0.85);
+
+    .text-muted {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
+  }
+
+  // ---- Bottom user-profile strip (compact-layout only; unused in
+  // the active 'vertical' layout but kept for parity) ---------------
+  .user-profile-section {
+    flex-shrink: 0;
+    padding: var(--space-3, 12px) var(--space-5, 20px);
+    border-block-start: 1px solid var(--border-inverse);
+    font-size: var(--fs-xs, 12px);
+    color: rgba(255, 255, 255, 0.4);
+  }
+}
+
+// Desktop "hide sidebar" toggle (LayoutStateService.sidebarCollapsed) —
+// collapses width to 0 rather than an icon-rail (matches prior Mantis
+// behavior; AVELYNQ's reference has no icon-only rail concept).
+@media (min-width: 1024px) {
+  .pc-sidebar.navbar-collapsed {
+    width: 0;
+    border-inline-end: none;
+  }
+}

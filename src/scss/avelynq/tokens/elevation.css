@@ -1,0 +1,26 @@
+/* ============================================================
+   AVELYNQ — Elevation, Borders, Motion
+   Shadows are cool-tinted (navy-based), low and disciplined.
+   Composure over drama: subtle layering, no heavy drop-shadows.
+   ============================================================ */
+:root {
+  /* Shadows — tinted with navy for a cool, engineered feel */
+  --shadow-xs: 0 1px 2px rgba(10, 22, 40, 0.06);
+  --shadow-sm: 0 1px 3px rgba(10, 22, 40, 0.08), 0 1px 2px rgba(10, 22, 40, 0.04);
+  --shadow-md: 0 4px 12px rgba(10, 22, 40, 0.08), 0 2px 4px rgba(10, 22, 40, 0.05);
+  --shadow-lg: 0 12px 28px rgba(10, 22, 40, 0.12), 0 4px 10px rgba(10, 22, 40, 0.06);
+  --shadow-xl: 0 24px 48px rgba(10, 22, 40, 0.18), 0 8px 16px rgba(10, 22, 40, 0.08);
+  --shadow-inset: inset 0 1px 2px rgba(10, 22, 40, 0.06);
+
+  /* Border widths */
+  --border-hairline: 1px;
+  --border-thick: 2px;
+
+  /* Motion — composed, no bounce. Confidence without flourish. */
+  --ease-standard: cubic-bezier(0.2, 0, 0.1, 1); /* @kind other */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1); /* @kind other */
+  --dur-fast: 120ms; /* @kind other */
+  --dur-base: 180ms; /* @kind other */
+  --dur-slow: 280ms; /* @kind other */
+}

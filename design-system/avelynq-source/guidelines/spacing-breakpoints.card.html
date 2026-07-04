@@ -1,0 +1,25 @@
+<!-- @dsCard group="Spacing" viewport="700x190" name="Breakpoints & Responsive" subtitle="sm 480 · md 768 · lg 1024 · xl 1280 — sidebar goes static at lg" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body{margin:0;padding:20px 24px;background:var(--surface-card);font-family:var(--font-sans);}
+  .row{display:flex;gap:10px;align-items:stretch;}
+  .bp{flex:1;border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;gap:6px;}
+  .bp .ic{font-size:20px;color:var(--brand-primary);}
+  .bp .nm{font-size:13px;font-weight:600;color:var(--text-strong);}
+  .bp .px{font-family:var(--font-mono);font-size:12px;color:var(--text-muted);}
+  .bp .dv{font-size:11px;color:var(--text-subtle);}
+  .note{margin-top:14px;font-size:12px;color:var(--text-muted);line-height:1.5;}
+  .note code{font-family:var(--font-mono);font-size:11px;background:var(--surface-sunken);padding:1px 5px;border-radius:4px;color:var(--text-body);}
+</style></head>
+<body>
+<div class="row">
+  <div class="bp"><span class="ic"><i class="ti ti-device-mobile"></i></span><span class="nm">sm</span><span class="px">≥ 480px</span><span class="dv">Large phone</span></div>
+  <div class="bp"><span class="ic"><i class="ti ti-device-tablet"></i></span><span class="nm">md</span><span class="px">≥ 768px</span><span class="dv">Tablet</span></div>
+  <div class="bp"><span class="ic"><i class="ti ti-device-laptop"></i></span><span class="nm">lg</span><span class="px">≥ 1024px</span><span class="dv">Laptop · sidebar static</span></div>
+  <div class="bp"><span class="ic"><i class="ti ti-device-desktop"></i></span><span class="nm">xl</span><span class="px">≥ 1280px</span><span class="dv">Desktop</span></div>
+</div>
+<div class="note">Below <code>lg</code> the sidebar becomes an off-canvas drawer (<code>.avl-sidebar.is-open</code> + <code>.avl-scrim</code>). Grids collapse via <code>.avl-grid--stats/--3/--2/--split</code>; dense tables use <code>.avl-table-scroll</code>. Tokens <code>--page-pad</code> and large <code>--fs-*</code> reflow automatically.</div>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css" />
+</body></html>

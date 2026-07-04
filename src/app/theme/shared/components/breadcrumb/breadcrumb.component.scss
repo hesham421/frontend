@@ -1,1 +1,65 @@
-// This file is intentionally left empty to allow customers to add custom CSS if needed.
+// Compact topbar treatment: small muted breadcrumb trail above a
+// bold page title, matching AVELYNQ's Shell.jsx Topbar reference.
+// Was previously a full-width Mantis "page header" banner styled by
+// the now-retired src/scss/theme/layouts/breadcrumb/breadcrumb.scss —
+// this component is only ever rendered inside nav-bar's topbar row
+// now, so it's restyled compact/inline rather than full-bleed.
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.page-header {
+  min-width: 0;
+}
+
+.page-block {
+  min-width: 0;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  margin: 0 0 1px;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-sans);
+  font-size: var(--fs-2xs, 11px);
+  color: var(--text-subtle);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.breadcrumb-item {
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  a {
+    color: var(--text-subtle);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--text-body);
+    }
+  }
+
+  + .breadcrumb-item::before {
+    content: '/';
+    padding-inline: var(--space-1, 4px);
+    color: var(--text-subtle);
+  }
+}
+
+.page-header-title h2 {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-title, 16px);
+  font-weight: var(--fw-semibold, 600);
+  color: var(--text-strong);
+  letter-spacing: var(--ls-heading, -0.01em);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

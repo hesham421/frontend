@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { NgbModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
+import { DialogService, DialogOpenConfig } from 'src/app/shared/overlay/dialog/dialog.service';
 
 /**
  * Options for the confirmation dialog.
@@ -21,11 +21,11 @@ export interface ErpDialogOptions {
 
 /**
  * ErpDialogService
- * 
+ *
  * UI-level service for displaying confirmation dialogs.
- * Wraps NgBootstrap modal and the existing ConfirmDialogComponent.
- * Contains no business logic.
- * 
+ * Wraps DialogService (Angular/CDK Overlay — previously NgbModal) and the
+ * existing ConfirmDialogComponent. Contains no business logic.
+ *
  * @requirement FE-REQ-SHARED-001
  * @task TASK-FE-SHARED-001
  */
@@ -33,14 +33,14 @@ export interface ErpDialogOptions {
   providedIn: 'root'
 })
 export class ErpDialogService {
-  private readonly modalService = inject(NgbModal);
+  private readonly dialogService = inject(DialogService);
 
   /**
    * Show a confirmation dialog.
-   * 
+   *
    * @param options - Dialog configuration options
    * @returns Promise that resolves to true if confirmed, false if cancelled
-   * 
+   *
    * @example
    * ```typescript
    * const confirmed = await this.dialogService.confirm({
@@ -48,7 +48,7 @@ export class ErpDialogService {
    *   messageKey: 'COMMON.DELETE_CONFIRMATION',
    *   type: 'danger'
    * });
-   * 
+   *
    * if (confirmed) {
    *   // proceed with deletion
    * }
@@ -60,14 +60,13 @@ export class ErpDialogService {
       'src/app/core/components/confirm-dialog/confirm-dialog.component'
     );
 
-    const modalOptions: NgbModalOptions = {
-      centered: true,
-      backdrop: 'static',
+    const modalOptions: DialogOpenConfig = {
       size: 'sm',
-      keyboard: true
+      closeOnScrim: false,
+      closeOnEscape: true
     };
 
-    const modalRef = this.modalService.open(ConfirmDialogComponent, modalOptions);
+    const modalRef = this.dialogService.open(ConfirmDialogComponent, modalOptions);
 
     // Set dialog inputs
     modalRef.componentInstance.titleKey = options.titleKey;
@@ -89,7 +88,7 @@ export class ErpDialogService {
   /**
    * Show a delete confirmation dialog with danger styling.
    * Convenience method for delete confirmations.
-   * 
+   *
    * @param messageKey - Translation key for the message
    * @param messageParams - Optional parameters for message interpolation
    * @returns Promise that resolves to true if confirmed
@@ -110,7 +109,7 @@ export class ErpDialogService {
   /**
    * Show a discard changes confirmation dialog.
    * Convenience method for unsaved changes warnings.
-   * 
+   *
    * @returns Promise that resolves to true if user confirms discarding changes
    */
   async confirmDiscard(): Promise<boolean> {

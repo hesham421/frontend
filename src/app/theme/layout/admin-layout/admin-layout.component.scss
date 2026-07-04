@@ -1,23 +1,14 @@
 // ============================================
 // Layout Shell — Responsive Enhancements
 // ============================================
+// Frame sizing (avl-app / avl-app__body / avl-app__main) and the
+// sidebar drawer/scrim contract live in
+// src/scss/avelynq/tokens/responsive.css (avl-* classes) — this file
+// only holds host-level concerns that don't fit a shared utility.
 
-// Full-viewport overlay for mobile sidebar (moved outside pc-container)
-.pc-menu-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1025;
-  cursor: pointer;
-  animation: overlay-fade-in 0.2s ease;
-}
-
-@keyframes overlay-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+:host {
+  display: block;
+  height: 100%;
 }
 
 // Body scroll lock when mobile sidebar is open
@@ -27,16 +18,15 @@
 
 // Small phone content padding
 @media (max-width: 400px) {
-  :host .pc-container .coded-content {
-    padding-left: 16px;
-    padding-right: 16px;
+  :host .avl-app__main {
+    padding-inline: var(--space-4, 16px);
   }
 }
 
 // iOS safe area support
 @supports (padding: env(safe-area-inset-top)) {
-  :host .pc-container .coded-content {
-    padding-left: max(env(safe-area-inset-left), 16px);
-    padding-right: max(env(safe-area-inset-right), 16px);
+  :host .avl-app__main {
+    padding-inline-start: max(env(safe-area-inset-left), var(--space-4, 16px));
+    padding-inline-end: max(env(safe-area-inset-right), var(--space-4, 16px));
   }
 }

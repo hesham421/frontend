@@ -398,8 +398,8 @@ $aspect-ratios: (
 // Font, line-height, and color for body text, headings, and more.
 
 // stylelint-disable value-keyword-case
-$font-family-sans-serif: 'Public Sans', sans-serif; // change
-$font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+$font-family-sans-serif: var(--font-sans, 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif);
+$font-family-monospace: var(--font-mono, 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', 'Menlo', monospace);
 // stylelint-enable value-keyword-case
 $font-family-base: var(--#{$variable-prefix}font-sans-serif);
 $font-family-code: var(--#{$variable-prefix}font-monospace);

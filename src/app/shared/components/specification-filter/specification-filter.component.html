@@ -2,71 +2,70 @@
   <div class="d-flex align-items-center justify-content-between mb-2">
     <div class="fw-semibold">{{ 'FILTER.ADVANCED_FILTERS' | translate }}</div>
     <div class="d-flex gap-2">
-      <button type="button" class="btn btn-sm btn-outline-primary" (click)="addRow()">
-        <i class="ti ti-plus"></i>
+      <avl-button variant="secondary" size="sm" iconLeft="ti ti-plus" (clicked)="addRow()">
         {{ 'COMMON.ADD' | translate }}
-      </button>
-      <button type="button" class="btn btn-sm btn-outline-secondary" (click)="clearAll()">
-        <i class="ti ti-x"></i>
+      </avl-button>
+      <avl-button variant="secondary" size="sm" iconLeft="ti ti-x" (clicked)="clearAll()">
         {{ 'COMMON.CLEAR' | translate }}
-      </button>
-      <button type="button" class="btn btn-sm btn-primary" (click)="onApply()">
-        <i class="ti ti-check"></i>
+      </avl-button>
+      <avl-button variant="primary" size="sm" iconLeft="ti ti-check" (clicked)="onApply()">
         {{ 'FILTER.APPLY' | translate }}
-      </button>
+      </avl-button>
     </div>
   </div>
 
   @for (row of rows; track row.id) {
   <div class="row g-2 align-items-end mb-2">
     <div class="col-md-4">
-      <label class="form-label small mb-1">{{ 'FILTER.FIELD' | translate }}</label>
-      <select class="form-select form-select-sm" [(ngModel)]="row.field" (ngModelChange)="onFieldChanged(row)">
-        <option value="" disabled>{{ 'COMMON.SELECT' | translate }}</option>
-        @for (f of availableFields; track f.value) {
-          <option [value]="f.value">{{ f.label | translate }}</option>
-        }
-      </select>
+      <avl-select
+        [label]="'FILTER.FIELD' | translate"
+        [options]="fieldSelectOptions()"
+        [placeholder]="'COMMON.SELECT' | translate"
+        [value]="row.field"
+        (valueChange)="row.field = $event; onFieldChanged(row)"
+      />
     </div>
 
     <div class="col-md-3">
-      <label class="form-label small mb-1">{{ 'FILTER.OPERATOR' | translate }}</label>
-      <select class="form-select form-select-sm" [(ngModel)]="row.operator">
-        @for (op of getOperatorsForField(row.field); track op.value) {
-          <option [ngValue]="op.value">{{ op.label | translate }}</option>
-        }
-      </select>
+      <avl-select
+        [label]="'FILTER.OPERATOR' | translate"
+        [options]="operatorSelectOptions(row.field)"
+        [value]="row.operator"
+        (valueChange)="onOperatorChange(row, $event)"
+      />
     </div>
 
     <div class="col-md-4">
-      <label class="form-label small mb-1">{{ 'FILTER.VALUE' | translate }}</label>
+      @let opts = getFieldOptions(row.field);
       @if (needsValue(row.operator)) {
-        @let opts = getFieldOptions(row.field);
         @if (opts) {
-          <select class="form-select form-select-sm" [(ngModel)]="row.value">
-            @for (opt of opts; track opt.value) {
-              <option [ngValue]="opt.value">{{ opt.label | translate }}</option>
-            }
-          </select>
+          <avl-select
+            [label]="'FILTER.VALUE' | translate"
+            [options]="fieldValueSelectOptions(row.field)"
+            [value]="stringifyRowValue(row.value)"
+            (valueChange)="onValueSelectChange(row, $event)"
+          />
         } @else {
-          <input type="text" class="form-control form-control-sm" [(ngModel)]="row.value" [placeholder]="'FILTER.ENTER_VALUE' | translate" />
+          <avl-input
+            [label]="'FILTER.VALUE' | translate"
+            [value]="stringifyRowValue(row.value)"
+            (valueChange)="row.value = $event"
+            [placeholder]="'FILTER.ENTER_VALUE' | translate"
+          />
         }
       } @else {
-        <input type="text" class="form-control form-control-sm" value="-" disabled />
+        <avl-input [label]="'FILTER.VALUE' | translate" value="-" [disabled]="true" />
       }
     </div>
 
     <div class="col-md-1">
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-danger w-100"
-        (click)="removeRow(row.id)"
+      <avl-icon-button
+        icon="ti ti-trash"
+        variant="outline"
+        (clicked)="removeRow(row.id)"
         [disabled]="rows.length === 1"
-        [title]="'COMMON.REMOVE' | translate"
-        [attr.aria-label]="'COMMON.REMOVE' | translate"
-      >
-        <i class="ti ti-trash" aria-hidden="true"></i>
-      </button>
+        [label]="'COMMON.REMOVE' | translate"
+      />
     </div>
   </div>
   }

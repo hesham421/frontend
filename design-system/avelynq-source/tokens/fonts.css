@@ -1,0 +1,10 @@
+/* ============================================================
+   AVELYNQ — Webfonts
+   IBM Plex family: engineered, disciplined, enterprise-grade.
+   - Plex Sans        → UI + display (geometric-humanist grotesque)
+   - Plex Mono        → data, codes, GL numbers, figures
+   - Plex Sans Arabic → bilingual EN/AR, RTL parity
+   Loaded from Google Fonts. To self-host, replace this @import
+   with local @font-face rules pointing at /assets/fonts.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');

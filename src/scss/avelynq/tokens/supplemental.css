@@ -1,0 +1,42 @@
+/* ============================================================
+   AVELYNQ — Supplemental Tokens (ERP-specific additions)
+   Everything in this file is NOT part of the upstream AVELYNQ
+   design system — it exists only because the ERP frontend has
+   needs the upstream token set doesn't cover. Each block below
+   documents why it exists so it doesn't get mistaken for an
+   upstream AVELYNQ token during a future design-system refresh.
+   ============================================================ */
+:root {
+  /* ---- Z-index scale ---------------------------------------
+     AVELYNQ ships no z-index scale in any of its token files
+     (colors/spacing/typography/elevation/breakpoints). This is
+     a straight rename of the former --erp-z-* scale — values
+     are unchanged, only the prefix moved off the retired
+     --erp- namespace. See design-system/TOKEN-MIGRATION-MAP.md
+     "Elevation" section for the NEEDS DECISION background.
+     ------------------------------------------------------------ */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+
+  /* ---- Brand secondary (Steel) -------------------------------
+     AVELYNQ's colors.css defines --steel-300/400/500 as a raw
+     scale step but never promotes a --brand-secondary semantic
+     alias the way it does for primary (blue) and accent (teal).
+     The former --erp-color-secondary token had no clean 1:1
+     target (see migration map, Colors section) — resolved by
+     building one from steel-400 (#AEB4BF), then deriving
+     hover/active by applying the SAME HSL-lightness step used
+     between AVELYNQ's own --blue-500 → --blue-600 → --blue-700
+     (a constant -7.2549 percentage-point L shift per step,
+     hue/saturation held constant) to steel-400.
+     ------------------------------------------------------------ */
+  --brand-secondary: var(--steel-400);        /* #AEB4BF */
+  --brand-secondary-hover: #99A1AF;            /* steel-400 L -7.25pp, same step as blue-500->600 */
+  --brand-secondary-active: #858E9E;           /* steel-400 L -14.51pp, same step as blue-500->700 */
+}

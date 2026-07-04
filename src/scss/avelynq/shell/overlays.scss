@@ -1,0 +1,315 @@
+/* ============================================================
+   AVELYNQ - Overlay primitives (Phase 3)
+   Visual treatment for Dialog/Drawer, built on CDK Overlay. Layout,
+   sizing, responsive docking, and animations come from the avl-dialog
+   and avl-drawer classes in src/scss/avelynq/tokens/responsive.css -
+   this file only adds colors/typography/spacing per Dialog.jsx and
+   Drawer.jsx.
+
+   Global (not component-scoped) because CDK Portal content is
+   attached dynamically from arbitrary calling components - Angular
+   view encapsulation does not scope styles across that boundary.
+   ============================================================ */
+
+// CDK's own overlay-prebuilt.css sets .cdk-overlay-container to
+// z-index:1000, below the mobile sidebar drawer's z-index:1100
+// (src/scss/avelynq/tokens/responsive.css). Raise it above the whole
+// shell z-index scale (supplemental.css tops out at --z-toast: 1080,
+// sidebar drawer at 1100) so a Dialog/Drawer always renders on top
+// even if the mobile nav drawer happens to be open underneath it.
+.cdk-overlay-container {
+  z-index: 1300;
+}
+
+// ---- Dialog / Drawer panel surface --------------------------------
+.avl-dialog__panel,
+.avl-drawer__panel {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+.avl-drawer__panel {
+  border: none; // Drawer.jsx uses border-inline-start only, not a full border
+  border-inline-start: 1px solid var(--border-subtle);
+}
+
+// ---- Native AVELYNQ header (title/subtitle/icon/close) ------------
+.avl-dialog__header,
+.avl-drawer__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3, 12px);
+  padding: var(--space-4, 16px) var(--space-5, 20px);
+  border-block-end: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.avl-dialog__icon-tile,
+.avl-drawer__icon-tile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md, 7px);
+  font-size: 20px;
+}
+
+.avl-dialog__titles,
+.avl-drawer__titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.avl-dialog__title,
+.avl-drawer__title {
+  font-size: var(--fs-title, 16px);
+  font-weight: var(--fw-semibold, 600);
+  color: var(--text-strong);
+  letter-spacing: var(--ls-heading, -0.01em);
+}
+
+.avl-dialog__subtitle,
+.avl-drawer__subtitle {
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.avl-dialog__close,
+.avl-drawer__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1;
+  padding: 2px;
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--text-body);
+  }
+}
+
+// Native body/footer, used when a native header is present
+.avl-dialog__body,
+.avl-drawer__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--space-5, 20px);
+  font-size: var(--fs-body, 14px);
+  color: var(--text-body);
+  line-height: var(--lh-normal, 1.5);
+}
+
+.avl-dialog__footer,
+.avl-drawer__footer {
+  padding: var(--space-3, 12px) var(--space-5, 20px);
+  border-block-start: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+// ---- Legacy Bootstrap modal content (self-rendered header/body/
+// footer, projected directly into the panel with no native header) --
+// Existing modal-content components/templates already use these
+// Bootstrap classes; reskinned here so both patterns look consistent
+// without requiring every legacy dialog to be rewritten in this phase.
+.avl-dialog__panel,
+.avl-drawer__panel {
+  > .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3, 12px);
+    padding: var(--space-4, 16px) var(--space-5, 20px);
+    border-block-end: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+
+    .modal-title {
+      font-size: var(--fs-title, 16px);
+      font-weight: var(--fw-semibold, 600);
+      color: var(--text-strong);
+      margin: 0;
+    }
+  }
+
+  > .modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: var(--space-5, 20px);
+    font-size: var(--fs-body, 14px);
+    color: var(--text-body);
+    line-height: var(--lh-normal, 1.5);
+  }
+
+  > .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-2, 8px);
+    padding: var(--space-3, 12px) var(--space-5, 20px);
+    border-block-start: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+  }
+
+  .btn-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1;
+    opacity: 1;
+
+    &::before {
+      content: '\ea61'; // ti-x codepoint
+      font-family: tabler-icons;
+    }
+
+    &:hover {
+      color: var(--text-body);
+    }
+  }
+}
+
+// ---- Icon tone helpers reused by legacy confirm-style content ------
+.avl-overlay-icon--danger { color: var(--red-600); }
+.avl-overlay-icon--warning { color: var(--amber-600); }
+.avl-overlay-icon--info { color: var(--blue-600); }
+.avl-overlay-icon--success { color: var(--green-600); }
+.avl-overlay-icon--neutral { color: var(--slate-600); }
+
+// ============================================================
+// AvlDropdown / AvlTypeahead panel (Phase 3 extension, no upstream
+// AVELYNQ spec — see design-system/avelynq-extensions/Dropdown.prompt.md)
+// Mirrors Dialog's surface treatment at a smaller footprint: same
+// surface/border/radius, lighter shadow tier (shadow-md not shadow-xl),
+// no scrim (transparent backdrop only, for outside-click detection).
+// ============================================================
+.avl-dropdown__panel {
+  min-width: 200px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md, 7px);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-1, 4px);
+  font-family: var(--font-sans);
+  animation: avl-dropdown-in var(--dur-fast, 120ms) var(--ease-standard, cubic-bezier(0.2, 0, 0.1, 1));
+}
+
+@keyframes avl-dropdown-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.avl-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  width: 100%;
+  padding: var(--space-2, 8px) var(--space-3, 12px);
+  border: none;
+  background: none;
+  border-radius: var(--radius-sm, 5px);
+  font-size: var(--fs-sm, 13px);
+  color: var(--text-body);
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--surface-hover);
+  }
+
+  &.active {
+    color: var(--brand-primary);
+  }
+}
+
+.avl-dropdown__divider {
+  height: 1px;
+  margin: var(--space-1, 4px) 0;
+  background: var(--border-subtle);
+}
+
+// ============================================================
+// AvlTooltip (Phase 3 extension, no upstream AVELYNQ spec — see
+// design-system/avelynq-extensions/Tooltip.prompt.md)
+// ============================================================
+.avl-tooltip__panel {
+  background: var(--surface-inverse);
+  color: var(--text-onbrand, #fff);
+  border-radius: var(--radius-sm, 5px);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-1, 4px) var(--space-2, 8px);
+  font-family: var(--font-sans);
+  font-size: var(--fs-2xs, 11px);
+  line-height: var(--lh-normal, 1.5);
+  max-width: 240px;
+  pointer-events: none;
+  animation: avl-dropdown-in var(--dur-fast, 120ms) var(--ease-standard, cubic-bezier(0.2, 0, 0.1, 1));
+}
+
+// ============================================================
+// AvlPagination (Phase 3 extension, no upstream AVELYNQ spec — see
+// design-system/avelynq-extensions/Pagination.prompt.md)
+// ============================================================
+.avl-pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 4px);
+  font-family: var(--font-sans);
+}
+
+.avl-pagination__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--control-sm, 30px);
+  height: var(--control-sm, 30px);
+  padding-inline: var(--space-2, 8px);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md, 7px);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-body);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--surface-hover);
+  }
+
+  &:disabled {
+    color: var(--text-subtle);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  &.active {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: var(--text-onbrand, #fff);
+  }
+}
+
+.avl-pagination--md .avl-pagination__btn {
+  height: var(--control-md, 38px);
+  min-width: var(--control-md, 38px);
+}
+
+.avl-pagination__info {
+  font-size: var(--fs-xs, 12px);
+  color: var(--text-muted);
+  margin-inline-end: var(--space-2, 8px);
+}
+
+.avl-pagination__ellipsis {
+  color: var(--text-subtle);
+  padding-inline: var(--space-1, 4px);
+}

@@ -11,28 +11,19 @@ import { IconDirective } from '@ant-design/icons-angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { SafeAntIconPipe } from './pipes/safe-ant-icon.pipe';
 
-// bootstrap import
-import {
-  NgbDropdownModule,
-  NgbNavModule,
-  NgbTooltipModule,
-  NgbModule,
-  NgbAccordionModule,
-  NgbCollapseModule,
-  NgbDatepickerModule
-} from '@ng-bootstrap/ng-bootstrap';
+// NOTE: ng-bootstrap (NgbDropdownModule/NgbNavModule/NgbTooltipModule/
+// NgbModule/NgbAccordionModule/NgbCollapseModule/NgbDatepickerModule) was
+// removed in Phase 3 — replaced by the CDK-Overlay-based AvlDropdown/
+// AvlTabs/AvlTooltip/Dialog/Drawer primitives in src/app/shared/overlay/
+// and src/app/shared/components/avl-tabs/. NgbAccordionModule,
+// NgbCollapseModule, and NgbDatepickerModule had zero real usages anywhere
+// in the app (confirmed via repo-wide search, design-system/
+// NGB-USAGE-INVENTORY.md) — dead imports, removed without replacement.
 
 @NgModule({
   declarations: [],
   imports: [
     CommonModule,
-    NgbDropdownModule,
-    NgbNavModule,
-    NgbTooltipModule,
-    NgbModule,
-    NgbAccordionModule,
-    NgbCollapseModule,
-    NgbDatepickerModule,
     NgScrollbarModule,
     FormsModule,
     ReactiveFormsModule,
@@ -43,13 +34,6 @@ import {
   ],
   exports: [
     CommonModule,
-    NgbDropdownModule,
-    NgbNavModule,
-    NgbTooltipModule,
-    NgbModule,
-    NgbAccordionModule,
-    NgbCollapseModule,
-    NgbDatepickerModule,
     NgScrollbarModule,
     FormsModule,
     ReactiveFormsModule,

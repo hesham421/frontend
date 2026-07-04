@@ -8,6 +8,7 @@
     "CREATE": "إنشاء",
     "UPDATE": "تحديث",
     "SEARCH": "بحث",
+    "LANGUAGE": "تغيير اللغة",
     "FILTER": "تصفية",
     "CLEAR": "مسح",
     "CLOSE": "إغلاق",

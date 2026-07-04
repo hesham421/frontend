@@ -11,6 +11,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { AvlCardComponent } from 'src/app/shared/data-display/avl-card/avl-card.component';
+import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
+import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
+
 /**
  * Generic item interface for the dual list.
  * Uses generic properties to remain entity-agnostic.
@@ -41,28 +45,29 @@ export interface DualListItem {
   imports: [
     CommonModule,
     FormsModule,
-    TranslateModule
+    TranslateModule,
+    AvlCardComponent,
+    AvlInputComponent,
+    AvlIconButtonComponent
   ],
   template: `
     <div class="erp-dual-list" [class.erp-dual-list--disabled]="disabled">
       <!-- Available Items Panel -->
-      <div class="erp-dual-list-panel">
-        <div class="erp-dual-list-header">
+      <avl-card class="erp-dual-list-panel" padding="none" [showHeader]="true">
+        <div card-header class="erp-dual-list-header-content">
           <span>{{ availableTitleKey | translate }}</span>
           <span class="erp-dual-list-count">({{ filteredAvailable().length }})</span>
         </div>
-        
+
         <div *ngIf="searchable" class="erp-dual-list-search">
-          <input
-            type="text"
-            class="form-control form-control-sm"
+          <avl-input
             [placeholder]="'COMMON.SEARCH' | translate"
             [disabled]="disabled"
-            [ngModel]="availableSearch()"
-            (ngModelChange)="onAvailableSearchChange($event)"
+            [value]="availableSearch()"
+            (valueChange)="onAvailableSearchChange($event)"
           />
         </div>
-        
+
         <div class="erp-dual-list-items" role="listbox" [attr.aria-label]="availableTitleKey | translate">
           <div
             *ngFor="let item of filteredAvailable(); trackBy: trackById"
@@ -79,76 +84,70 @@ export interface DualListItem {
               {{ item.secondaryLabel }}
             </span>
           </div>
-          
+
           <div *ngIf="filteredAvailable().length === 0" class="erp-dual-list-empty">
             {{ 'COMMON.NO_ITEMS' | translate }}
           </div>
         </div>
-      </div>
-      
+      </avl-card>
+
       <!-- Transfer Actions -->
       <div class="erp-dual-list-actions">
-        <button
-          type="button"
-          class="btn btn-outline-primary btn-sm"
+        <avl-icon-button
+          icon="ti ti-chevron-left"
+          variant="outline"
+          size="sm"
           [disabled]="disabled || selectedAvailableItems().size === 0"
-          [attr.aria-label]="'COMMON.ADD_SELECTED' | translate"
-          (click)="moveToSelected()"
-        >
-          <i class="ti ti-chevron-left" aria-hidden="true"></i>
-        </button>
-        
-        <button
+          [label]="'COMMON.ADD_SELECTED' | translate"
+          (clicked)="moveToSelected()"
+        />
+
+        <avl-icon-button
           *ngIf="!singleSelect"
-          type="button"
-          class="btn btn-outline-primary btn-sm"
+          icon="ti ti-chevrons-left"
+          variant="outline"
+          size="sm"
           [disabled]="disabled || filteredAvailable().length === 0"
-          [attr.aria-label]="'COMMON.ADD_ALL' | translate"
-          (click)="moveAllToSelected()"
-        >
-          <i class="ti ti-chevrons-left" aria-hidden="true"></i>
-        </button>
-        
-        <button
-          type="button"
-          class="btn btn-outline-primary btn-sm"
+          [label]="'COMMON.ADD_ALL' | translate"
+          (clicked)="moveAllToSelected()"
+        />
+
+        <avl-icon-button
+          icon="ti ti-chevron-right"
+          variant="outline"
+          size="sm"
           [disabled]="disabled || selectedSelectedItems().size === 0"
-          [attr.aria-label]="'COMMON.REMOVE_SELECTED' | translate"
-          (click)="moveToAvailable()"
-        >
-          <i class="ti ti-chevron-right" aria-hidden="true"></i>
-        </button>
-        
-        <button
+          [label]="'COMMON.REMOVE_SELECTED' | translate"
+          (clicked)="moveToAvailable()"
+        />
+
+        <avl-icon-button
           *ngIf="!singleSelect"
-          type="button"
-          class="btn btn-outline-primary btn-sm"
+          icon="ti ti-chevrons-right"
+          variant="outline"
+          size="sm"
           [disabled]="disabled || filteredSelected().length === 0"
-          [attr.aria-label]="'COMMON.REMOVE_ALL' | translate"
-          (click)="moveAllToAvailable()"
-        >
-          <i class="ti ti-chevrons-right" aria-hidden="true"></i>
-        </button>
+          [label]="'COMMON.REMOVE_ALL' | translate"
+          (clicked)="moveAllToAvailable()"
+        />
       </div>
-      
+
       <!-- Selected Items Panel -->
-      <div class="erp-dual-list-panel">
-        <div class="erp-dual-list-header">
+      <avl-card class="erp-dual-list-panel" padding="none" [showHeader]="true">
+        <div card-header class="erp-dual-list-header-content">
           <span>{{ selectedTitleKey | translate }}</span>
           <span class="erp-dual-list-count">({{ filteredSelected().length }})</span>
         </div>
-        
+
         <div *ngIf="searchable" class="erp-dual-list-search">
-          <input
-            type="text"
-            class="form-control form-control-sm"
+          <avl-input
             [placeholder]="'COMMON.SEARCH' | translate"
             [disabled]="disabled"
-            [ngModel]="selectedSearch()"
-            (ngModelChange)="onSelectedSearchChange($event)"
+            [value]="selectedSearch()"
+            (valueChange)="onSelectedSearchChange($event)"
           />
         </div>
-        
+
         <div class="erp-dual-list-items" role="listbox" [attr.aria-label]="selectedTitleKey | translate">
           <div
             *ngFor="let item of filteredSelected(); trackBy: trackById"
@@ -165,12 +164,12 @@ export interface DualListItem {
               {{ item.secondaryLabel }}
             </span>
           </div>
-          
+
           <div *ngIf="filteredSelected().length === 0" class="erp-dual-list-empty">
             {{ 'COMMON.NO_ITEMS' | translate }}
           </div>
         </div>
-      </div>
+      </avl-card>
     </div>
   `,
   styles: [`
@@ -181,7 +180,7 @@ export interface DualListItem {
     .erp-dual-list {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
-      gap: var(--erp-spacing-md, 1rem);
+      gap: var(--space-4, 16px);
       align-items: stretch;
     }
     
@@ -193,31 +192,25 @@ export interface DualListItem {
     .erp-dual-list-panel {
       display: flex;
       flex-direction: column;
-      border: 1px solid var(--erp-color-border, #dee2e6);
-      border-radius: var(--erp-radius-md, 0.375rem);
-      overflow: hidden;
-      background-color: var(--erp-color-bg, #fff);
     }
-    
-    .erp-dual-list-header {
+
+    .erp-dual-list-header-content {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: var(--erp-spacing-sm, 0.75rem);
-      padding: var(--erp-spacing-sm, 0.75rem) var(--erp-spacing-md, 1rem);
-      background-color: var(--erp-color-bg-subtle, #f8f9fa);
-      border-block-end: 1px solid var(--erp-color-border, #dee2e6);
-      font-size: var(--erp-font-size-sm, 0.875rem);
-      font-weight: var(--erp-font-weight-medium, 500);
+      gap: var(--space-3, 12px);
+      width: 100%;
+      font-size: var(--fs-body, 14px);
+      font-weight: var(--fw-medium, 500);
     }
-    
+
     .erp-dual-list-count {
-      color: var(--erp-color-text-muted, #6c757d);
+      color: var(--text-muted, #647488);
     }
-    
+
     .erp-dual-list-search {
-      padding: var(--erp-spacing-sm, 0.75rem);
-      border-block-end: 1px solid var(--erp-color-border, #dee2e6);
+      padding: var(--space-3, 12px);
+      border-block-end: 1px solid var(--border-subtle, #D4DDE7);
     }
     
     .erp-dual-list-items {
@@ -230,10 +223,10 @@ export interface DualListItem {
     .erp-dual-list-item {
       display: flex;
       flex-direction: column;
-      gap: var(--erp-spacing-xxs, 0.25rem);
-      padding: var(--erp-spacing-xs, 0.5rem) var(--erp-spacing-md, 1rem);
+      gap: var(--space-1, 4px);
+      padding: var(--space-2, 8px) var(--space-4, 16px);
       cursor: pointer;
-      transition: background-color var(--erp-transition-fast, 150ms ease-in-out);
+      transition: background-color var(--dur-fast, 120ms) var(--ease-standard, cubic-bezier(0.2, 0, 0.1, 1));
       border-block-end: 1px solid var(--erp-color-border-light, rgba(0,0,0,0.05));
     }
     
@@ -242,15 +235,15 @@ export interface DualListItem {
     }
     
     .erp-dual-list-item:hover:not(.erp-dual-list-item--disabled) {
-      background-color: var(--erp-color-bg-subtle, #f8f9fa);
+      background-color: var(--surface-hover, #F1F5F9);
     }
-    
+
     .erp-dual-list-item--selected {
-      background-color: rgba(13, 110, 253, 0.1);
+      background-color: var(--surface-brand-subtle, #EAF1FE);
     }
-    
+
     .erp-dual-list-item--selected:hover {
-      background-color: rgba(13, 110, 253, 0.15) !important;
+      background-color: color-mix(in srgb, var(--brand-primary, #2466D8) 15%, var(--surface-card, #FFFFFF)) !important;
     }
     
     .erp-dual-list-item--disabled {
@@ -259,44 +252,40 @@ export interface DualListItem {
     }
     
     .erp-dual-list-item-label {
-      font-size: var(--erp-font-size-sm, 0.875rem);
-      color: var(--erp-color-text, inherit);
+      font-size: var(--fs-body, 14px);
+      color: var(--text-strong, inherit);
     }
     
     .erp-dual-list-item-secondary {
-      font-size: var(--erp-font-size-xs, 0.75rem);
-      color: var(--erp-color-text-muted, #6c757d);
+      font-size: var(--fs-xs, 12px);
+      color: var(--text-muted, #647488);
     }
     
     .erp-dual-list-empty {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: var(--erp-spacing-lg, 1.5rem);
-      color: var(--erp-color-text-muted, #6c757d);
-      font-size: var(--erp-font-size-sm, 0.875rem);
+      padding: var(--space-6, 24px);
+      color: var(--text-muted, #647488);
+      font-size: var(--fs-body, 14px);
     }
     
     .erp-dual-list-actions {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: var(--erp-spacing-xs, 0.5rem);
+      gap: var(--space-2, 8px);
     }
     
     @media (max-width: 768px) {
       .erp-dual-list {
         grid-template-columns: 1fr;
-        gap: var(--erp-spacing-sm, 0.75rem);
+        gap: var(--space-3, 12px);
       }
       
       .erp-dual-list-actions {
         flex-direction: row;
         justify-content: center;
-      }
-      
-      .erp-dual-list-actions .fas {
-        transform: rotate(90deg);
       }
     }
   `],

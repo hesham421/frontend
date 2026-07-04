@@ -1,12 +1,15 @@
 // angular import
-import { Component, Input, OnInit, output, inject } from '@angular/core';
+import { Component, Input, OnInit, output, inject, signal, computed } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 // project import
 import { AuthenticationService } from 'src/app/core/services/authentication.service';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { ScrollbarComponent } from 'src/app/theme/shared/components/scrollbar/scrollbar.component';
 import { LanguageService, SupportedLanguage } from 'src/app/core/services/language.service';
+import { AvlDropdownDirective, AvlDropdownToggleDirective, AvlDropdownItemDirective } from 'src/app/shared/overlay/dropdown/dropdown.directive';
+import { AvlTabsComponent, TabItem } from 'src/app/shared/components/avl-tabs/avl-tabs.component';
 
 // third party
 import screenfull from 'screenfull';
@@ -41,7 +44,7 @@ import {
 
 @Component({
   selector: 'app-nav-right',
-  imports: [SharedModule, RouterModule, ScrollbarComponent],
+  imports: [SharedModule, RouterModule, ScrollbarComponent, AvlDropdownDirective, AvlDropdownToggleDirective, AvlDropdownItemDirective, AvlTabsComponent],
   templateUrl: './nav-right.component.html',
   styleUrls: ['./nav-right.component.scss']
 })
@@ -50,12 +53,25 @@ export class NavRightComponent implements OnInit {
   languageService = inject(LanguageService);
   private iconService = inject(IconService);
   private router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   // public props
   @Input() styleSelectorToggle!: boolean;
   readonly Customize = output();
   windowWidth: number;
   screenFull: boolean = true;
+
+  // Profile/Settings tab strip inside the user-profile dropdown (replaces
+  // ngbNav) — recomputed on language change since AvlTabsComponent takes
+  // plain translated strings, not translation keys.
+  readonly profileTabs = computed<TabItem[]>(() => {
+    this.languageService.languageVersion(); // reactive dependency
+    return [
+      { id: 'profile', label: this.translate.instant('NAVIGATION.PROFILE'), icon: 'ti ti-user' },
+      { id: 'settings', label: this.translate.instant('NAVIGATION.SETTINGS'), icon: 'ti ti-settings' }
+    ];
+  });
+  readonly activeProfileTab = signal<string>('profile');
 
   // constructor
   constructor() {

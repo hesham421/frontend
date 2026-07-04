@@ -1,42 +1,19 @@
 <ul class="list-unstyled">
-  <li class="pc-h-item pc-sidebar-collapse">
+  <li class="pc-h-item pc-sidebar-collapse avl-hide-lg-down">
     <a
       href="javascript:"
       title="click to menu collapse"
-      class="pc-head-link ms-0"
+      class="pc-head-link ms-0 avl-menu-btn-desktop"
       [ngClass]="{ on: navCollapsed }"
       id="sidebar-hide mobile-collapse"
       (click)="navCollapse()"
     >
-      @if (navCollapsed === true) {
-        <i antIcon type="menu-unfold" theme="outline"></i>
-      } @else {
-        <i antIcon type="menu-fold" theme="outline"></i>
-      }
+      <i class="ti" [ngClass]="navCollapsed ? 'ti-layout-sidebar-right-expand' : 'ti-layout-sidebar-left-expand'"></i>
     </a>
   </li>
   <li class="pc-h-item pc-sidebar-popup">
-    <a href="javascript:" class="pc-head-link ms-0" id="mobile-collapse1" (click)="navCollapsedMob()">
-      <i antIcon type="menu-fold" theme="outline"></i>
+    <a href="javascript:" title="Open menu" class="pc-head-link ms-0 avl-menu-btn" id="mobile-collapse1" (click)="navCollapsedMob()">
+      <i class="ti ti-menu-2"></i>
     </a>
-  </li>
-  <li class="dropdown pc-h-item d-inline-flex d-md-none" ngbDropdown>
-    <a href="javascript:" class="pc-head-link dropdown-toggle arrow-none m-0" ngbDropdownToggle>
-      <i class="ti ti-search"></i>
-    </a>
-    <div class="dropdown-menu dropdowm-menu-end pc-h-dropdown drp-search" ngbDropdownMenu>
-      <form class="px-3">
-        <div class="form-group mb-0 d-flex align-items-center">
-          <i class="search f-12" antIcon type="search" theme="outline"></i>
-          <input type="search" class="form-control border-0 shadow-none" placeholder="Ctrl + K" />
-        </div>
-      </form>
-    </div>
-  </li>
-  <li class="pc-h-item d-none d-md-inline-flex">
-    <form class="header-search">
-      <i class="search f-12" antIcon type="search" theme="outline"></i>
-      <input type="search" class="form-control" placeholder="Ctrl + K" />
-    </form>
   </li>
 </ul>

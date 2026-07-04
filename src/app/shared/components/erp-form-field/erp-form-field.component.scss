@@ -1,23 +1,29 @@
 .erp-form-field {
   display: grid;
-  gap: var(--erp-form-label-gap, 0.35rem);
+  gap: 6px;
+  font-family: var(--font-sans);
 }
 
 .erp-form-field__label {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--erp-spacing-xxs, 0.25rem);
-  font-weight: var(--erp-font-weight-semibold, 600);
+  gap: var(--space-1, 4px);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--text-body);
+  letter-spacing: 0.01em;
 }
 
 .erp-form-field__required {
-  color: var(--erp-color-danger, #dc3545);
+  color: var(--red-500);
 }
 
 .erp-form-field__hint {
-  color: var(--erp-color-text-muted, rgba(33, 37, 41, 0.75));
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
 }
 
 .erp-form-field__error {
-  color: var(--erp-color-danger, #dc3545);
+  font-size: var(--fs-xs);
+  color: var(--red-600);
 }

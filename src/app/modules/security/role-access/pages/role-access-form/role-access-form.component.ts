@@ -5,6 +5,8 @@ import {
   DestroyRef,
   OnInit,
   OnDestroy,
+  TemplateRef,
+  ViewContainerRef,
   effect,
   inject,
   untracked
@@ -14,7 +16,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { DrawerService } from 'src/app/shared/overlay/drawer/drawer.service';
+import { DialogService } from 'src/app/shared/overlay/dialog/dialog.service';
+import { AvlOverlayRef } from 'src/app/shared/overlay/avl-overlay-ref';
 
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { ErpFormFieldComponent } from 'src/app/shared/components/erp-form-field/erp-form-field.component';
@@ -63,7 +67,9 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
   private readonly location = inject(Location);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly modalService = inject(NgbModal);
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly drawerService = inject(DrawerService);
+  private readonly overlayDialogService = inject(DialogService);
 
   readonly translate = inject(TranslateService);
   readonly languageService = inject(LanguageService);
@@ -79,8 +85,8 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
 
   permissions: RolePagePermissionDto[] = [];
 
-  addPagesModalRef: NgbModalRef | null = null;
-  copyFromModalRef: NgbModalRef | null = null;
+  addPagesModalRef: AvlOverlayRef | null = null;
+  copyFromModalRef: AvlOverlayRef | null = null;
 
   dualListAvailableItems: DualListItem[] = [];
   dualListSelectedItems: DualListItem[] = [];
@@ -261,7 +267,7 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
     confirmRemoveRolePage(deps, this.roleId, pageCode, () => {});
   }
 
-  openAddPagesModal(content: any): void {
+  openAddPagesModal(content: TemplateRef<unknown>): void {
     if (!this.roleId) return;
 
     const assigned = new Set(this.permissions.map((p) => p.pageCode));
@@ -276,7 +282,9 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
     this.dualListAvailableItems = available;
     this.dualListSelectedItems = [];
 
-    this.addPagesModalRef = this.modalService.open(content, { size: 'lg', centered: true });
+    // Drawer, not Dialog: a dual-list picker has more than a couple of
+    // fields and benefits from keeping context visible (Drawer.prompt.md).
+    this.addPagesModalRef = this.drawerService.open(content, { size: 'lg', viewContainerRef: this.viewContainerRef });
   }
 
   onPagesSelectionChanged(selectedItems: DualListItem[]): void {
@@ -305,11 +313,12 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  openCopyFromModal(content: any): void {
+  openCopyFromModal(content: TemplateRef<unknown>): void {
     if (!this.roleId) return;
     this.selectedSourceRoleId = null;
 
-    this.copyFromModalRef = this.modalService.open(content, { size: 'md', centered: true });
+    // Dialog, not Drawer: a single role-selector is a short, focused prompt.
+    this.copyFromModalRef = this.overlayDialogService.open(content, { size: 'md', viewContainerRef: this.viewContainerRef });
   }
 
   onCopyFromConfirm(): void {

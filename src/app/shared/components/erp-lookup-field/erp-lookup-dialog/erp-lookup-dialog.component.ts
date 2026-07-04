@@ -11,7 +11,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { NgbActiveModal, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
 
@@ -21,6 +20,11 @@ import {
   LookupItem
 } from 'src/app/core/lookup/lookup.model';
 import { LookupDataService } from 'src/app/core/lookup/lookup-data.service';
+import { AvlOverlayRef } from 'src/app/shared/overlay/avl-overlay-ref';
+import { AvlPaginationComponent } from 'src/app/shared/components/avl-pagination/avl-pagination.component';
+import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
+import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
 
 type SortDirection = 'ASC' | 'DESC' | null;
 
@@ -33,14 +37,14 @@ type SortDirection = 'ASC' | 'DESC' | null;
  *  - Sortable columns
  *  - Search filtering
  *
- * Opened via NgbModal. Returns the selected LookupItem on close.
+ * Opened via DialogService. Returns the selected LookupItem on close.
  *
  * @architecture Shared layer — UI only, delegates HTTP to LookupDataService
  */
 @Component({
   selector: 'erp-lookup-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, NgbPaginationModule],
+  imports: [CommonModule, FormsModule, TranslateModule, AvlPaginationComponent, AvlInputComponent, AvlIconButtonComponent, AvlButtonComponent],
   templateUrl: './erp-lookup-dialog.component.html',
   styleUrls: ['./erp-lookup-dialog.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -49,7 +53,7 @@ export class ErpLookupDialogComponent implements OnInit, OnDestroy {
   /** Set externally by the modal opener */
   @Input() config!: LookupConfig;
 
-  private readonly activeModal = inject(NgbActiveModal);
+  private readonly activeModal = inject(AvlOverlayRef<LookupItem | undefined>);
   private readonly lookupService = inject(LookupDataService);
 
   // ── State (Signals) ──────────────────────────────────────────────

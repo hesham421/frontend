@@ -8,7 +8,8 @@
       [routerLinkActive]="['active']"
       [ngClass]="{ disabled: !isEnabled }"
       [ngClass]="item().groupClasses"
-      ngbTooltip="{{ !isEnabled ? 'You do not have permission to access this page ' : '' }}"
+      [avlTooltip]="'You do not have permission to access this page'"
+      [avlTooltipDisabled]="isEnabled"
     >
       <a [routerLinkActive]="['active']" href="javascript:" class="arrow-edge nav-link">
         <ng-container *ngTemplateOutlet="itemContent"></ng-container>
@@ -22,7 +23,8 @@
     <li
       class="nav-item coded-hasmenu"
       [routerLinkActive]="['active']"
-      ngbTooltip="{{ !isEnabled ? 'You do not have permission to access this page ' : '' }}"
+      [avlTooltip]="'You do not have permission to access this page'"
+      [avlTooltipDisabled]="isEnabled"
     >
       <a
         [routerLinkActive]="['active']"

@@ -1,0 +1,20 @@
+/* ============================================================
+   AVELYNQ — Token Layer Entry Point
+   Import order matters: fonts first (so font tokens exist before
+   typography references family stacks), then the four upstream
+   token categories, then supplemental (ERP-only additions) last
+   so it can build on anything above it if ever needed.
+   ============================================================ */
+/* NOTE: these are plain-CSS passthrough imports (Sass does not inline or
+   rebase relative paths for .css targets), so paths are written relative
+   to src/ — the directory these end up resolved against once inlined
+   into styles.scss's compiled output — matching the existing
+   `scss/fonts/*.css` import style already used there. */
+@import 'scss/avelynq/tokens/fonts.css';
+@import 'scss/avelynq/tokens/colors.css';
+@import 'scss/avelynq/tokens/typography.css';
+@import 'scss/avelynq/tokens/spacing.css';
+@import 'scss/avelynq/tokens/elevation.css';
+@import 'scss/avelynq/tokens/breakpoints.css';
+@import 'scss/avelynq/tokens/responsive.css';
+@import 'scss/avelynq/tokens/supplemental.css';

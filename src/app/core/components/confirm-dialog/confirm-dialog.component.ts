@@ -1,12 +1,14 @@
 import { Component, ChangeDetectionStrategy, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { AvlOverlayRef } from 'src/app/shared/overlay/avl-overlay-ref';
 
 /**
  * Confirm Dialog Component
- * 
+ *
  * Reusable confirmation modal with customizable title, message, and buttons.
+ * Opened via DialogService (see ErpDialogService/ConfirmDialogService) —
+ * previously ngbModal/NgbActiveModal.
  */
 @Component({
   selector: 'app-confirm-dialog',
@@ -51,52 +53,52 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   `,
   styles: [`
     .modal-header {
-      border-bottom: 1px solid var(--surface-border);
+      border-bottom: 1px solid var(--border-subtle);
     }
-    
+
     .modal-body {
-      padding: 1.5rem;
+      padding: var(--space-6, 24px);
     }
-    
+
     .modal-footer {
-      border-top: 1px solid var(--surface-border);
-      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-subtle);
+      padding: var(--space-4, 16px) var(--space-6, 24px);
     }
-    
+
     .confirm-content {
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
     }
-    
+
     .confirm-icon {
       font-size: 3rem;
-      margin-bottom: 1rem;
+      margin-bottom: var(--space-4, 16px);
     }
-    
+
     .type-danger .confirm-icon {
-      color: var(--red-500, #dc3545);
+      color: var(--status-danger, #A92E23);
     }
-    
+
     .type-warning .confirm-icon {
-      color: var(--yellow-500, #ffc107);
+      color: var(--status-warning, #A4640A);
     }
-    
+
     .type-info .confirm-icon {
-      color: var(--blue-500, #0d6efd);
+      color: var(--status-info, #1B54BC);
     }
-    
+
     .confirm-message {
-      font-size: 1rem;
+      font-size: var(--fs-body, 14px);
       margin: 0;
-      color: var(--text-color);
+      color: var(--text-body);
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConfirmDialogComponent {
-  private readonly activeModal = inject(NgbActiveModal);
+  private readonly activeModal = inject(AvlOverlayRef<boolean>);
 
   @Input() titleKey = 'COMMON.CONFIRM';
   @Input() messageKey = '';
@@ -108,11 +110,11 @@ export class ConfirmDialogComponent {
   get iconClass(): string {
     switch (this.type) {
       case 'danger':
-        return 'fas fa-exclamation-triangle';
+        return 'ti ti-alert-triangle';
       case 'info':
-        return 'fas fa-info-circle';
+        return 'ti ti-info-circle';
       default:
-        return 'fas fa-question-circle';
+        return 'ti ti-help';
     }
   }
 

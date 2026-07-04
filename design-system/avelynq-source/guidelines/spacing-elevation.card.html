@@ -1,0 +1,20 @@
+<!-- @dsCard group="Spacing" viewport="700x170" name="Elevation" subtitle="Navy-tinted shadows — low, disciplined, composed" -->
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8" />
+<link rel="stylesheet" href="../styles.css" />
+<style>
+  body{margin:0;padding:26px 24px;background:var(--surface-page);font-family:var(--font-sans);}
+  .row{display:flex;gap:24px;align-items:center;}
+  .item{display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .box{width:96px;height:64px;background:#fff;border-radius:var(--radius-lg);border:1px solid var(--border-subtle);}
+  .n{font-family:var(--font-mono);font-size:11px;color:var(--text-muted);}
+</style></head>
+<body>
+<div class="row">
+  <div class="item"><div class="box" style="box-shadow:var(--shadow-xs)"></div><div class="n">xs</div></div>
+  <div class="item"><div class="box" style="box-shadow:var(--shadow-sm)"></div><div class="n">sm · card</div></div>
+  <div class="item"><div class="box" style="box-shadow:var(--shadow-md)"></div><div class="n">md · hover</div></div>
+  <div class="item"><div class="box" style="box-shadow:var(--shadow-lg)"></div><div class="n">lg · popover</div></div>
+  <div class="item"><div class="box" style="box-shadow:var(--shadow-xl)"></div><div class="n">xl · modal</div></div>
+</div>
+</body></html>

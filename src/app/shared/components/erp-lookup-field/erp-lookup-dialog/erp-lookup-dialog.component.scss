@@ -3,11 +3,11 @@
     cursor: pointer;
     user-select: none;
     white-space: nowrap;
-    font-size: var(--erp-font-size-sm, 0.875rem);
-    font-weight: var(--erp-font-weight-semibold, 600);
+    font-size: var(--fs-body, 14px);
+    font-weight: var(--fw-semibold, 600);
 
     &:hover {
-      background-color: var(--erp-color-bg-subtle, #f8f9fa);
+      background-color: var(--surface-hover, #F1F5F9);
     }
   }
 
@@ -15,7 +15,7 @@
     cursor: pointer;
 
     &:hover {
-      background-color: var(--erp-color-bg-subtle, #f8f9fa) !important;
+      background-color: var(--surface-hover, #F1F5F9) !important;
     }
   }
 }

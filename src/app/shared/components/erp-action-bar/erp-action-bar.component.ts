@@ -2,10 +2,12 @@ import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from 
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
+
 @Component({
   selector: 'erp-action-bar',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, AvlButtonComponent],
   templateUrl: './erp-action-bar.component.html',
   styleUrl: './erp-action-bar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

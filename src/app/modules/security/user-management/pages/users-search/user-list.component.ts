@@ -1,7 +1,8 @@
-import { Component, OnInit, OnDestroy, ViewChild, TemplateRef, inject, effect, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef, NgZone, DestroyRef, untracked } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ViewContainerRef, TemplateRef, inject, effect, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef, NgZone, DestroyRef, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { DrawerService } from 'src/app/shared/overlay/drawer/drawer.service';
+import { AvlOverlayRef } from 'src/app/shared/overlay/avl-overlay-ref';
 import { CellClickedEvent } from 'ag-grid-community';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -70,7 +71,8 @@ registerErpAgGridModules();
 })
 export class UserListComponent extends ErpListComponent implements OnInit, OnDestroy {
   private themeService = inject(ThemeService);
-  private modalService = inject(NgbModal);
+  private drawerService = inject(DrawerService);
+  private viewContainerRef = inject(ViewContainerRef);
   private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
   private zone = inject(NgZone);
@@ -104,7 +106,7 @@ export class UserListComponent extends ErpListComponent implements OnInit, OnDes
   // Delete state
   deleteSubmitting = signal(false);
 
-  private formModalRef: NgbModalRef | null = null;
+  private formModalRef: AvlOverlayRef | null = null;
 
   showAdvancedFilters = signal(false);
 
@@ -353,14 +355,16 @@ export class UserListComponent extends ErpListComponent implements OnInit, OnDes
     // Force change detection
     this.cdr.detectChanges();
     
-    let modalRef: NgbModalRef;
+    // Drawer, not Dialog: this is a create/edit form (Drawer.prompt.md's
+    // own example use case).
+    let modalRef: AvlOverlayRef;
     try {
-      modalRef = this.modalService.open(content, { size: 'md', centered: true });
+      modalRef = this.drawerService.open(content, { size: 'md', viewContainerRef: this.viewContainerRef });
     } catch (e) {
       this.notificationService.error('ERRORS.OPERATION_FAILED');
       return;
     }
-    
+
     // Reset form when modal is dismissed/closed (always handle rejection to avoid unhandled promise)
     modalRef.result.then(() => undefined, () => undefined).finally(() => {
       this.userForm = { username: '', password: '', enabled: true, roles: [] };
@@ -382,8 +386,10 @@ export class UserListComponent extends ErpListComponent implements OnInit, OnDes
     this.prepareDualListItems();
     this.cdr.markForCheck();
 
+    // Drawer, not Dialog: a dual-list picker (matches the "Add Pages"
+    // precedent in role-access-form.component.ts).
     try {
-      this.modalService.open(this.rolesModalRef, { size: 'lg', centered: true, scrollable: true });
+      this.drawerService.open(this.rolesModalRef, { size: 'lg', viewContainerRef: this.viewContainerRef });
     } catch (e) {
       this.notificationService.error('ERRORS.OPERATION_FAILED');
     }
@@ -418,9 +424,9 @@ export class UserListComponent extends ErpListComponent implements OnInit, OnDes
       return;
     }
 
-    let modalRef: NgbModalRef;
+    let modalRef: AvlOverlayRef;
     try {
-      modalRef = this.modalService.open(this.createUserModalRef, { size: 'md', centered: true });
+      modalRef = this.drawerService.open(this.createUserModalRef, { size: 'md', viewContainerRef: this.viewContainerRef });
     } catch (e) {
       this.notificationService.error('ERRORS.OPERATION_FAILED');
       return;
@@ -439,7 +445,7 @@ export class UserListComponent extends ErpListComponent implements OnInit, OnDes
     });
   }
 
-  createUser(modal: NgbModalRef): void {
+  createUser(modal: AvlOverlayRef): void {
     this.userForm.username = this.userForm.username?.trim() || '';
     if (!this.userForm.username || this.userForm.username.length < 3) {
       this.formError.set(this.userForm.username

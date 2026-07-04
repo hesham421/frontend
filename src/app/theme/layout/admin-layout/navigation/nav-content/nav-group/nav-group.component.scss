@@ -18,9 +18,9 @@
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
     border-top: 5px solid currentColor;
-    transition: transform var(--erp-transition-fast, 200ms ease-in-out);
+    transition: transform var(--dur-fast, 120ms) var(--ease-standard, cubic-bezier(0.2, 0, 0.1, 1));
     opacity: 0.5;
-    margin-inline-start: var(--erp-spacing-xxs, 4px);
+    margin-inline-start: var(--space-1, 4px);
 
     &.collapsed {
       transform: rotate(-90deg);
@@ -36,7 +36,7 @@
   overflow: hidden;
   max-height: 2000px;
   opacity: 1;
-  transition: max-height var(--erp-transition-slow, 300ms ease-in-out), opacity var(--erp-transition-fast, 200ms ease-in-out);
+  transition: max-height var(--dur-slow, 280ms) var(--ease-standard, cubic-bezier(0.2, 0, 0.1, 1)), opacity var(--dur-fast, 120ms) var(--ease-standard, cubic-bezier(0.2, 0, 0.1, 1));
 
   &.group-collapsed {
     max-height: 0;

@@ -1,0 +1,88 @@
+<!-- @dsCard group="Components" viewport="700x460" name="Dialog & Drawer" subtitle="Responsive modal + side panel — bottom sheet / full-screen on phones, RTL-aware" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../../styles.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--surface-page); font-family: var(--font-sans); }
+  #root { height: 100%; }
+  /* keep the fixed overlays contained within the card frame */
+  .avl-dialog, .avl-drawer { position: absolute; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { Dialog, Drawer, Button, Input, Select, Badge } = window.AVELONDesignSystem_a21abd;
+  function Row({ k, v }) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '9px 0', borderBottom: '1px solid var(--border-subtle)' }}>
+        <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{k}</span>
+        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-strong)', fontFamily: k === 'Code' ? 'var(--font-mono)' : 'inherit' }}>{v}</span>
+      </div>
+    );
+  }
+  function Demo() {
+    const [open, setOpen] = React.useState('details');
+    const [rtl, setRtl] = React.useState(false);
+    return (
+      <div dir={rtl ? 'rtl' : 'ltr'} style={{ height: '100%' }}>
+        <div style={{ display: 'flex', gap: '8px', padding: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <Button size="sm" variant={open === 'details' ? 'primary' : 'secondary'} onClick={() => setOpen('details')}>Details drawer</Button>
+          <Button size="sm" variant={open === 'filters' ? 'primary' : 'secondary'} onClick={() => setOpen('filters')}>Filters drawer</Button>
+          <Button size="sm" variant={open === 'confirm' ? 'primary' : 'secondary'} onClick={() => setOpen('confirm')}>Confirm dialog</Button>
+          <span style={{ flex: 1 }} />
+          <Button size="sm" variant="ghost" iconLeft={<i className="ti ti-arrows-left-right" />} onClick={() => setRtl((r) => !r)}>{rtl ? 'RTL' : 'LTR'}</Button>
+        </div>
+
+        <Drawer open={open === 'details'} onClose={() => setOpen(null)} size="md"
+          icon="ti ti-file-description" title="Marketing & Advertising" subtitle="5300-0100 · Expense"
+          footer={<>
+            <Button variant="secondary" onClick={() => setOpen(null)}>Close</Button>
+            <Button variant="primary" iconLeft={<i className="ti ti-pencil" />} onClick={() => setOpen(null)}>Edit</Button>
+          </>}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+            <Badge tone="danger">Expense</Badge><Badge tone="success" icon="ti ti-circle-check">Active</Badge>
+          </div>
+          <Row k="Code" v="5300-0100" />
+          <Row k="Parent" v="Expenses" />
+          <Row k="Currency" v="SAR" />
+          <Row k="Normal balance" v="Debit" />
+          <Row k="Balance" v="38,215.40" />
+        </Drawer>
+
+        <Drawer open={open === 'filters'} onClose={() => setOpen(null)} size="sm"
+          icon="ti ti-filter" title="Filter accounts" subtitle="Finance · General Ledger"
+          footer={<>
+            <Button variant="ghost" onClick={() => setOpen(null)}>Reset</Button>
+            <Button variant="primary" iconLeft={<i className="ti ti-check" />} onClick={() => setOpen(null)}>Apply filters</Button>
+          </>}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <Select label="Account type" placeholder="All types" options={['Asset', 'Liability', 'Equity', 'Revenue', 'Expense']} />
+            <Select label="Status" placeholder="Any" options={['Active', 'Inactive']} />
+            <Input label="Balance ≥" mono suffix="SAR" placeholder="0.00" />
+          </div>
+        </Drawer>
+
+        <Dialog open={open === 'confirm'} onClose={() => setOpen(null)} size="sm"
+          icon="ti ti-alert-triangle" iconTone="danger" title="Deactivate account?" subtitle="5300-0100"
+          footer={<>
+            <Button variant="secondary" onClick={() => setOpen(null)}>Cancel</Button>
+            <Button variant="danger" iconLeft={<i className="ti ti-ban" />} onClick={() => setOpen(null)}>Deactivate</Button>
+          </>}>
+          This account has <strong>3 unposted journals</strong>. Deactivating prevents new postings but preserves history.
+        </Dialog>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script>
+</body>
+</html>

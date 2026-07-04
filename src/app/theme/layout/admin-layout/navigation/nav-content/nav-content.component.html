@@ -43,13 +43,15 @@
           <span>{{ this.authenticationService.currentUserName }}</span>
           <p class="mb-0 text-muted">{{ authenticationService.currentUserValue?.roles?.[0] || '' }}</p>
         </div>
-        <div class="avatar avatar-xs btn-link-secondary" ngbDropdown>
-          <i antIcon theme="outline" type="right" ngbDropdownToggle></i>
-          <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-            <button ngbDropdownItem (click)="logout()">{{ 'NAVIGATION.LOGOUT' | translate }}</button>
-            <button ngbDropdownItem [routerLink]="['/user/user-profile']">{{ 'NAVIGATION.PROFILE' | translate }}</button>
-            <button ngbDropdownItem [routerLink]="['/user/account-profile']">{{ 'NAVIGATION.MY_ACCOUNT' | translate }}</button>
-          </div>
+        <div class="avatar avatar-xs btn-link-secondary" avlDropdown>
+          <i class="ti ti-chevron-right" avlDropdownToggle></i>
+          <ng-template>
+            <div class="avl-dropdown__panel">
+              <button avlDropdownItem class="avl-dropdown__item" (click)="logout()">{{ 'NAVIGATION.LOGOUT' | translate }}</button>
+              <button avlDropdownItem class="avl-dropdown__item" [routerLink]="['/user/user-profile']">{{ 'NAVIGATION.PROFILE' | translate }}</button>
+              <button avlDropdownItem class="avl-dropdown__item" [routerLink]="['/user/account-profile']">{{ 'NAVIGATION.MY_ACCOUNT' | translate }}</button>
+            </div>
+          </ng-template>
         </div>
       </div>
     </ul>

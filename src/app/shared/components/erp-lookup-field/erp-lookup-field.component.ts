@@ -16,13 +16,15 @@ import {
   NG_VALUE_ACCESSOR
 } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs';
 
 import { LookupConfig, LookupItem } from 'src/app/core/lookup/lookup.model';
 import { LookupDataService } from 'src/app/core/lookup/lookup-data.service';
 import { ErpAutocompleteComponent } from './erp-autocomplete/erp-autocomplete.component';
 import { ErpLookupDialogComponent } from './erp-lookup-dialog/erp-lookup-dialog.component';
+import { DialogService } from 'src/app/shared/overlay/dialog/dialog.service';
+import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
+import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
 
 /**
  * ErpLookupFieldComponent
@@ -50,7 +52,7 @@ import { ErpLookupDialogComponent } from './erp-lookup-dialog/erp-lookup-dialog.
 @Component({
   selector: 'erp-lookup-field',
   standalone: true,
-  imports: [CommonModule, TranslateModule, ErpAutocompleteComponent],
+  imports: [CommonModule, TranslateModule, ErpAutocompleteComponent, AvlInputComponent, AvlIconButtonComponent],
   templateUrl: './erp-lookup-field.component.html',
   styleUrls: ['./erp-lookup-field.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,7 +72,7 @@ export class ErpLookupFieldComponent implements ControlValueAccessor, OnInit, On
   @Output() itemSelected = new EventEmitter<LookupItem>();
 
   private readonly lookupService = inject(LookupDataService);
-  private readonly modalService = inject(NgbModal);
+  private readonly dialogService = inject(DialogService);
 
   // ── Internal State ───────────────────────────────────────────────
 
@@ -149,11 +151,10 @@ export class ErpLookupFieldComponent implements ControlValueAccessor, OnInit, On
   openDialog(): void {
     if (this.isDisabled()) return;
 
-    const modalRef = this.modalService.open(ErpLookupDialogComponent, {
-      centered: true,
+    const modalRef = this.dialogService.open(ErpLookupDialogComponent, {
       size: 'lg',
-      backdrop: 'static',
-      keyboard: true
+      closeOnScrim: false,
+      closeOnEscape: true
     });
 
     modalRef.componentInstance.config = this.config;

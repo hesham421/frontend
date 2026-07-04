@@ -8,35 +8,31 @@
   ></erp-autocomplete>
 } @else {
   <!-- Advanced Mode: Input with Dialog Trigger -->
-  <div class="input-group">
-    <input
-      type="text"
-      class="form-control"
+  <div class="erp-lookup-field__row">
+    <avl-input
+      class="erp-lookup-field__input"
+      iconLeft="ti ti-search"
       [value]="displayText()"
-      [attr.placeholder]="(config.placeholderKey || 'LOOKUP.SEARCH_PLACEHOLDER') | translate"
+      [placeholder]="(config.placeholderKey || 'LOOKUP.SEARCH_PLACEHOLDER') | translate"
       [disabled]="isDisabled()"
-      readonly
+      [readOnly]="true"
     />
     <!-- Search Button (opens dialog) -->
-    <button
-      type="button"
-      class="btn btn-outline-primary"
+    <avl-icon-button
+      icon="ti ti-search"
+      variant="outline"
       [disabled]="isDisabled()"
-      (click)="openDialog()"
-      [attr.aria-label]="'LOOKUP.OPEN_DIALOG' | translate"
-    >
-      <i class="ti ti-search"></i>
-    </button>
+      [label]="'LOOKUP.OPEN_DIALOG' | translate"
+      (clicked)="openDialog()"
+    />
     <!-- Clear Button -->
     @if (selectedId() && !isDisabled()) {
-      <button
-        type="button"
-        class="btn btn-outline-secondary"
-        (click)="clearSelection()"
-        [attr.aria-label]="'LOOKUP.CLEAR' | translate"
-      >
-        <i class="ti ti-x"></i>
-      </button>
+      <avl-icon-button
+        icon="ti ti-x"
+        variant="outline"
+        [label]="'LOOKUP.CLEAR' | translate"
+        (clicked)="clearSelection()"
+      />
     }
   </div>
 }

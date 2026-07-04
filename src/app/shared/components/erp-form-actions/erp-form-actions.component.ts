@@ -2,12 +2,15 @@ import { Component, ChangeDetectionStrategy, Input, Output, EventEmitter } from 
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
+
 /**
  * ErpFormActionsComponent
- * 
+ *
  * Generic form action buttons (Save/Cancel) with loading and disabled states.
  * Entity-agnostic - contains no business logic or submit handling.
- * 
+ * Composed from the AVELYNQ Button primitive (Phase 4).
+ *
  * @requirement FE-REQ-SHARED-001
  * @task TASK-FE-SHARED-001
  */
@@ -16,50 +19,42 @@ import { TranslateModule } from '@ngx-translate/core';
   standalone: true,
   imports: [
     CommonModule,
-    TranslateModule
+    TranslateModule,
+    AvlButtonComponent
   ],
   template: `
     <div class="erp-form-actions">
-      <button
-        *ngIf="showCancel"
-        type="button"
-        class="btn btn-secondary"
-        [disabled]="loading"
-        (click)="onCancel()"
-      >
-        {{ cancelKey | translate }}
-      </button>
-      
-      <button
-        *ngIf="showSave"
-        type="button"
-        class="btn btn-primary"
-        [disabled]="loading || disabled"
-        (click)="onSave()"
-      >
-        <span
-          *ngIf="loading"
-          class="spinner-border spinner-border-sm me-1"
-          role="status"
-          aria-hidden="true"
-        ></span>
-        {{ (loading ? loadingKey : saveKey) | translate }}
-      </button>
+      @if (showCancel) {
+        <avl-button variant="secondary" [disabled]="loading" (clicked)="onCancel()">
+          {{ cancelKey | translate }}
+        </avl-button>
+      }
+
+      @if (showSave) {
+        <avl-button
+          variant="primary"
+          [loading]="loading"
+          [disabled]="disabled"
+          (clicked)="onSave()"
+        >
+          {{ (loading ? loadingKey : saveKey) | translate }}
+        </avl-button>
+      }
     </div>
   `,
   styles: [`
     :host {
       display: block;
     }
-    
+
     .erp-form-actions {
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: var(--erp-spacing-sm, 0.75rem);
-      padding-block-start: var(--erp-spacing-md, 1rem);
-      margin-block-start: var(--erp-spacing-md, 1rem);
-      border-block-start: 1px solid var(--erp-color-border, #dee2e6);
+      gap: var(--space-3, 12px);
+      padding-block-start: var(--space-4, 16px);
+      margin-block-start: var(--space-4, 16px);
+      border-block-start: 1px solid var(--border-subtle, #D4DDE7);
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush

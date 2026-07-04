@@ -9,10 +9,11 @@ import { MantisConfig } from 'src/app/app-config';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { AuthenticationService } from 'src/app/core/services/authentication.service';
 import { Role } from 'src/app/theme/shared/components/_helpers/role';
+import { AvlTooltipDirective } from 'src/app/shared/overlay/tooltip/tooltip.directive';
 
 @Component({
   selector: 'app-nav-item',
-  imports: [CommonModule, SharedModule, RouterModule],
+  imports: [CommonModule, SharedModule, RouterModule, AvlTooltipDirective],
   templateUrl: './nav-item.component.html',
   styleUrls: ['./nav-item.component.scss']
 })

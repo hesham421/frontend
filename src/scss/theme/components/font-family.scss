@@ -18,9 +18,9 @@ body.Poppins {
   font-family: 'Poppins', sans-serif;
 }
 
-/* Arabic Language — Cairo font */
+/* Arabic Language — AVELYNQ font (IBM Plex Sans Arabic) */
 [lang="ar"],
 body.mantis-rtl,
 [dir="rtl"] {
-  font-family: 'Cairo', 'Noto Naskh Arabic', sans-serif;
+  font-family: var(--font-arabic, 'IBM Plex Sans Arabic', 'IBM Plex Sans', sans-serif);
 }

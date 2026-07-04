@@ -3,6 +3,13 @@
     <div class="pc-mob-drp">
       <app-nav-left (NavCollapse)="navCollapse()" (NavCollapsedMob)="navCollapseMob()" />
     </div>
+    <div class="pc-h-title">
+      <app-breadcrumb [dashboard]="true" />
+    </div>
+    <div class="pc-h-search avl-hide-md-down">
+      <i class="ti ti-search"></i>
+      <input type="search" class="pc-h-search-input" placeholder="{{ 'COMMON.SEARCH' | translate }}" />
+    </div>
     <div>
       <app-nav-right />
     </div>
