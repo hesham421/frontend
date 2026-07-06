@@ -1,0 +1,11 @@
+// AVELYNQ AG Grid supplemental CSS (Phase 5 used the JS Theming API for
+// colors/borders/density — see src/app/shared/ag-grid/agGridTableStyle.ts —
+// this file is only for the handful of things that theme params can't
+// express, e.g. a per-column cellClass).
+
+// Numeric/code columns (ids, display orders) render in the mono face,
+// matching AVELYNQ's convention for codes/figures elsewhere (Input's
+// `mono` prop, Stat's value face).
+.avl-ag-cell-mono {
+  font-family: var(--font-mono);
+}

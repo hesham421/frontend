@@ -3,9 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { SharedModule } from 'src/app/theme/shared/shared.module';
+import { CardComponent } from 'src/app/theme/shared/components/card/card.component';
 import { ThemeService } from 'src/app/theme/shared/service/customs-theme.service';
 import { createAgGridTheme } from 'src/app/shared/ag-grid/agGridTableStyle';
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
+import { AvlBadgeComponent } from 'src/app/shared/data-display/avl-badge/avl-badge.component';
+import { AvlAlertComponent } from 'src/app/shared/feedback/avl-alert/avl-alert.component';
 
 import { ErpListComponent } from 'src/app/shared/base/erp-list.component';
 import { SpecificationFilterComponent } from 'src/app/shared/components/specification-filter/specification-filter.component';
@@ -71,12 +74,15 @@ type Direction = 'ltr' | 'rtl' | 'auto';
   standalone: true,
   imports: [
     CommonModule,
-    SharedModule,
+    CardComponent,
     AgGridAngular,
     TranslateModule,
     SpecificationFilterComponent,
     ErpEmptyStateComponent,
-    ErpPermissionDirective
+    ErpPermissionDirective,
+    AvlButtonComponent,
+    AvlBadgeComponent,
+    AvlAlertComponent
   ],
   templateUrl: './pages-search.component.html',
   styleUrl: './pages-search.component.scss',

@@ -43,13 +43,7 @@
               [required]="true"
               [hintKey]="isEditMode ? 'PAGES.PAGE_CODE_READONLY_HINT' : undefined"
             >
-              <input
-                type="text"
-                id="pageCode"
-                formControlName="pageCode"
-                class="form-control"
-                [class.is-invalid]="!!(pageForm.get('pageCode')?.invalid && (pageForm.get('pageCode')?.touched || pageForm.get('pageCode')?.dirty))"
-              />
+              <avl-input id="pageCode" formControlName="pageCode" [mono]="true" />
             </erp-form-field>
           </div>
 
@@ -60,14 +54,7 @@
               [control]="pageForm.get('displayOrder')"
               [required]="true"
             >
-              <input
-                type="number"
-                id="displayOrder"
-                formControlName="displayOrder"
-                class="form-control"
-                min="0"
-                [class.is-invalid]="!!(pageForm.get('displayOrder')?.invalid && (pageForm.get('displayOrder')?.touched || pageForm.get('displayOrder')?.dirty))"
-              />
+              <avl-input id="displayOrder" type="number" formControlName="displayOrder" [mono]="true" min="0" />
             </erp-form-field>
           </div>
 
@@ -78,13 +65,7 @@
               [control]="pageForm.get('nameEn')"
               [required]="true"
             >
-              <input
-                type="text"
-                id="nameEn"
-                formControlName="nameEn"
-                class="form-control"
-                [class.is-invalid]="!!(pageForm.get('nameEn')?.invalid && (pageForm.get('nameEn')?.touched || pageForm.get('nameEn')?.dirty))"
-              />
+              <avl-input id="nameEn" formControlName="nameEn" />
             </erp-form-field>
           </div>
 
@@ -95,14 +76,7 @@
               [control]="pageForm.get('nameAr')"
               [required]="true"
             >
-              <input
-                type="text"
-                id="nameAr"
-                formControlName="nameAr"
-                class="form-control"
-                dir="rtl"
-                [class.is-invalid]="!!(pageForm.get('nameAr')?.invalid && (pageForm.get('nameAr')?.touched || pageForm.get('nameAr')?.dirty))"
-              />
+              <avl-input id="nameAr" formControlName="nameAr" dir="rtl" />
             </erp-form-field>
           </div>
 
@@ -113,13 +87,7 @@
               [control]="pageForm.get('route')"
               [required]="true"
             >
-              <input
-                type="text"
-                id="route"
-                formControlName="route"
-                class="form-control"
-                [class.is-invalid]="!!(pageForm.get('route')?.invalid && (pageForm.get('route')?.touched || pageForm.get('route')?.dirty))"
-              />
+              <avl-input id="route" formControlName="route" [mono]="true" />
             </erp-form-field>
           </div>
 
@@ -129,12 +97,7 @@
               labelKey="PAGES.ICON"
               [control]="pageForm.get('icon')"
             >
-              <input
-                type="text"
-                id="icon"
-                formControlName="icon"
-                class="form-control"
-              />
+              <avl-input id="icon" formControlName="icon" [mono]="true" />
             </erp-form-field>
           </div>
 
@@ -144,12 +107,7 @@
               labelKey="PAGES.MODULE"
               [control]="pageForm.get('module')"
             >
-              <select id="module" formControlName="module" class="form-select">
-                <option value="">{{ 'PAGES.SELECT_MODULE' | translate }}</option>
-                @for (mod of modules; track mod) {
-                <option [value]="mod">{{ mod }}</option>
-                }
-              </select>
+              <avl-select id="module" formControlName="module" [options]="modules" [placeholder]="'PAGES.SELECT_MODULE' | translate" />
             </erp-form-field>
           </div>
 
@@ -159,30 +117,18 @@
               labelKey="PAGES.PARENT_PAGE"
               [control]="pageForm.get('parentId')"
             >
-              <select id="parentId" formControlName="parentId" class="form-select">
-                <option [ngValue]="null">{{ 'PAGES.NO_PARENT' | translate }}</option>
-                @for (page of activePages; track page.id) {
-                <option [ngValue]="page.id">
-                  {{ translate.currentLang === 'ar' ? page.nameAr : page.nameEn }}
-                </option>
-                }
-              </select>
+              <avl-select
+                id="parentId"
+                [options]="parentIdOptions"
+                [value]="parentIdStringValue"
+                (valueChange)="onParentIdChange($event)"
+              />
             </erp-form-field>
           </div>
 
           <!-- Active Status -->
           <div class="col-md-12 mb-3">
-            <div class="form-check form-switch">
-              <input
-                type="checkbox"
-                id="active"
-                formControlName="active"
-                class="form-check-input"
-              />
-              <label for="active" class="form-check-label">
-                {{ 'PAGES.IS_ACTIVE' | translate }}
-              </label>
-            </div>
+            <avl-switch id="active" formControlName="active" [label]="'PAGES.IS_ACTIVE' | translate" />
           </div>
         </div>
       </erp-section>

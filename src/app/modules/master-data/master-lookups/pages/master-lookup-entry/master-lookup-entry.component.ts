@@ -12,6 +12,7 @@ import { ErpFormFieldComponent } from 'src/app/shared/components/erp-form-field/
 import { ErpSectionComponent } from 'src/app/shared/components/erp-section/erp-section.component';
 import { ErpActionBarComponent } from 'src/app/shared/components/erp-action-bar/erp-action-bar.component';
 import { ErpPermissionDirective } from 'src/app/shared/directives/erp-permission.directive';
+import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
 import { MasterLookupFacade } from '../../facades/master-lookup.facade';
 import { MasterLookupApiService } from '../../services/master-lookup-api.service';
 import { LookupDetailsSectionComponent } from '../../components/lookup-details-section/lookup-details-section.component';
@@ -34,6 +35,7 @@ import { ConfirmActionDeps, confirmToggleDetailActive, confirmDeleteDetail } fro
     ErpPermissionDirective,
     LookupDetailsSectionComponent,
     LookupDetailFormModalComponent,
+    AvlInputComponent,
     TranslateModule
   ],
   providers: [MasterLookupFacade, MasterLookupApiService],

@@ -10,6 +10,13 @@ import { ErpDialogService } from 'src/app/shared/services/erp-dialog.service';
 import { ErpNotificationService } from 'src/app/shared/services/erp-notification.service';
 import { SpecificationFilterComponent } from 'src/app/shared/components/specification-filter/specification-filter.component';
 import { SpecFieldOption, SpecFilter, SpecOperatorOption } from 'src/app/shared/models';
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
+import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
+import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
+import { AvlSelectComponent } from 'src/app/shared/forms/avl-select/avl-select.component';
+import { AvlSwitchComponent } from 'src/app/shared/forms/avl-switch/avl-switch.component';
+import { AvlBadgeComponent } from 'src/app/shared/data-display/avl-badge/avl-badge.component';
+import { AvlAlertComponent } from 'src/app/shared/feedback/avl-alert/avl-alert.component';
 
 import { GlFacade } from 'src/app/modules/finance/gl/facades/gl.facade';
 import { GlApiService } from 'src/app/modules/finance/gl/services/gl-api.service';
@@ -67,7 +74,14 @@ export interface InlineAddState {
     ErpEmptyStateComponent,
     ErpPermissionDirective,
     TranslateModule,
-    SpecificationFilterComponent
+    SpecificationFilterComponent,
+    AvlButtonComponent,
+    AvlIconButtonComponent,
+    AvlInputComponent,
+    AvlSelectComponent,
+    AvlSwitchComponent,
+    AvlBadgeComponent,
+    AvlAlertComponent
   ],
   templateUrl: './accounts-tree.component.html',
   styleUrl: './accounts-tree.component.scss',

@@ -4,6 +4,9 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { ErpEmptyStateComponent } from 'src/app/shared/components/erp-empty-state/erp-empty-state.component';
 import { ErpPermissionDirective } from 'src/app/shared/directives/erp-permission.directive';
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
+import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
+import { AvlBadgeComponent } from 'src/app/shared/data-display/avl-badge/avl-badge.component';
 
 import { LookupDetailDto, SearchSort } from '../../models/master-lookup.model';
 
@@ -19,7 +22,10 @@ import { LookupDetailDto, SearchSort } from '../../models/master-lookup.model';
     CommonModule,
     TranslateModule,
     ErpEmptyStateComponent,
-    ErpPermissionDirective
+    ErpPermissionDirective,
+    AvlButtonComponent,
+    AvlIconButtonComponent,
+    AvlBadgeComponent
   ],
   templateUrl: './lookup-details-section.component.html',
   styleUrl: './lookup-details-section.component.scss',

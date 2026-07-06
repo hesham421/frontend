@@ -4,12 +4,15 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { SharedModule } from 'src/app/theme/shared/shared.module';
+import { CardComponent } from 'src/app/theme/shared/components/card/card.component';
 import { ErpNotificationService } from 'src/app/shared/services/erp-notification.service';
 import { AuthenticationService } from 'src/app/core/services/authentication.service';
 import { ErpFormFieldComponent } from 'src/app/shared/components/erp-form-field/erp-form-field.component';
 import { ErpSectionComponent } from 'src/app/shared/components/erp-section/erp-section.component';
 import { ErpActionBarComponent } from 'src/app/shared/components/erp-action-bar/erp-action-bar.component';
+import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
+import { AvlSelectComponent, AvlSelectOption } from 'src/app/shared/forms/avl-select/avl-select.component';
+import { AvlSwitchComponent } from 'src/app/shared/forms/avl-switch/avl-switch.component';
 
 import { PagesFacade } from 'src/app/modules/security/pages-registry/facades/pages.facade';
 import { PagesApiService } from 'src/app/modules/security/pages-registry/services/pages-api.service';
@@ -45,13 +48,16 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   standalone: true,
   imports: [
     CommonModule,
-    SharedModule,
+    CardComponent,
     FormsModule,
     ReactiveFormsModule,
     ErpFormFieldComponent,
     ErpSectionComponent,
     ErpActionBarComponent,
-    TranslateModule
+    TranslateModule,
+    AvlInputComponent,
+    AvlSelectComponent,
+    AvlSwitchComponent
   ],
   templateUrl: './pages-form.component.html',
   styleUrl: './pages-form.component.scss',
@@ -81,6 +87,29 @@ export class PagesFormComponent implements OnInit, OnDestroy {
   // Dropdown data
   get modules(): string[] { return this.facade.modules(); }
   get activePages(): PageDto[] { return this.facade.activePages(); }
+
+  /** avl-select works with string values only; parentId is number|null on
+   *  the FormControl (as before) — bridge via a stringified options list
+   *  and manual coercion back on change, same technique as Phase 4's
+   *  specification-filter value-select. */
+  get parentIdOptions(): AvlSelectOption[] {
+    return [
+      { value: '', label: this.translate.instant('PAGES.NO_PARENT') },
+      ...this.activePages.map((p) => ({
+        value: String(p.id),
+        label: this.translate.currentLang === 'ar' ? p.nameAr : p.nameEn
+      }))
+    ];
+  }
+
+  get parentIdStringValue(): string {
+    const v = this.pageForm.get('parentId')?.value;
+    return v === null || v === undefined ? '' : String(v);
+  }
+
+  onParentIdChange(value: string): void {
+    this.pageForm.get('parentId')?.setValue(value === '' ? null : Number(value));
+  }
 
   constructor() {
     this.initForm();

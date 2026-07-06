@@ -11,93 +11,49 @@
             Already have an account?
           </a>
         </div>
-        <form (ngSubmit)="onSubmit()">
+        <form (submit)="onSubmit($event)">
           <div class="row">
             <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label class="form-label" for="firstName">First Name*</label>
-                <input
-                  type="text"
-                  id="firstName"
-                  [field]="registerForm.firstName"
-                  class="form-control"
-                  [class.is-invalid]="submitted() && registerForm.firstName().errors().length > 0"
-                  placeholder="First Name"
-                />
-                @if (submitted() && registerForm.firstName().errors().length > 0) {
-                  <div class="invalid-feedback">
-                    @for (error of registerForm.firstName().errors(); track error.kind) {
-                      @if (error.kind === 'required') {
-                        <div>{{ error.message }}</div>
-                      }
-                    }
-                  </div>
-                }
-              </div>
+              <avl-input
+                label="First Name*"
+                id="firstName"
+                [field]="registerForm.firstName"
+                placeholder="First Name"
+                [error]="(submitted() && registerForm.firstName().errors().length > 0) ? registerForm.firstName().errors()[0].message : undefined"
+              />
             </div>
             <div class="col-md-6">
-              <div class="form-group mb-3">
-                <label class="form-label" for="lastName">Last Name*</label>
-                <input
-                  type="text"
-                  id="lastName"
-                  [field]="registerForm.lastName"
-                  class="form-control"
-                  [class.is-invalid]="submitted() && registerForm.lastName().errors().length > 0"
-                  placeholder="Last Name"
-                />
-                @if (submitted() && registerForm.lastName().errors().length > 0) {
-                  <div class="invalid-feedback">
-                    @for (error of registerForm.lastName().errors(); track error.kind) {
-                      @if (error.kind === 'required') {
-                        <div>{{ error.message }}</div>
-                      }
-                    }
-                  </div>
-                }
-              </div>
+              <avl-input
+                label="Last Name*"
+                id="lastName"
+                [field]="registerForm.lastName"
+                placeholder="Last Name"
+                [error]="(submitted() && registerForm.lastName().errors().length > 0) ? registerForm.lastName().errors()[0].message : undefined"
+              />
             </div>
           </div>
-          <div class="form-group mb-3">
-            <label class="form-label" for="email">Email Address*</label>
-            <input
-              type="email"
+          <div class="mb-3">
+            <avl-input
+              label="Email Address*"
               id="email"
+              type="email"
               [field]="registerForm.email"
-              class="form-control"
-              [class.is-invalid]="submitted() && registerForm.email().errors().length > 0"
               placeholder="Email Address"
+              [error]="(submitted() && registerForm.email().errors().length > 0) ? registerForm.email().errors()[0].message : undefined"
             />
-            @if (submitted() && registerForm.email().errors().length > 0) {
-              <div class="invalid-feedback">
-                @for (error of registerForm.email().errors(); track error.kind) {
-                  <div>{{ error.message }}</div>
-                }
-              </div>
-            }
           </div>
-          <div class="form-group mb-3 position-relative">
-            <label class="form-label" for="password">Password</label>
-            <input
-              type="password"
+          <div class="mb-3">
+            <avl-input
+              label="Password"
               id="password"
-              class="form-control"
+              type="password"
               [field]="registerForm.password"
-              [class.is-invalid]="submitted() && registerForm.password().errors().length > 0"
               placeholder="Password (min. 8 characters)"
+              [error]="(submitted() && registerForm.password().errors().length > 0) ? registerForm.password().errors()[0].message : undefined"
             />
-            @if (submitted() && registerForm.password().errors().length > 0) {
-              <div class="invalid-feedback">
-                @for (error of registerForm.password().errors(); track error.kind) {
-                  <div>{{ error.message }}</div>
-                }
-              </div>
-            }
           </div>
           @if (error()) {
-            <div class="alert alert-danger" role="alert">
-              {{ error() }}
-            </div>
+            <avl-alert tone="danger">{{ error() }}</avl-alert>
           }
           <p class="mt-4 text-sm text-muted">
             By Signing up, you agree to our
@@ -105,14 +61,9 @@
             and
             <a href="javascript:" class="text-primary">Privacy Policy</a>
           </p>
-          <div class="d-grid mt-3">
-            <button type="submit" class="btn btn-primary" [disabled]="loading()">
-              @if (loading()) {
-                <span class="spinner-border spinner-border-sm me-2"></span>
-              }
-              {{ loading() ? 'Creating Account...' : 'Create Account' }}
-            </button>
-          </div>
+          <avl-button type="submit" variant="primary" [block]="true" [loading]="loading()">
+            {{ loading() ? 'Creating Account...' : 'Create Account' }}
+          </avl-button>
         </form>
         <div class="saprator mt-3">
           <span>Sign up with</span>

@@ -16,14 +16,7 @@
             [required]="true"
             [hintKey]="editingDetail ? 'MASTER_LOOKUPS.CODE_READONLY_HINT' : undefined"
           >
-            <input
-              type="text"
-              id="detailCode"
-              formControlName="code"
-              class="form-control text-uppercase"
-              maxlength="50"
-              [class.is-invalid]="!!(detailForm.get('code')?.invalid && (detailForm.get('code')?.touched || detailForm.get('code')?.dirty))"
-            />
+            <avl-input id="detailCode" formControlName="code" [mono]="true" maxlength="50" />
           </erp-form-field>
         </div>
 
@@ -33,14 +26,7 @@
             labelKey="MASTER_LOOKUPS.SORT_ORDER"
             [control]="detailForm.get('sortOrder')"
           >
-            <input
-              type="number"
-              id="sortOrder"
-              formControlName="sortOrder"
-              class="form-control"
-              min="0"
-              [class.is-invalid]="!!(detailForm.get('sortOrder')?.invalid && (detailForm.get('sortOrder')?.touched || detailForm.get('sortOrder')?.dirty))"
-            />
+            <avl-input id="sortOrder" type="number" formControlName="sortOrder" [mono]="true" min="0" />
           </erp-form-field>
         </div>
 
@@ -51,14 +37,7 @@
             [control]="detailForm.get('nameAr')"
             [required]="true"
           >
-            <input
-              type="text"
-              id="nameAr"
-              formControlName="nameAr"
-              class="form-control"
-              maxlength="200"
-              [class.is-invalid]="!!(detailForm.get('nameAr')?.invalid && (detailForm.get('nameAr')?.touched || detailForm.get('nameAr')?.dirty))"
-            />
+            <avl-input id="nameAr" formControlName="nameAr" maxlength="200" />
           </erp-form-field>
         </div>
 
@@ -68,14 +47,7 @@
             labelKey="MASTER_LOOKUPS.DETAIL_NAME_EN"
             [control]="detailForm.get('nameEn')"
           >
-            <input
-              type="text"
-              id="nameEn"
-              formControlName="nameEn"
-              class="form-control"
-              maxlength="200"
-              [class.is-invalid]="!!(detailForm.get('nameEn')?.invalid && (detailForm.get('nameEn')?.touched || detailForm.get('nameEn')?.dirty))"
-            />
+            <avl-input id="nameEn" formControlName="nameEn" maxlength="200" />
           </erp-form-field>
         </div>
 
@@ -85,28 +57,18 @@
             labelKey="MASTER_LOOKUPS.EXTRA_VALUE"
             [control]="detailForm.get('extraValue')"
           >
-            <input
-              type="text"
-              id="extraValue"
-              formControlName="extraValue"
-              class="form-control"
-              maxlength="500"
-              [class.is-invalid]="!!(detailForm.get('extraValue')?.invalid && (detailForm.get('extraValue')?.touched || detailForm.get('extraValue')?.dirty))"
-            />
+            <avl-input id="extraValue" formControlName="extraValue" maxlength="500" />
           </erp-form-field>
         </div>
       </div>
     </form>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()">
+    <avl-button variant="secondary" (clicked)="modal.dismiss()">
       {{ 'COMMON.CANCEL' | translate }}
-    </button>
-    <button type="button" class="btn btn-primary" [disabled]="saving" (click)="onSave()">
-      @if (saving) {
-        <span class="spinner-border spinner-border-sm me-1"></span>
-      }
+    </avl-button>
+    <avl-button variant="primary" [loading]="saving" (clicked)="onSave()">
       {{ 'COMMON.SAVE' | translate }}
-    </button>
+    </avl-button>
   </div>
 </ng-template>

@@ -20,11 +20,18 @@ import { DrawerService } from 'src/app/shared/overlay/drawer/drawer.service';
 import { DialogService } from 'src/app/shared/overlay/dialog/dialog.service';
 import { AvlOverlayRef } from 'src/app/shared/overlay/avl-overlay-ref';
 
-import { SharedModule } from 'src/app/theme/shared/shared.module';
+import { CardComponent } from 'src/app/theme/shared/components/card/card.component';
 import { ErpFormFieldComponent } from 'src/app/shared/components/erp-form-field/erp-form-field.component';
 import { ErpSectionComponent } from 'src/app/shared/components/erp-section/erp-section.component';
 import { ErpActionBarComponent } from 'src/app/shared/components/erp-action-bar/erp-action-bar.component';
 import { ErpDualListComponent, DualListItem } from 'src/app/shared/components/erp-dual-list/erp-dual-list.component';
+import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
+import { AvlSelectComponent, AvlSelectOption } from 'src/app/shared/forms/avl-select/avl-select.component';
+import { AvlSwitchComponent } from 'src/app/shared/forms/avl-switch/avl-switch.component';
+import { AvlCheckboxComponent } from 'src/app/shared/forms/avl-checkbox/avl-checkbox.component';
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
+import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
+import { FormsModule } from '@angular/forms';
 
 import { ErpDialogService } from 'src/app/shared/services/erp-dialog.service';
 import { ErpNotificationService } from 'src/app/shared/services/erp-notification.service';
@@ -46,14 +53,21 @@ import { LanguageService } from 'src/app/core/services/language.service';
   standalone: true,
   imports: [
     CommonModule,
-    SharedModule,
+    CardComponent,
     ReactiveFormsModule,
+    FormsModule,
     TranslateModule,
     ErpPermissionDirective,
     ErpFormFieldComponent,
     ErpSectionComponent,
     ErpActionBarComponent,
-    ErpDualListComponent
+    ErpDualListComponent,
+    AvlInputComponent,
+    AvlSelectComponent,
+    AvlSwitchComponent,
+    AvlCheckboxComponent,
+    AvlButtonComponent,
+    AvlIconButtonComponent
   ],
   templateUrl: './role-access-form.component.html',
   styleUrl: './role-access-form.component.scss',
@@ -93,6 +107,20 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
 
   availableRolesToCopy: RoleDto[] = [];
   selectedSourceRoleId: number | null = null;
+
+  /** avl-select is string-valued only; bridge to the numeric id, same
+   *  technique as Phase 4's specification-filter / pages-form's parentId. */
+  get copyFromRoleOptions(): AvlSelectOption[] {
+    return this.availableRolesToCopy.map((r) => ({ value: String(r.id), label: r.roleName }));
+  }
+
+  get selectedSourceRoleIdStringValue(): string {
+    return this.selectedSourceRoleId === null ? '' : String(this.selectedSourceRoleId);
+  }
+
+  onSourceRoleChange(value: string): void {
+    this.selectedSourceRoleId = value === '' ? null : Number(value);
+  }
 
   get role(): RoleDto | null {
     return this.facade.selectedRole();

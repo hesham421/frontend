@@ -4,6 +4,8 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ErpFormFieldComponent } from 'src/app/shared/components/erp-form-field/erp-form-field.component';
+import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
 import { ErpNotificationService } from 'src/app/shared/services/erp-notification.service';
 import { DrawerService } from 'src/app/shared/overlay/drawer/drawer.service';
 import { AvlOverlayRef } from 'src/app/shared/overlay/avl-overlay-ref';
@@ -31,6 +33,8 @@ export interface DetailFormSaveEvent {
     FormsModule,
     ReactiveFormsModule,
     ErpFormFieldComponent,
+    AvlInputComponent,
+    AvlButtonComponent,
     TranslateModule
   ],
   templateUrl: './lookup-detail-form-modal.component.html',

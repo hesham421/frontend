@@ -34,6 +34,7 @@ class MockRoleAccessFacade {
   setFilters = jasmine.createSpy('setFilters');
   setSize = jasmine.createSpy('setSize');
   setPage = jasmine.createSpy('setPage');
+  clearCurrentEntity = jasmine.createSpy('clearCurrentEntity');
 
   // helper for tests
   setRolePages(pages: RolePagePermissionDto[]): void {

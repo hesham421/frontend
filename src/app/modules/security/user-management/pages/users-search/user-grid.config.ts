@@ -65,7 +65,7 @@ export function createUserColumnDefs(
   };
 
   return [
-    { field: 'id', headerName: translate.instant('USERS.ID'), filter: 'agNumberColumnFilter', maxWidth: 100, sortable: true },
+    { field: 'id', headerName: translate.instant('USERS.ID'), filter: 'agNumberColumnFilter', maxWidth: 100, sortable: true, cellClass: 'avl-ag-cell-mono' },
     { field: 'username', headerName: translate.instant('USERS.USERNAME'), filter: 'agTextColumnFilter', sortable: true, flex: 1 },
     createActiveColumnDef(activeLabels, {
       field: 'enabled',

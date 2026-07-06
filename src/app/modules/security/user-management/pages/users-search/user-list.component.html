@@ -1,18 +1,20 @@
 <app-card [cardTitle]="'USERS.TITLE' | translate" [padding]="0">
   <div class="card-header-right">
-    <button class="btn btn-info btn-sm me-2" (click)="toggleAdvancedFilters()">
-      <i class="ti ti-filter"></i> {{ showAdvancedFilters() ? ('USERS.HIDE_FILTERS' | translate) : ('USERS.ADVANCED_FILTERS' | translate) }}
-    </button>
-    <button
-      class="btn btn-success btn-sm me-2"
+    <avl-button variant="secondary" size="sm" iconLeft="ti ti-filter" (clicked)="toggleAdvancedFilters()">
+      {{ showAdvancedFilters() ? ('USERS.HIDE_FILTERS' | translate) : ('USERS.ADVANCED_FILTERS' | translate) }}
+    </avl-button>
+    <avl-button
+      variant="accent"
+      size="sm"
+      iconLeft="ti ti-plus"
       erpPermission="USER.CREATE"
-      (click)="openCreateModal(createUserModal)"
+      (clicked)="openCreateModal(createUserModal)"
     >
-      <i class="ti ti-plus"></i> {{ 'USERS.ADD_USER' | translate }}
-    </button>
-    <button class="btn btn-primary btn-sm" (click)="refreshData()">
-      <i class="ti ti-refresh"></i> {{ 'USERS.REFRESH' | translate }}
-    </button>
+      {{ 'USERS.ADD_USER' | translate }}
+    </avl-button>
+    <avl-button variant="primary" size="sm" iconLeft="ti ti-refresh" (clicked)="refreshData()">
+      {{ 'USERS.REFRESH' | translate }}
+    </avl-button>
   </div>
 
   <!-- Advanced Filters Panel -->
@@ -26,18 +28,15 @@
     />
 
     @if (currentFilters().length > 0) {
-    <div class="alert alert-info mt-3 mb-0 py-2">
-      <small>
-        <i class="ti ti-info-circle"></i>
-        <strong>{{ 'USERS.ACTIVE_FILTERS' | translate }}:</strong> {{ currentFilters().length }}
-        @for (filter of currentFilters().slice(0, 3); track $index) {
-          <span class="badge bg-primary ms-1">{{ filter.field }} {{ filter.op }}</span>
-        }
-        @if (currentFilters().length > 3) {
-          <span class="badge bg-secondary ms-1">+{{ currentFilters().length - 3 }}</span>
-        }
-      </small>
-    </div>
+    <avl-alert tone="info" class="d-block mt-3">
+      <strong>{{ 'USERS.ACTIVE_FILTERS' | translate }}:</strong> {{ currentFilters().length }}
+      @for (filter of currentFilters().slice(0, 3); track $index) {
+        <avl-badge tone="info" class="ms-1">{{ filter.field }} {{ filter.op }}</avl-badge>
+      }
+      @if (currentFilters().length > 3) {
+        <avl-badge tone="neutral" class="ms-1">+{{ currentFilters().length - 3 }}</avl-badge>
+      }
+    </avl-alert>
     }
   </div>
   }
@@ -95,97 +94,47 @@
   </div>
   <div class="modal-body">
     @if (formError()) {
-      <div class="alert alert-danger" role="alert">{{ formError() | translate }}</div>
+      <avl-alert tone="danger" class="d-block mb-3">{{ formError() | translate }}</avl-alert>
     }
-    
+
     <form autocomplete="off">
       <div class="mb-3">
-        <label for="username" class="form-label">{{ 'USERS.USERNAME' | translate }} <span class="text-danger">*</span></label>
-        <input 
-          type="text" 
-          class="form-control" 
-          id="username" 
+        <avl-input
+          id="username"
+          [label]="'USERS.USERNAME' | translate"
+          [required]="true"
           [(ngModel)]="userForm.username"
           #usernameRef="ngModel"
           [name]="isEditMode() ? 'username-edit' : 'username-create'"
           autocomplete="off"
-          autocapitalize="none"
-          autocorrect="off"
-          spellcheck="false"
           [placeholder]="'USERS.ENTER_VALUE' | translate"
           [disabled]="formSubmitting()"
-          required
           minlength="3"
-          [class.is-invalid]="usernameRef.invalid && (usernameRef.touched || usernameRef.dirty)"
+          [error]="getFieldErrorMessage(usernameRef, 3)"
         />
-        @if (usernameRef.invalid && (usernameRef.touched || usernameRef.dirty)) {
-          <small class="text-danger">
-            @if (usernameRef.errors?.['required']) {
-              {{ 'VALIDATION.REQUIRED' | translate }}
-            } @else if (usernameRef.errors?.['minlength']) {
-              {{ 'VALIDATION.MIN_LENGTH' | translate: { min: 3 } }}
-            }
-          </small>
-        }
       </div>
-      
+
       <div class="mb-3">
-        <label for="password" class="form-label">
-          {{ 'USERS.PASSWORD' | translate }}
-          @if (isEditMode()) {
-            <span class="text-muted">({{ 'COMMON.OPTIONAL' | translate }})</span>
-          } @else {
-            <span class="text-danger">*</span>
-          }
-        </label>
-        <input 
-          type="password" 
-          class="form-control" 
-          id="password" 
+        <avl-input
+          id="password"
+          type="password"
+          [label]="(isEditMode() ? ('USERS.PASSWORD' | translate) + ' (' + ('COMMON.OPTIONAL' | translate) + ')' : ('USERS.PASSWORD' | translate))"
+          [required]="!isEditMode()"
           [(ngModel)]="userForm.password"
           #passwordRef="ngModel"
           [name]="isEditMode() ? 'password-edit' : 'password-create'"
           autocomplete="new-password"
           [placeholder]="isEditMode() ? ('USERS.PASSWORD_HINT_EDIT' | translate) : ('USERS.PASSWORD_HINT_CREATE' | translate)"
           [disabled]="formSubmitting()"
-          [required]="!isEditMode()"
           minlength="6"
-          [class.is-invalid]="passwordRef.invalid && (passwordRef.touched || passwordRef.dirty)"
+          [error]="getFieldErrorMessage(passwordRef, 6)"
+          [hint]="!getFieldErrorMessage(passwordRef, 6) ? (isEditMode() ? ('USERS.PASSWORD_HINT_EDIT' | translate) : ('USERS.PASSWORD_HINT_CREATE' | translate)) : undefined"
         />
-        @if (passwordRef.invalid && (passwordRef.touched || passwordRef.dirty)) {
-          <small class="text-danger">
-            @if (passwordRef.errors?.['required']) {
-              {{ 'VALIDATION.REQUIRED' | translate }}
-            } @else if (passwordRef.errors?.['minlength']) {
-              {{ 'VALIDATION.MIN_LENGTH' | translate: { min: 6 } }}
-            }
-          </small>
-        } @else {
-          <small class="form-text text-muted">
-            @if (isEditMode()) {
-              {{ 'USERS.PASSWORD_HINT_EDIT' | translate }}
-            } @else {
-              {{ 'USERS.PASSWORD_HINT_CREATE' | translate }}
-            }
-          </small>
-        }
       </div>
 
       <div class="mb-3">
-        <div class="form-check form-switch">
-          <input 
-            class="form-check-input" 
-            type="checkbox" 
-            id="enabled"
-            [(ngModel)]="userForm.enabled"
-            name="enabled"
-            [disabled]="formSubmitting()"
-          />
-          <label class="form-check-label" for="enabled">
-            {{ 'USERS.IS_ACTIVE' | translate }}
-          </label>
-        </div>
-        <small class="form-text text-muted">{{ 'USERS.ACTIVE_HINT' | translate }}</small>
+        <avl-switch id="enabled" [(ngModel)]="userForm.enabled" name="enabled" [disabled]="formSubmitting()" [label]="'USERS.IS_ACTIVE' | translate" />
+        <small class="form-text text-muted d-block">{{ 'USERS.ACTIVE_HINT' | translate }}</small>
       </div>
 
 
@@ -195,63 +144,55 @@
             <i class="ti ti-shield-check me-1"></i>
             {{ 'USERS.ROLES' | translate }}
             @if (userForm.roles.length > 0) {
-              <span class="badge bg-primary ms-2">{{ userForm.roles.length }} {{ 'USERS.SELECTED' | translate }}</span>
+              <avl-badge tone="info" class="ms-2">{{ userForm.roles.length }} {{ 'USERS.SELECTED' | translate }}</avl-badge>
             }
           </label>
-          
+
           @if (rolesLoading()) {
             <div class="border rounded p-3 text-center">
               <span class="spinner-border spinner-border-sm text-primary me-2"></span>
               <span class="text-muted">{{ 'USERS.LOADING_ROLES' | translate }}</span>
             </div>
           } @else if (availableRoles().length === 0) {
-            <div class="alert alert-warning mb-0">
-              <i class="ti ti-alert-circle me-2"></i>
-              {{ 'USERS.NO_ROLES_AVAILABLE' | translate }}
-            </div>
+            <avl-alert tone="warning" class="d-block mb-0">{{ 'USERS.NO_ROLES_AVAILABLE' | translate }}</avl-alert>
           } @else {
             @if (userForm.roles.length > 0) {
               <div class="mb-2">
                 @for (role of userForm.roles; track role) {
-                  <span class="badge bg-secondary me-1 mb-1" style="cursor: pointer;" (click)="quickRemoveRole(role)" [attr.title]="role">
+                  <avl-badge tone="neutral" class="me-1 mb-1" style="cursor: pointer;" (click)="quickRemoveRole(role)" [attr.title]="role">
                     {{ role }} <span class="ms-1">×</span>
-                  </span>
+                  </avl-badge>
                 }
               </div>
             } @else {
               <div class="text-muted mb-2">-</div>
             }
 
-            <button type="button" class="btn btn-outline-primary btn-sm" (click)="openRolesModal()">
-              <i class="ti ti-list-check me-1"></i>
+            <avl-button variant="secondary" size="sm" iconLeft="ti ti-list-check" (clicked)="openRolesModal()">
               {{ 'COMMON.SELECT' | translate }} {{ 'USERS.ROLES' | translate }}
-            </button>
+            </avl-button>
           }
         </div>
       </div>
 
-      <div class="alert alert-info mb-3" erpPermission="!ROLE.VIEW">
-        <i class="ti ti-info-circle"></i> {{ 'USERS.NO_PERMISSION_ROLES' | translate }}
-      </div>
+      <avl-alert tone="info" class="d-block mb-3" erpPermission="!ROLE.VIEW">
+        {{ 'USERS.NO_PERMISSION_ROLES' | translate }}
+      </avl-alert>
 
     </form>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss()" [disabled]="formSubmitting()">
+    <avl-button variant="secondary" (clicked)="modal.dismiss()" [disabled]="formSubmitting()">
       {{ 'COMMON.CANCEL' | translate }}
-    </button>
-    <button
-      type="button"
-      class="btn btn-primary"
+    </avl-button>
+    <avl-button
+      variant="primary"
       [erpPermission]="isEditMode() ? 'USER.UPDATE' : 'USER.CREATE'"
-      (click)="createUser(modal)"
-      [disabled]="formSubmitting()"
+      [loading]="formSubmitting()"
+      (clicked)="createUser(modal)"
     >
-      @if (formSubmitting()) {
-        <span class="spinner-border spinner-border-sm me-1"></span>
-      }
       {{ isEditMode() ? ('COMMON.UPDATE' | translate) : ('COMMON.SAVE' | translate) }}
-    </button>
+    </avl-button>
   </div>
 </ng-template>
 
@@ -272,10 +213,7 @@
         <span class="text-muted">{{ 'USERS.LOADING_ROLES' | translate }}</span>
       </div>
     } @else if (availableRoles().length === 0) {
-      <div class="alert alert-warning mb-0">
-        <i class="ti ti-alert-circle me-2"></i>
-        {{ 'USERS.NO_ROLES_AVAILABLE' | translate }}
-      </div>
+      <avl-alert tone="warning" class="d-block mb-0">{{ 'USERS.NO_ROLES_AVAILABLE' | translate }}</avl-alert>
     } @else {
       <erp-dual-list
         [availableItems]="dualListAvailableItems()"
@@ -286,17 +224,14 @@
         (selectedChange)="onRolesSelectionChanged($event)"
       ></erp-dual-list>
 
-      <div class="alert alert-info mt-3 mb-0" style="font-size: 0.875rem;">
-        <i class="ti ti-info-circle me-2"></i>
-        {{ 'USERS.SHUTTLE_HINT' | translate }}
-      </div>
+      <avl-alert tone="info" class="d-block mt-3 mb-0">{{ 'USERS.SHUTTLE_HINT' | translate }}</avl-alert>
     }
   </div>
 
   <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="modal.close()">
+    <avl-button variant="primary" (clicked)="modal.close()">
       {{ 'COMMON.DONE' | translate }}
-    </button>
+    </avl-button>
   </div>
 </ng-template>
 

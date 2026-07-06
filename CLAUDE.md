@@ -95,3 +95,7 @@ npm run build        # ng build --configuration=production
 ```
 
 Build output: `dist/n-erp-system/`
+
+**Package manager:** npm is the standard for this repo (`package-lock.json`
+is the committed lockfile). Do not reintroduce `yarn.lock` — it was removed
+after this engagement confirmed npm was used exclusively throughout.

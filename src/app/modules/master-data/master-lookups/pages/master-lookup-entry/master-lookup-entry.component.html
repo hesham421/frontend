@@ -18,15 +18,7 @@
               [required]="true"
               [hintKey]="isEditMode() ? 'MASTER_LOOKUPS.LOOKUP_KEY_READONLY_HINT' : undefined"
             >
-              <input
-                type="text"
-                id="lookupKey"
-                formControlName="lookupKey"
-                class="form-control text-uppercase"
-                maxlength="50"
-                (input)="onLookupKeyInput($event)"
-                [class.is-invalid]="!!(lookupForm.get('lookupKey')?.invalid && (lookupForm.get('lookupKey')?.touched || lookupForm.get('lookupKey')?.dirty))"
-              />
+              <avl-input id="lookupKey" formControlName="lookupKey" [mono]="true" maxlength="50" (input)="onLookupKeyInput($event)" />
             </erp-form-field>
           </div>
 
@@ -36,14 +28,7 @@
               [control]="lookupForm.get('lookupName')"
               [required]="true"
             >
-              <input
-                type="text"
-                id="lookupName"
-                formControlName="lookupName"
-                class="form-control"
-                maxlength="200"
-                [class.is-invalid]="!!(lookupForm.get('lookupName')?.invalid && (lookupForm.get('lookupName')?.touched || lookupForm.get('lookupName')?.dirty))"
-              />
+              <avl-input id="lookupName" formControlName="lookupName" maxlength="200" />
             </erp-form-field>
           </div>
 
@@ -52,14 +37,7 @@
               labelKey="MASTER_LOOKUPS.LOOKUP_NAME_EN"
               [control]="lookupForm.get('lookupNameEn')"
             >
-              <input
-                type="text"
-                id="lookupNameEn"
-                formControlName="lookupNameEn"
-                class="form-control"
-                maxlength="200"
-                [class.is-invalid]="!!(lookupForm.get('lookupNameEn')?.invalid && (lookupForm.get('lookupNameEn')?.touched || lookupForm.get('lookupNameEn')?.dirty))"
-              />
+              <avl-input id="lookupNameEn" formControlName="lookupNameEn" maxlength="200" />
             </erp-form-field>
           </div>
 

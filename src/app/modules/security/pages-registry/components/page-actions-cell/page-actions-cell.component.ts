@@ -5,6 +5,7 @@ import { ICellRendererParams } from 'ag-grid-community';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ErpPermissionDirective } from 'src/app/shared/directives/erp-permission.directive';
+import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
 import { PageDto } from '../../models/page.model';
 
 export type PageActionsCellRendererParams = ICellRendererParams<PageDto> & {
@@ -16,29 +17,27 @@ export type PageActionsCellRendererParams = ICellRendererParams<PageDto> & {
   selector: 'app-page-actions-cell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, TranslateModule, ErpPermissionDirective],
+  imports: [CommonModule, TranslateModule, ErpPermissionDirective, AvlIconButtonComponent],
   template: `
     @if (page; as p) {
     <div class="d-flex align-items-center gap-1">
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-primary"
+      <avl-icon-button
+        icon="ti ti-edit"
+        variant="ghost"
+        size="sm"
         erpPermission="PERM_PAGE_UPDATE"
-        [title]="'COMMON.EDIT' | translate"
-        (click)="onEditClick($event, p)"
-      >
-        <i class="ti ti-edit"></i>
-      </button>
+        [label]="'COMMON.EDIT' | translate"
+        (clicked)="onEditClick($event, p)"
+      />
 
-      <button
-        type="button"
-        [class]="p.active ? 'btn btn-sm btn-outline-warning' : 'btn btn-sm btn-outline-success'"
+      <avl-icon-button
+        [icon]="p.active ? 'ti ti-toggle-right' : 'ti ti-toggle-left'"
+        variant="ghost"
+        size="sm"
         erpPermission="PERM_PAGE_DELETE"
-        [title]="p.active ? ('PAGES.DEACTIVATE' | translate) : ('PAGES.ACTIVATE' | translate)"
-        (click)="onDeactivateClick($event, p)"
-      >
-        <i [class]="p.active ? 'ti ti-toggle-right' : 'ti ti-toggle-left'"></i>
-      </button>
+        [label]="(p.active ? 'PAGES.DEACTIVATE' : 'PAGES.ACTIVATE') | translate"
+        (clicked)="onDeactivateClick($event, p)"
+      />
     </div>
     }
   `

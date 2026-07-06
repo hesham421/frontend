@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 import { RoleAccessApiService } from './role-access-api.service';
+import { RoleSearchRequest } from '../models/role-access.model';
 
 describe('RoleAccessApiService', () => {
   let service: RoleAccessApiService;
@@ -9,7 +10,8 @@ describe('RoleAccessApiService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule]
+      imports: [HttpClientTestingModule],
+      providers: [RoleAccessApiService]
     });
 
     service = TestBed.inject(RoleAccessApiService);
@@ -21,7 +23,14 @@ describe('RoleAccessApiService', () => {
   });
 
   it('maps roles list to RoleDto shape', () => {
-    service.getRoles({ search: 'adm', page: 0, size: 20, sort: 'roleName,asc' }).subscribe((resp) => {
+    const request: RoleSearchRequest = {
+      filters: [{ field: 'roleName', operator: 'LIKE', value: 'adm' }],
+      sorts: [{ field: 'roleName', direction: 'ASC' }],
+      page: 0,
+      size: 20
+    };
+
+    service.searchRoles(request).subscribe((resp) => {
       expect(resp.totalElements).toBe(1);
       expect(resp.content.length).toBe(1);
       expect(resp.content[0]).toEqual(
@@ -34,12 +43,8 @@ describe('RoleAccessApiService', () => {
       );
     });
 
-    const req = httpMock.expectOne((r) => r.url.includes('/api/roles') && r.method === 'GET');
-    const url = new URL(req.request.urlWithParams, 'http://localhost');
-    expect(url.searchParams.get('search')).toBe('adm');
-    expect(url.searchParams.get('page')).toBe('0');
-    expect(url.searchParams.get('size')).toBe('20');
-    expect(url.searchParams.get('sort')).toBe('roleName,asc');
+    const req = httpMock.expectOne((r) => r.url.includes('/api/roles/search') && r.method === 'POST');
+    expect(req.request.body).toEqual(request);
 
     req.flush({
       content: [{ id: 10, roleCode: 'ROLE_ADMIN', roleName: 'Admin', active: true }],
@@ -68,7 +73,7 @@ describe('RoleAccessApiService', () => {
   // ============================================================
 
   it('handles 422 unprocessable entity with clear error', (done) => {
-    service.getRoles({ page: 0, size: 20, sort: 'roleName,asc' }).subscribe({
+    service.searchRoles({ filters: [], sorts: [{ field: 'roleName', direction: 'ASC' }], page: 0, size: 20 }).subscribe({
       next: () => fail('should have errored'),
       error: (err) => {
         expect(err.status).toBe(422);
@@ -78,7 +83,7 @@ describe('RoleAccessApiService', () => {
       }
     });
 
-    const req = httpMock.expectOne((r) => r.url.includes('/api/roles'));
+    const req = httpMock.expectOne((r) => r.url.includes('/api/roles/search'));
     req.flush(
       {
         success: false,
@@ -141,7 +146,7 @@ describe('RoleAccessApiService', () => {
   });
 
   it('handles network error gracefully', (done) => {
-    service.getRoles({ page: 0, size: 20 }).subscribe({
+    service.searchRoles({ filters: [], page: 0, size: 20 }).subscribe({
       next: () => fail('should have errored'),
       error: (err) => {
         expect(err.status).toBe(0);
@@ -149,7 +154,7 @@ describe('RoleAccessApiService', () => {
       }
     });
 
-    const req = httpMock.expectOne((r) => r.url.includes('/api/roles'));
+    const req = httpMock.expectOne((r) => r.url.includes('/api/roles/search'));
     req.error(new ProgressEvent('error'));
   });
 });

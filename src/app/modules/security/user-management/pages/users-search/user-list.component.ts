@@ -1,15 +1,20 @@
 import { Component, OnInit, OnDestroy, ViewChild, ViewContainerRef, TemplateRef, inject, effect, signal, computed, ChangeDetectionStrategy, ChangeDetectorRef, NgZone, DestroyRef, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgModel } from '@angular/forms';
 import { DrawerService } from 'src/app/shared/overlay/drawer/drawer.service';
 import { AvlOverlayRef } from 'src/app/shared/overlay/avl-overlay-ref';
 import { CellClickedEvent } from 'ag-grid-community';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { SharedModule } from 'src/app/theme/shared/shared.module';
+import { CardComponent } from 'src/app/theme/shared/components/card/card.component';
 import { ThemeService } from 'src/app/theme/shared/service/customs-theme.service';
 import { createAgGridTheme } from 'src/app/shared/ag-grid/agGridTableStyle';
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
+import { AvlBadgeComponent } from 'src/app/shared/data-display/avl-badge/avl-badge.component';
+import { AvlAlertComponent } from 'src/app/shared/feedback/avl-alert/avl-alert.component';
+import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
+import { AvlSwitchComponent } from 'src/app/shared/forms/avl-switch/avl-switch.component';
 
 import { ErpListComponent } from 'src/app/shared/base/erp-list.component';
 import { SpecificationFilterComponent } from 'src/app/shared/components/specification-filter/specification-filter.component';
@@ -55,14 +60,19 @@ registerErpAgGridModules();
   standalone: true,
   imports: [
     CommonModule,
-    SharedModule,
+    CardComponent,
     AgGridAngular,
     FormsModule,
     TranslateModule,
     SpecificationFilterComponent,
     ErpPermissionDirective,
     ErpDualListComponent,
-    ErpEmptyStateComponent
+    ErpEmptyStateComponent,
+    AvlButtonComponent,
+    AvlBadgeComponent,
+    AvlAlertComponent,
+    AvlInputComponent,
+    AvlSwitchComponent
   ],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.scss',
@@ -556,6 +566,15 @@ export class UserListComponent extends ErpListComponent implements OnInit, OnDes
   onSpecFiltersClear(): void {
     this.clearFilters();
     this.reload();
+  }
+
+  /** Same required/minlength validation, now surfaced through avl-input's
+   *  own [error] slot instead of a manually-rendered <small> block. */
+  getFieldErrorMessage(ref: NgModel, minLength: number): string | undefined {
+    if (!ref.invalid || !(ref.touched || ref.dirty)) return undefined;
+    if (ref.errors?.['required']) return this.translate.instant('VALIDATION.REQUIRED');
+    if (ref.errors?.['minlength']) return this.translate.instant('VALIDATION.MIN_LENGTH', { min: minLength });
+    return undefined;
   }
 
   formatRoleName(role: string): string {

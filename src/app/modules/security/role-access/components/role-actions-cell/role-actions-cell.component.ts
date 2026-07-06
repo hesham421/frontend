@@ -5,6 +5,7 @@ import { ICellRendererParams } from 'ag-grid-community';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ErpPermissionDirective } from 'src/app/shared/directives/erp-permission.directive';
+import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
 import { RoleDto } from '../../models/role-access.model';
 
 export type RoleActionsCellRendererParams = ICellRendererParams<RoleDto> & {
@@ -17,39 +18,36 @@ export type RoleActionsCellRendererParams = ICellRendererParams<RoleDto> & {
   selector: 'app-role-actions-cell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, TranslateModule, ErpPermissionDirective],
+  imports: [CommonModule, TranslateModule, ErpPermissionDirective, AvlIconButtonComponent],
   template: `
     @if (role; as r) {
     <div class="d-flex align-items-center gap-1">
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-primary"
+      <avl-icon-button
+        icon="ti ti-edit"
+        variant="ghost"
+        size="sm"
         erpPermission="ROLE.UPDATE"
-        [title]="'COMMON.EDIT' | translate"
-        (click)="onEditClick($event, r)"
-      >
-        <i class="ti ti-edit"></i>
-      </button>
+        [label]="'COMMON.EDIT' | translate"
+        (clicked)="onEditClick($event, r)"
+      />
 
-      <button
-        type="button"
-        [class]="r.active ? 'btn btn-sm btn-outline-warning' : 'btn btn-sm btn-outline-success'"
+      <avl-icon-button
+        [icon]="r.active ? 'ti ti-toggle-right' : 'ti ti-toggle-left'"
+        variant="ghost"
+        size="sm"
         erpPermission="ROLE.DELETE"
-        [title]="r.active ? ('COMMON.DEACTIVATE' | translate) : ('COMMON.ACTIVATE' | translate)"
-        (click)="onToggleActiveClick($event, r)"
-      >
-        <i [class]="r.active ? 'ti ti-toggle-right' : 'ti ti-toggle-left'"></i>
-      </button>
+        [label]="(r.active ? 'COMMON.DEACTIVATE' : 'COMMON.ACTIVATE') | translate"
+        (clicked)="onToggleActiveClick($event, r)"
+      />
 
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-danger"
+      <avl-icon-button
+        icon="ti ti-trash"
+        variant="ghost"
+        size="sm"
         erpPermission="ROLE.DELETE"
-        [title]="'COMMON.DELETE' | translate"
-        (click)="onDeleteClick($event, r)"
-      >
-        <i class="ti ti-trash"></i>
-      </button>
+        [label]="'COMMON.DELETE' | translate"
+        (clicked)="onDeleteClick($event, r)"
+      />
     </div>
     }
   `

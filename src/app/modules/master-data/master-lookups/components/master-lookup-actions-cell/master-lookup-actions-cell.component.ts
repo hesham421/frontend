@@ -5,6 +5,7 @@ import { ICellRendererParams } from 'ag-grid-community';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ErpPermissionDirective } from 'src/app/shared/directives/erp-permission.directive';
+import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
 import { MasterLookupDto } from '../../models/master-lookup.model';
 
 export type MasterLookupActionsCellParams = ICellRendererParams<MasterLookupDto> & {
@@ -16,43 +17,37 @@ export type MasterLookupActionsCellParams = ICellRendererParams<MasterLookupDto>
 @Component({
   selector: 'app-master-lookup-actions-cell',
   standalone: true,
-  imports: [CommonModule, TranslateModule, ErpPermissionDirective],
+  imports: [CommonModule, TranslateModule, ErpPermissionDirective, AvlIconButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (lookup; as l) {
     <div class="d-flex align-items-center gap-1">
-      <!-- Edit -->
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-primary"
+      <avl-icon-button
+        icon="ti ti-edit"
+        variant="ghost"
+        size="sm"
         erpPermission="PERM_MASTER_LOOKUP_UPDATE"
-        [title]="'COMMON.EDIT' | translate"
-        (click)="onEditClick($event, l)"
-      >
-        <i class="ti ti-edit"></i>
-      </button>
+        [label]="'COMMON.EDIT' | translate"
+        (clicked)="onEditClick($event, l)"
+      />
 
-      <!-- Activate/Deactivate -->
-      <button
-        type="button"
-        [class]="l.isActive ? 'btn btn-sm btn-outline-warning' : 'btn btn-sm btn-outline-success'"
+      <avl-icon-button
+        [icon]="l.isActive ? 'ti ti-toggle-right' : 'ti ti-toggle-left'"
+        variant="ghost"
+        size="sm"
         erpPermission="PERM_MASTER_LOOKUP_UPDATE"
-        [title]="l.isActive ? ('MASTER_LOOKUPS.DEACTIVATE' | translate) : ('MASTER_LOOKUPS.ACTIVATE' | translate)"
-        (click)="onToggleActiveClick($event, l)"
-      >
-        <i [class]="l.isActive ? 'ti ti-toggle-right' : 'ti ti-toggle-left'"></i>
-      </button>
+        [label]="(l.isActive ? 'MASTER_LOOKUPS.DEACTIVATE' : 'MASTER_LOOKUPS.ACTIVATE') | translate"
+        (clicked)="onToggleActiveClick($event, l)"
+      />
 
-      <!-- Delete -->
-      <button
-        type="button"
-        class="btn btn-sm btn-outline-danger"
+      <avl-icon-button
+        icon="ti ti-trash"
+        variant="ghost"
+        size="sm"
         erpPermission="PERM_MASTER_LOOKUP_DELETE"
-        [title]="'COMMON.DELETE' | translate"
-        (click)="onDeleteClick($event, l)"
-      >
-        <i class="ti ti-trash"></i>
-      </button>
+        [label]="'COMMON.DELETE' | translate"
+        (clicked)="onDeleteClick($event, l)"
+      />
     </div>
     }
   `

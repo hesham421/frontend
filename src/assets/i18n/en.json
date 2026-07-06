@@ -142,7 +142,17 @@
     "LOGIN_WITH": "Login with",
     "SWITCH_LANGUAGE": "Switch Language",
     "LOGIN_FAILED": "Login failed. Please try again.",
-    "INVALID_CREDENTIALS": "Login failed. Please check your credentials."
+    "INVALID_CREDENTIALS": "Login failed. Please check your credentials.",
+    "TOGGLE_PASSWORD": "Show/hide password",
+    "WORKSPACE_SUBTITLE": "Access your AVELYNQ workspace.",
+    "BRAND_EYEBROW": "Enterprise Resource Planning",
+    "BRAND_HEADING_LINE1": "Built to Grow.",
+    "BRAND_HEADING_LINE2": "Designed to Endure.",
+    "BRAND_SUBTITLE": "Systems built to grow — without breaking what already works.",
+    "BRAND_PILL_STRUCTURE": "Structure",
+    "BRAND_PILL_GROWTH": "Growth",
+    "BRAND_PILL_STABILITY": "Stability",
+    "BRAND_COPYRIGHT": "© {{year}} AVELYNQ · Enterprise Systems"
   },
   "PAGES": {
     "TITLE": "Pages Management",

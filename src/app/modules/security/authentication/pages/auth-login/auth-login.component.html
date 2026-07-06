@@ -1,142 +1,136 @@
-<div class="auth-main">
-  <div class="auth-wrapper v3">
-    <div class="auth-form">
-      <div class="auth-header d-flex justify-content-between align-items-center">
-        <a href="javascript:"><img src="assets/images/logo-dark.svg" alt="theme logo" /></a>
-        
-        <!-- Language Switcher -->
-        <div class="language-switcher">
-          <button 
-            type="button" 
-            class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2"
-            (click)="languageService.toggleLanguage()"
-            [title]="'AUTH.SWITCH_LANGUAGE' | translate"
-          >
-            <i class="ti ti-language fs-5"></i>
-            <span class="d-none d-sm-inline">{{ languageService.currentLanguage() === 'ar' ? 'English' : 'العربية' }}</span>
-          </button>
-        </div>
-      </div>
-      <div class="my-5">
-        @if (featureFlags.config().showDemoCredentials) {
-        <ul class="nav nav-tabs admin-role d-block">
-          <div class="row g-2">
-            @for (role of roles; track role.role) {
-              <div class="col-sm-6">
-                <li class="nav-item">
-                  <a href="javascript:" class="nav-link" [class.active]="selectedRole === role" (click)="onSelectRole(role)">
-                    {{ role.name }}
-                  </a>
-                </li>
-              </div>
-            }
-          </div>
-        </ul>
-        }
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-end mb-4">
-              <h3 class="mb-0"><b>{{ 'AUTH.LOGIN' | translate }}</b></h3>
-              @if (featureFlags.config().showRegistration) {
-              <a [routerLink]="[this.authenticationService.isLoggedIn() ? '/auth/register' : '/register']" class="link-primary">
-                {{ 'AUTH.NO_ACCOUNT' | translate }}
-              </a>
-              }
-            </div>
-            <form (ngSubmit)="onSubmit()">
-              <div class="form-group mb-3">
-                <label class="form-label" for="username">{{ 'AUTH.USERNAME' | translate }}</label>
-                <input type="text" id="username" class="form-control" [placeholder]="'AUTH.ENTER_USERNAME' | translate" [field]="loginForm.username" />
-                @if (submitted && loginForm.username().errors()) {
-                  <div class="invalid-feedback">
-                    @if (loginForm.username().errors()) {
-                      <div>{{ 'VALIDATION.REQUIRED' | translate }}</div>
-                    }
-                  </div>
-                }
-              </div>
-              <div class="form-group mb-3">
-                <label class="form-label" for="password">{{ 'AUTH.PASSWORD' | translate }}</label>
-                @if (showPassword) {
-                  <input type="password" id="password" class="form-control" [field]="loginForm.password" [placeholder]="'AUTH.ENTER_PASSWORD' | translate" />
-                } @else {
-                  <input type="text" id="password" class="form-control" [field]="loginForm.password" [placeholder]="'AUTH.ENTER_PASSWORD' | translate" />
-                }
+<div class="avl-split avl-login-root">
+  <!-- Brand panel -->
+  <aside class="avl-split__aside avl-login-aside">
+    <div class="avl-login-aside__glow" aria-hidden="true"></div>
 
-                @if (selectedRole.password) {
-                  <i
-                    antIcon
-                    theme="outline"
-                    type="{{ showPassword ? 'eye' : 'eye-invisible' }}"
-                    id="togglePassword"
-                    (click)="togglePasswordVisibility()"
-                  ></i>
-                }
+    <img src="assets/avelynq/avelynq-lockup-dark.png" alt="AVELYNQ" class="avl-login-aside__logo" />
 
-                @if (submitted && loginForm.password().errors()) {
-                  <div class="invalid-feedback">
-                    @if (loginForm.password().errors()) {
-                      <div>{{ 'VALIDATION.REQUIRED' | translate }}</div>
-                    }
-                  </div>
-                }
-              </div>
-              <div class="d-flex mt-1 justify-content-between">
-                <div class="form-check">
-                  <input class="form-check-input input-primary" type="checkbox" id="customCheckc1" checked />
-                  <label class="form-check-label text-muted" for="customCheckc1">{{ 'AUTH.REMEMBER_ME' | translate }}</label>
-                </div>
-                @if (featureFlags.config().showForgotPassword) {
-                <a
-                  [routerLink]="[this.authenticationService.isLoggedIn() ? '/auth/forgot-password' : '/forgot-password']"
-                  class="text-primary"
-                >
-                  {{ 'AUTH.FORGOT_PASSWORD' | translate }}
-                </a>
-                }
-              </div>
-              <div class="d-grid mt-4">
-                <button class="btn btn-primary" type="submit">{{ 'AUTH.LOGIN' | translate }}</button>
-              </div>
-              @if (error) {
-                <div class="alert alert-danger mt-3 mb-0">{{ error | translate }}</div>
-              }
-            </form>
-            @if (featureFlags.config().showSocialLogin) {
-            <div class="saprator mt-3">
-              <span>{{ 'AUTH.LOGIN_WITH' | translate }}</span>
-            </div>
-            <div class="row">
-              @for (platform of socialMedia; track platform) {
-                <div class="col-4">
-                  <div class="d-grid">
-                    <button type="button" class="btn mt-2 btn-light-primary bg-light social-button">
-                      <img [src]="'assets/images/authentication/' + platform.logo" [alt]="platform.name + ' logo'" />
-                      <span class="d-none d-sm-inline-block">{{ platform.name }}</span>
-                    </button>
-                  </div>
-                </div>
-              }
-            </div>
-            }
-          </div>
-        </div>
-      </div>
-      <div class="auth-footer row">
-        <div class="col my-1">
-          <p class="m-0">
-            Copyright ©
-            <a href="https://codedthemes.com/" target="_blank">CodedThemes</a>
-          </p>
-        </div>
-        <div class="col-auto my-1">
-          <ul class="list-inline footer-link mb-0">
-            <li class="list-inline-item me-4"><a href="https://codedthemes.com/" target="_blank">Home</a></li>
-            <li class="list-inline-item me-4"><a href="https://codedthemes.com/privacy-policy/" target="_blank">Privacy Policy</a></li>
-            <li class="list-inline-item"><a href="https://codedthemes.support-hub.io/" target="_blank">Contact us</a></li>
-          </ul>
-        </div>
+    <div class="avl-login-aside__content">
+      <div class="avl-login-aside__eyebrow">{{ 'AUTH.BRAND_EYEBROW' | translate }}</div>
+      <h1 class="avl-login-aside__heading">
+        {{ 'AUTH.BRAND_HEADING_LINE1' | translate }}<br />{{ 'AUTH.BRAND_HEADING_LINE2' | translate }}
+      </h1>
+      <p class="avl-login-aside__subtitle">{{ 'AUTH.BRAND_SUBTITLE' | translate }}</p>
+      <div class="avl-login-aside__pills">
+        <span class="avl-login-aside__pill">{{ 'AUTH.BRAND_PILL_STRUCTURE' | translate }}</span>
+        <span class="avl-login-aside__pill">{{ 'AUTH.BRAND_PILL_GROWTH' | translate }}</span>
+        <span class="avl-login-aside__pill">{{ 'AUTH.BRAND_PILL_STABILITY' | translate }}</span>
       </div>
     </div>
-  </div>
+
+    <div class="avl-login-aside__copyright">{{ 'AUTH.BRAND_COPYRIGHT' | translate: { year: currentYear } }}</div>
+  </aside>
+
+  <!-- Form panel -->
+  <main class="avl-split__main avl-login-main">
+    <div class="avl-login-main__inner">
+      <div class="avl-only-md-down avl-login-main__mobile-logo">
+        <img src="assets/avelynq/avelynq-mark-dark.png" alt="" />
+        <span class="avl-login-main__wordmark">AVEL<span class="avl-login-main__wordmark-accent">Y</span>NQ</span>
+      </div>
+
+      <div class="avl-login-main__toolbar">
+        <button
+          type="button"
+          class="avl-login-main__lang-btn"
+          (click)="languageService.toggleLanguage()"
+          [title]="'AUTH.SWITCH_LANGUAGE' | translate"
+        >
+          <i class="ti ti-language" aria-hidden="true"></i>
+          <span>{{ languageService.currentLanguage() === 'ar' ? 'English' : 'العربية' }}</span>
+        </button>
+      </div>
+
+      <div class="avl-login-main__header">
+        <h2 class="avl-login-main__title">{{ 'AUTH.LOGIN' | translate }}</h2>
+        @if (featureFlags.config().showRegistration) {
+          <a
+            [routerLink]="[authenticationService.isLoggedIn() ? '/auth/register' : '/register']"
+            class="avl-login-main__register-link"
+          >
+            {{ 'AUTH.NO_ACCOUNT' | translate }}
+          </a>
+        }
+      </div>
+      <p class="avl-login-main__subtitle">{{ 'AUTH.WORKSPACE_SUBTITLE' | translate }}</p>
+
+      @if (featureFlags.config().showDemoCredentials) {
+        <div class="avl-login-main__roles">
+          @for (role of roles; track role.role) {
+            <button
+              type="button"
+              class="avl-login-main__role-btn"
+              [class.avl-login-main__role-btn--active]="selectedRole === role"
+              (click)="onSelectRole(role)"
+            >
+              {{ role.name }}
+            </button>
+          }
+        </div>
+      }
+
+      <form (submit)="onSubmit($event)" class="avl-login-main__form">
+        <avl-input
+          id="username"
+          [label]="'AUTH.USERNAME' | translate"
+          iconLeft="ti ti-user"
+          [placeholder]="'AUTH.ENTER_USERNAME' | translate"
+          [field]="loginForm.username"
+          [error]="(submitted && loginForm.username().errors()) ? ('VALIDATION.REQUIRED' | translate) : undefined"
+        />
+
+        <div class="avl-login-main__password-wrap">
+          <avl-input
+            id="password"
+            [label]="'AUTH.PASSWORD' | translate"
+            [type]="showPassword ? 'password' : 'text'"
+            iconLeft="ti ti-lock"
+            [placeholder]="'AUTH.ENTER_PASSWORD' | translate"
+            [field]="loginForm.password"
+            [error]="(submitted && loginForm.password().errors()) ? ('VALIDATION.REQUIRED' | translate) : undefined"
+          />
+          <avl-icon-button
+            class="avl-login-main__password-toggle"
+            [icon]="showPassword ? 'ti ti-eye' : 'ti ti-eye-off'"
+            variant="ghost"
+            size="sm"
+            [label]="'AUTH.TOGGLE_PASSWORD' | translate"
+            (clicked)="togglePasswordVisibility()"
+          />
+        </div>
+
+        <div class="avl-login-main__row">
+          <avl-checkbox [checkedInput]="true" [label]="'AUTH.REMEMBER_ME' | translate" />
+          @if (featureFlags.config().showForgotPassword) {
+            <a
+              [routerLink]="[authenticationService.isLoggedIn() ? '/auth/forgot-password' : '/forgot-password']"
+              class="avl-login-main__forgot-link"
+            >
+              {{ 'AUTH.FORGOT_PASSWORD' | translate }}
+            </a>
+          }
+        </div>
+
+        <avl-button type="submit" variant="primary" size="lg" [block]="true" [loading]="loading" iconRight="ti ti-arrow-right">
+          {{ 'AUTH.LOGIN' | translate }}
+        </avl-button>
+
+        @if (error) {
+          <avl-alert tone="danger" class="avl-login-main__error">{{ error | translate }}</avl-alert>
+        }
+      </form>
+
+      @if (featureFlags.config().showSocialLogin) {
+        <div class="avl-login-main__separator"><span>{{ 'AUTH.LOGIN_WITH' | translate }}</span></div>
+        <div class="avl-login-main__social">
+          @for (platform of socialMedia; track platform.name) {
+            <button type="button" class="avl-login-main__social-btn">
+              <img [src]="'assets/images/authentication/' + platform.logo" [alt]="platform.name + ' logo'" />
+              <span>{{ platform.name }}</span>
+            </button>
+          }
+        </div>
+      }
+    </div>
+  </main>
 </div>

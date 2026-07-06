@@ -46,8 +46,7 @@ export class UserFacade {
     filters: [],
     page: 0,
     size: 20,
-    sortBy: 'id',
-    sortDir: 'ASC'
+    sorts: [{ field: 'id', direction: 'ASC' }]
   });
 
   // Filter and sort state
@@ -80,8 +79,12 @@ export class UserFacade {
       filters: this.currentFiltersSignal(),
       page: this.lastSearchRequestSignal().page,
       size: this.lastSearchRequestSignal().size,
-      sortBy: this.currentSortSignal()?.field || 'id',
-      sortDir: this.currentSortSignal()?.direction || 'ASC'
+      sorts: [
+        {
+          field: this.currentSortSignal()?.field || 'id',
+          direction: (this.currentSortSignal()?.direction as 'ASC' | 'DESC') || 'ASC'
+        }
+      ]
     };
     this.lastSearchRequestSignal.set(searchRequest);
 
@@ -282,8 +285,7 @@ export class UserFacade {
       filters: state.filters,
       page: state.page,
       size: state.size,
-      sortBy: state.sortBy,
-      sortDir: state.sortDir
+      sorts: [{ field: state.sortBy, direction: state.sortDir as 'ASC' | 'DESC' }]
     });
     this.currentSortSignal.set({ field: state.sortBy, direction: state.sortDir });
     this.currentFiltersSignal.set(state.filters);

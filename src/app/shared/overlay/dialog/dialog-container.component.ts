@@ -74,7 +74,7 @@ const TONE_MAP: Record<NonNullable<AvlOverlayConfig['iconTone']>, { color: strin
   `
 })
 export class DialogContainerComponent {
-  @ViewChild(CdkPortalOutlet, { static: true }) portalOutlet!: CdkPortalOutlet;
+  @ViewChild(CdkPortalOutlet) portalOutlet!: CdkPortalOutlet;
 
   config: AvlOverlayConfig = {};
   dialogRef!: AvlOverlayRef<any>;

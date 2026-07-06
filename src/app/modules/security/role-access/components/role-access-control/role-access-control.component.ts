@@ -23,9 +23,10 @@ import {
 
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { SharedModule } from 'src/app/theme/shared/shared.module';
+import { CardComponent } from 'src/app/theme/shared/components/card/card.component';
 import { ThemeService } from 'src/app/theme/shared/service/customs-theme.service';
 import { createAgGridTheme } from 'src/app/shared/ag-grid/agGridTableStyle';
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
 import {
   registerErpAgGridModules
 } from 'src/app/shared/ag-grid';
@@ -64,12 +65,13 @@ type Direction = 'ltr' | 'rtl' | 'auto';
   standalone: true,
   imports: [
     CommonModule,
-    SharedModule,
+    CardComponent,
     AgGridAngular,
     TranslateModule,
     SpecificationFilterComponent,
     ErpPermissionDirective,
-    ErpEmptyStateComponent
+    ErpEmptyStateComponent,
+    AvlButtonComponent
   ],
   templateUrl: './role-access-control.component.html',
   styleUrl: './role-access-control.component.scss',

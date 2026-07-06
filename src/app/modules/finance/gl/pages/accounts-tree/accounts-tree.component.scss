@@ -46,38 +46,16 @@
 
 /* ── Quick Filter ───────────────────────────────── */
 
-.quick-filter-wrapper {
-  position: relative;
+.quick-filter-row {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-2, 8px);
   min-width: 200px;
 }
 
-.quick-filter-icon {
-  position: absolute;
-  left: 8px;
-  color: var(--brand-secondary, #AEB4BF);
-  font-size: 0.875rem;
-  pointer-events: none;
-  z-index: 1;
-}
-
 .quick-filter-input {
-  padding-left: 30px !important;
-  padding-right: 28px !important;
-  font-size: 0.8125rem;
-}
-
-.quick-filter-clear {
-  position: absolute;
-  right: 4px;
-  color: var(--brand-secondary, #AEB4BF);
-  font-size: 0.75rem;
-  line-height: 1;
-
-  &:hover {
-    color: var(--status-danger, #A92E23);
-  }
+  flex: 1;
+  min-width: 0;
 }
 
 /* ── Saving Indicator ───────────────────────────── */
@@ -181,7 +159,7 @@
 }
 
 .tree-node-code {
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.875rem;
   color: var(--brand-primary, #2466D8);
 }
@@ -321,10 +299,13 @@
   }
 }
 
-/* ── Outline badge ──────────────────────────────── */
+/* ── Read-only inherited-type box ───────────────── */
 
-.bg-outline-secondary {
-  background-color: transparent;
-  border: 1px solid var(--brand-secondary, #AEB4BF);
-  color: var(--brand-secondary, #AEB4BF);
+.readonly-type-box {
+  height: var(--control-md);
+  padding: 0 12px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  font-size: var(--fs-body);
 }

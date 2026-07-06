@@ -1,12 +1,13 @@
 <div class="d-flex justify-content-end mb-3">
-  <button
-    type="button"
-    class="btn btn-success btn-sm"
+  <avl-button
+    variant="accent"
+    size="sm"
+    iconLeft="ti ti-plus"
     *erpPermission="'PERM_MASTER_LOOKUP_CREATE'"
-    (click)="addDetail.emit()"
+    (clicked)="addDetail.emit()"
   >
-    <i class="ti ti-plus"></i> {{ 'MASTER_LOOKUPS.ADD_DETAIL' | translate }}
-  </button>
+    {{ 'MASTER_LOOKUPS.ADD_DETAIL' | translate }}
+  </avl-button>
 </div>
 
 @if (loading) {
@@ -69,42 +70,36 @@
             <td>{{ detail.extraValue }}</td>
             <td>{{ detail.sortOrder }}</td>
             <td>
-              <span [class]="detail.isActive ? 'badge bg-success' : 'badge bg-secondary'">
+              <avl-badge [tone]="detail.isActive ? 'success' : 'neutral'">
                 {{ detail.isActive ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
-              </span>
+              </avl-badge>
             </td>
             <td class="text-center">
-              <div class="btn-group btn-group-sm">
-                <button
-                  type="button"
-                  class="btn btn-outline-primary"
+              <div class="d-flex align-items-center justify-content-center gap-1">
+                <avl-icon-button
+                  icon="ti ti-edit"
+                  variant="ghost"
+                  size="sm"
                   *erpPermission="'PERM_MASTER_LOOKUP_UPDATE'"
-                  [title]="'COMMON.EDIT' | translate"
-                  [attr.aria-label]="'COMMON.EDIT' | translate"
-                  (click)="editDetail.emit(detail)"
-                >
-                  <i class="ti ti-edit" aria-hidden="true"></i>
-                </button>
-                <button
-                  type="button"
-                  [class]="detail.isActive ? 'btn btn-outline-warning' : 'btn btn-outline-success'"
+                  [label]="'COMMON.EDIT' | translate"
+                  (clicked)="editDetail.emit(detail)"
+                />
+                <avl-icon-button
+                  [icon]="detail.isActive ? 'ti ti-toggle-right' : 'ti ti-toggle-left'"
+                  variant="ghost"
+                  size="sm"
                   *erpPermission="'PERM_MASTER_LOOKUP_UPDATE'"
-                  [title]="detail.isActive ? ('MASTER_LOOKUPS.DEACTIVATE' | translate) : ('MASTER_LOOKUPS.ACTIVATE' | translate)"
-                  [attr.aria-label]="detail.isActive ? ('MASTER_LOOKUPS.DEACTIVATE' | translate) : ('MASTER_LOOKUPS.ACTIVATE' | translate)"
-                  (click)="toggleActive.emit(detail)"
-                >
-                  <i [class]="detail.isActive ? 'ti ti-toggle-right' : 'ti ti-toggle-left'" aria-hidden="true"></i>
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-outline-danger"
+                  [label]="(detail.isActive ? 'MASTER_LOOKUPS.DEACTIVATE' : 'MASTER_LOOKUPS.ACTIVATE') | translate"
+                  (clicked)="toggleActive.emit(detail)"
+                />
+                <avl-icon-button
+                  icon="ti ti-trash"
+                  variant="ghost"
+                  size="sm"
                   *erpPermission="'PERM_MASTER_LOOKUP_DELETE'"
-                  [title]="'COMMON.DELETE' | translate"
-                  [attr.aria-label]="'COMMON.DELETE' | translate"
-                  (click)="deleteDetail.emit(detail)"
-                >
-                  <i class="ti ti-trash" aria-hidden="true"></i>
-                </button>
+                  [label]="'COMMON.DELETE' | translate"
+                  (clicked)="deleteDetail.emit(detail)"
+                />
               </div>
             </td>
           </tr>

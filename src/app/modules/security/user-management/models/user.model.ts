@@ -36,8 +36,13 @@ export interface SearchRequest {
   filters: SearchFilter[];
   page: number;
   size: number;
-  sortBy?: string;
-  sortDir?: string;
+  /**
+   * Backend expects `sorts: [{field, direction}]`, NOT flat `sortBy`/`sortDir`
+   * strings — confirmed via direct API testing (POST /api/users/search with
+   * flat fields returns 400 INVALID_JSON; with a `sorts` array it succeeds).
+   * Matches the shape already used correctly by roles/pages/master-lookup search.
+   */
+  sorts?: { field: string; direction: 'ASC' | 'DESC' }[];
 }
 
 export interface CreateUserRequest {

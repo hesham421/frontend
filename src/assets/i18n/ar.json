@@ -142,7 +142,17 @@
     "LOGIN_WITH": "تسجيل الدخول باستخدام",
     "SWITCH_LANGUAGE": "تبديل اللغة",
     "LOGIN_FAILED": "فشل تسجيل الدخول. يرجى المحاولة مرة أخرى.",
-    "INVALID_CREDENTIALS": "فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد."
+    "INVALID_CREDENTIALS": "فشل تسجيل الدخول. يرجى التحقق من بيانات الاعتماد.",
+    "TOGGLE_PASSWORD": "إظهار/إخفاء كلمة المرور",
+    "WORKSPACE_SUBTITLE": "الوصول إلى مساحة عمل AVELYNQ الخاصة بك.",
+    "BRAND_EYEBROW": "تخطيط موارد المؤسسات",
+    "BRAND_HEADING_LINE1": "بُني لينمو،",
+    "BRAND_HEADING_LINE2": "صُمم ليدوم.",
+    "BRAND_SUBTITLE": "أنظمة مصممة للنمو، دون كسر ما يعمل بالفعل.",
+    "BRAND_PILL_STRUCTURE": "البنية",
+    "BRAND_PILL_GROWTH": "النمو",
+    "BRAND_PILL_STABILITY": "الاستقرار",
+    "BRAND_COPYRIGHT": "© {{year}} AVELYNQ · أنظمة المؤسسات"
   },
   "PAGES": {
     "TITLE": "إدارة الصفحات",

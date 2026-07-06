@@ -41,6 +41,10 @@ export class DialogService {
     const containerRef = overlayRef.attach(containerPortal);
     containerRef.instance.config = config;
     containerRef.instance.dialogRef = dialogRef;
+    // Overlay.attach() creates the container but never checks its view, so
+    // portalOutlet (a view query) is still unresolved at this point — force
+    // a detection pass before reading it below.
+    containerRef.changeDetectorRef.detectChanges();
 
     if (content instanceof TemplateRef) {
       if (!config.viewContainerRef) {

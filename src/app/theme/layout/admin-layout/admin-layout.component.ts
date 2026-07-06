@@ -6,7 +6,6 @@ import { RouterModule } from '@angular/router';
 // Project import
 import { MantisConfig } from 'src/app/app-config';
 import { SharedModule } from '../../shared/shared.module';
-import { ConfigurationComponent } from './configuration/configuration.component';
 import { NavBarComponent } from './nav-bar/nav-bar.component';
 import { NavigationComponent } from './navigation/navigation.component';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
@@ -15,7 +14,7 @@ import { LayoutStateService } from '../../shared/service/layout-state.service';
 
 @Component({
   selector: 'app-admin',
-  imports: [CommonModule, SharedModule, NavigationComponent, NavBarComponent, ConfigurationComponent, RouterModule, BreadcrumbComponent],
+  imports: [CommonModule, SharedModule, NavigationComponent, NavBarComponent, RouterModule, BreadcrumbComponent],
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.scss'],
   host: {

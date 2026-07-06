@@ -24,19 +24,21 @@
 
 <app-card [cardTitle]="'PAGES.PAGE_REGISTRY' | translate" [padding]="0">
   <div class="card-header-right">
-    <button class="btn btn-info btn-sm me-2" (click)="toggleAdvancedFilters()">
-      <i class="ti ti-filter"></i> {{ showAdvancedFilters ? ('USERS.HIDE_FILTERS' | translate) : ('USERS.ADVANCED_FILTERS' | translate) }}
-    </button>
-    <button
-      class="btn btn-success btn-sm me-2"
+    <avl-button variant="secondary" size="sm" iconLeft="ti ti-filter" (clicked)="toggleAdvancedFilters()">
+      {{ showAdvancedFilters ? ('USERS.HIDE_FILTERS' | translate) : ('USERS.ADVANCED_FILTERS' | translate) }}
+    </avl-button>
+    <avl-button
+      variant="accent"
+      size="sm"
+      iconLeft="ti ti-plus"
       erpPermission="PERM_PAGE_CREATE"
-      (click)="navigateToCreate()"
+      (clicked)="navigateToCreate()"
     >
-      <i class="ti ti-plus"></i> {{ 'PAGES.CREATE_PAGE' | translate }}
-    </button>
-    <button class="btn btn-primary btn-sm" (click)="refreshData()">
-      <i class="ti ti-refresh"></i> {{ 'COMMON.REFRESH' | translate }}
-    </button>
+      {{ 'PAGES.CREATE_PAGE' | translate }}
+    </avl-button>
+    <avl-button variant="primary" size="sm" iconLeft="ti ti-refresh" (clicked)="refreshData()">
+      {{ 'COMMON.REFRESH' | translate }}
+    </avl-button>
   </div>
 
   <!-- Advanced Filters Panel -->
@@ -50,18 +52,15 @@
     />
 
     @if (currentFilters.length > 0) {
-    <div class="alert alert-info mt-3 mb-0 py-2">
-      <small>
-        <i class="ti ti-info-circle"></i>
-        <strong>{{ 'USERS.ACTIVE_FILTERS' | translate }}:</strong> {{ currentFilters.length }}
-        @for (filter of currentFilters.slice(0, 3); track $index) {
-          <span class="badge bg-primary ms-1">{{ filter.field }} {{ filter.op }}</span>
-        }
-        @if (currentFilters.length > 3) {
-          <span class="badge bg-secondary ms-1">+{{ currentFilters.length - 3 }}</span>
-        }
-      </small>
-    </div>
+    <avl-alert tone="info" class="d-block mt-3">
+      <strong>{{ 'USERS.ACTIVE_FILTERS' | translate }}:</strong> {{ currentFilters.length }}
+      @for (filter of currentFilters.slice(0, 3); track $index) {
+        <avl-badge tone="info" class="ms-1">{{ filter.field }} {{ filter.op }}</avl-badge>
+      }
+      @if (currentFilters.length > 3) {
+        <avl-badge tone="neutral" class="ms-1">+{{ currentFilters.length - 3 }}</avl-badge>
+      }
+    </avl-alert>
     }
   </div>
   }

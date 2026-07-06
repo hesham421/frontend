@@ -1,18 +1,20 @@
 <app-card [cardTitle]="'MASTER_LOOKUPS.TITLE' | translate" [padding]="0">
   <div class="card-header-right">
-    <button class="btn btn-info btn-sm me-2" (click)="toggleAdvancedFilters()">
-      <i class="ti ti-filter"></i> {{ showAdvancedFilters ? ('COMMON.HIDE_FILTERS' | translate) : ('COMMON.ADVANCED_FILTERS' | translate) }}
-    </button>
-    <button
-      class="btn btn-success btn-sm me-2"
+    <avl-button variant="secondary" size="sm" iconLeft="ti ti-filter" (clicked)="toggleAdvancedFilters()">
+      {{ showAdvancedFilters ? ('COMMON.HIDE_FILTERS' | translate) : ('COMMON.ADVANCED_FILTERS' | translate) }}
+    </avl-button>
+    <avl-button
+      variant="accent"
+      size="sm"
+      iconLeft="ti ti-plus"
       erpPermission="PERM_MASTER_LOOKUP_CREATE"
-      (click)="navigateToCreate()"
+      (clicked)="navigateToCreate()"
     >
-      <i class="ti ti-plus"></i> {{ 'MASTER_LOOKUPS.CREATE' | translate }}
-    </button>
-    <button class="btn btn-primary btn-sm" (click)="refreshData()">
-      <i class="ti ti-refresh"></i> {{ 'COMMON.REFRESH' | translate }}
-    </button>
+      {{ 'MASTER_LOOKUPS.CREATE' | translate }}
+    </avl-button>
+    <avl-button variant="primary" size="sm" iconLeft="ti ti-refresh" (clicked)="refreshData()">
+      {{ 'COMMON.REFRESH' | translate }}
+    </avl-button>
   </div>
 
   @if (showAdvancedFilters) {

@@ -73,7 +73,7 @@ export function createPageColumnDefs(
     { field: 'route', headerName: translate.instant('PAGES.ROUTE'), sortable: true, flex: 1.2, minWidth: 180 },
     { field: 'module', headerName: translate.instant('PAGES.MODULE'), sortable: true, maxWidth: 150 },
     { field: 'icon', headerName: translate.instant('PAGES.ICON'), sortable: true, maxWidth: 160 },
-    { field: 'displayOrder', headerName: translate.instant('PAGES.DISPLAY_ORDER'), sortable: true, maxWidth: 120 },
+    { field: 'displayOrder', headerName: translate.instant('PAGES.DISPLAY_ORDER'), sortable: true, maxWidth: 120, cellClass: 'avl-ag-cell-mono' },
     createActiveColumnDef(activeLabels, {
       headerName: translate.instant('USERS.STATUS'),
       maxWidth: 120,

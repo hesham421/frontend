@@ -69,7 +69,7 @@ const TONE_MAP: Record<NonNullable<AvlOverlayConfig['iconTone']>, { color: strin
   `
 })
 export class DrawerContainerComponent {
-  @ViewChild(CdkPortalOutlet, { static: true }) portalOutlet!: CdkPortalOutlet;
+  @ViewChild(CdkPortalOutlet) portalOutlet!: CdkPortalOutlet;
 
   config: AvlOverlayConfig = {};
   drawerRef!: AvlOverlayRef<any>;

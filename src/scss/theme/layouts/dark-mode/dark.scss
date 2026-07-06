@@ -1,3 +1,16 @@
+// AVELYNQ migration status (Phase 7): dark mode is NOT currently supported.
+// `ThemeService.toggleDarkMode()` has zero callers anywhere in the app (see
+// also src/app/shared/ag-grid/agGridTableStyle.ts's doc comment), and
+// AVELYNQ has not defined a dark palette. Everything below is scoped under
+// `body.mantis-dark`, which nothing in the current UI ever applies (a
+// returning user with stale `erp_dark_mode: true` in localStorage from
+// before this migration is the only path that could still add this class —
+// dark mode would render broken either way, since this file's `pc-sidebar`/
+// `pc-header`/`coded-*` selectors target markup the new AVELYNQ shell
+// (`avl-sidebar`, etc.) no longer emits). Left as-is rather than partially
+// cleaned up — a real dark-mode migration needs its own token-mapping pass,
+// not a piecemeal fix here.
+
 @use 'sass:map';
 @use 'sass:color';
 

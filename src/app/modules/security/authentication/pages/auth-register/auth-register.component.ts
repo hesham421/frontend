@@ -3,10 +3,15 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
 import { email, Field, form, minLength, required } from '@angular/forms/signals';
+import { TranslateModule } from '@ngx-translate/core';
 
-import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { AuthenticationService } from 'src/app/core/services/authentication.service';
 import { DASHBOARD_PATH } from 'src/app/app-config';
+
+import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
+import { AvlAlertComponent } from 'src/app/shared/feedback/avl-alert/avl-alert.component';
+import { CardComponent } from 'src/app/theme/shared/components/card/card.component';
 
 import { first } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -21,7 +26,17 @@ interface RegisterData {
 @Component({
   selector: 'app-auth-register',
   standalone: true,
-  imports: [CommonModule, RouterModule, SharedModule, ReactiveFormsModule, Field],
+  imports: [
+    CommonModule,
+    RouterModule,
+    ReactiveFormsModule,
+    Field,
+    TranslateModule,
+    AvlInputComponent,
+    AvlButtonComponent,
+    AvlAlertComponent,
+    CardComponent
+  ],
   templateUrl: './auth-register.component.html',
   styleUrls: ['./auth-register.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -57,7 +72,9 @@ export class AuthRegisterComponent {
     }
   }
 
-  onSubmit(): void {
+  onSubmit(event: Event): void {
+    event.preventDefault();
+
     this.submitted.set(true);
 
     if (!this.registerForm().valid()) {

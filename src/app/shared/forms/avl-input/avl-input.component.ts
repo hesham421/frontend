@@ -35,6 +35,13 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
           [disabled]="disabled"
           [readOnly]="readOnly"
           [required]="required"
+          [attr.maxlength]="maxlength ?? null"
+          [attr.minlength]="minlength ?? null"
+          [attr.min]="min ?? null"
+          [attr.max]="max ?? null"
+          [attr.pattern]="pattern ?? null"
+          [attr.autocomplete]="autocomplete ?? null"
+          [attr.dir]="dir ?? null"
           [class.avl-field__input--mono]="mono"
           class="avl-field__input"
           (input)="onInput($event)"
@@ -146,6 +153,15 @@ export class AvlInputComponent implements ControlValueAccessor {
   @Input() required = false;
   @Input() mono = false;
   @Input() id?: string;
+
+  /** Native HTML attribute passthrough — forwarded to the internal <input> via [attr.*]. */
+  @Input() maxlength?: number | string | null;
+  @Input() minlength?: number | string | null;
+  @Input() min?: number | string | null;
+  @Input() max?: number | string | null;
+  @Input() pattern?: string | null;
+  @Input() autocomplete?: string | null;
+  @Input() dir?: string | null;
 
   @Input() set value(v: string) {
     this.valueSignal.set(v ?? '');

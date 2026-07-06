@@ -12,29 +12,35 @@
 
   <!-- ── Header Buttons (same style as user-management) ──── -->
   <div class="card-header-right">
-    <button class="btn btn-info btn-sm me-2"
-            [class.active]="showAdvancedFilters"
-            (click)="toggleAdvancedFilters()">
-      <i class="ti ti-filter"></i> {{ showAdvancedFilters ? ('GL.HIDE_FILTERS' | translate) : ('GL.ADVANCED_FILTERS' | translate) }}
+    <avl-button variant="secondary" size="sm" iconLeft="ti ti-filter" (clicked)="toggleAdvancedFilters()">
+      {{ showAdvancedFilters ? ('GL.HIDE_FILTERS' | translate) : ('GL.ADVANCED_FILTERS' | translate) }}
       @if (activeSpecFilters.length > 0) {
-        <span class="badge bg-light text-dark ms-1">{{ activeSpecFilters.length }}</span>
+        <avl-badge tone="neutral">{{ activeSpecFilters.length }}</avl-badge>
       }
-    </button>
-    <button class="btn btn-success btn-sm me-2"
-            erpPermission="PERM_GL_ACCOUNT_CREATE"
-            [disabled]="isSaving"
-            (click)="startAddRoot()">
-      <i class="ti ti-plus"></i> {{ 'GL.ADD_ROOT_ACCOUNT' | translate }}
-    </button>
-    <button class="btn btn-outline-success btn-sm me-2"
-            erpPermission="PERM_GL_ACCOUNT_CREATE"
-            [disabled]="!selectedNodePk || isSaving"
-            (click)="selectedNodePk ? startAddChild(findNodeByPk(treeData, selectedNodePk)!) : null">
-      <i class="ti ti-subtask"></i> {{ 'GL.ADD_CHILD_ACCOUNT' | translate }}
-    </button>
-    <button class="btn btn-primary btn-sm" (click)="loadTree()">
-      <i class="ti ti-refresh"></i> {{ 'COMMON.REFRESH' | translate }}
-    </button>
+    </avl-button>
+    <avl-button
+      variant="accent"
+      size="sm"
+      iconLeft="ti ti-plus"
+      erpPermission="PERM_GL_ACCOUNT_CREATE"
+      [disabled]="isSaving"
+      (clicked)="startAddRoot()"
+    >
+      {{ 'GL.ADD_ROOT_ACCOUNT' | translate }}
+    </avl-button>
+    <avl-button
+      variant="secondary"
+      size="sm"
+      iconLeft="ti ti-subtask"
+      erpPermission="PERM_GL_ACCOUNT_CREATE"
+      [disabled]="!selectedNodePk || isSaving"
+      (clicked)="selectedNodePk ? startAddChild(findNodeByPk(treeData, selectedNodePk)!) : null"
+    >
+      {{ 'GL.ADD_CHILD_ACCOUNT' | translate }}
+    </avl-button>
+    <avl-button variant="primary" size="sm" iconLeft="ti ti-refresh" (clicked)="loadTree()">
+      {{ 'COMMON.REFRESH' | translate }}
+    </avl-button>
   </div>
 
   <!-- ── Advanced Specification Filter Panel ──────────────── -->
@@ -48,18 +54,15 @@
     />
 
     @if (activeSpecFilters.length > 0) {
-    <div class="alert alert-info mt-3 mb-0 py-2">
-      <small>
-        <i class="ti ti-info-circle"></i>
-        <strong>{{ 'COMMON.ACTIVE' | translate }}:</strong> {{ activeSpecFilters.length }}
-        @for (filter of activeSpecFilters.slice(0, 3); track $index) {
-          <span class="badge bg-primary ms-1">{{ filter.field }} {{ filter.operator }}</span>
-        }
-        @if (activeSpecFilters.length > 3) {
-          <span class="badge bg-secondary ms-1">+{{ activeSpecFilters.length - 3 }}</span>
-        }
-      </small>
-    </div>
+    <avl-alert tone="info" class="d-block mt-3 mb-0">
+      <strong>{{ 'COMMON.ACTIVE' | translate }}:</strong> {{ activeSpecFilters.length }}
+      @for (filter of activeSpecFilters.slice(0, 3); track $index) {
+        <avl-badge tone="info" class="ms-1">{{ filter.field }} {{ filter.operator }}</avl-badge>
+      }
+      @if (activeSpecFilters.length > 3) {
+        <avl-badge tone="neutral" class="ms-1">+{{ activeSpecFilters.length - 3 }}</avl-badge>
+      }
+    </avl-alert>
     }
   </div>
   }
@@ -70,30 +73,27 @@
     <div class="tree-toolbar">
       <div class="d-flex align-items-center gap-2 flex-wrap">
         <!-- Quick filter -->
-        <div class="quick-filter-wrapper">
-          <i class="ti ti-filter-search quick-filter-icon"></i>
-          <input
-            type="text"
-            class="form-control form-control-sm quick-filter-input"
+        <div class="quick-filter-row">
+          <avl-input
+            class="quick-filter-input"
+            iconLeft="ti ti-filter-search"
             [(ngModel)]="quickFilterText"
             [placeholder]="'GL.QUICK_FILTER' | translate"
           />
           @if (quickFilterText) {
-          <button class="btn btn-sm btn-link quick-filter-clear p-0" (click)="clearQuickFilter()" [attr.aria-label]="'COMMON.CLEAR' | translate">
-            <i class="ti ti-x" aria-hidden="true"></i>
-          </button>
+          <avl-icon-button icon="ti ti-x" variant="ghost" size="sm" [label]="'COMMON.CLEAR' | translate" (clicked)="clearQuickFilter()" />
           }
         </div>
 
         <span class="toolbar-separator"></span>
 
         <!-- Expand/Collapse -->
-        <button class="btn btn-sm btn-outline-secondary" (click)="expandAll()" title="{{ 'GL.EXPAND_ALL' | translate }}">
-          <i class="ti ti-arrows-maximize me-1"></i>{{ 'GL.EXPAND_ALL' | translate }}
-        </button>
-        <button class="btn btn-sm btn-outline-secondary" (click)="collapseAll()" title="{{ 'GL.COLLAPSE_ALL' | translate }}">
-          <i class="ti ti-arrows-minimize me-1"></i>{{ 'GL.COLLAPSE_ALL' | translate }}
-        </button>
+        <avl-button variant="secondary" size="sm" iconLeft="ti ti-arrows-maximize" [attr.title]="'GL.EXPAND_ALL' | translate" (clicked)="expandAll()">
+          {{ 'GL.EXPAND_ALL' | translate }}
+        </avl-button>
+        <avl-button variant="secondary" size="sm" iconLeft="ti ti-arrows-minimize" [attr.title]="'GL.COLLAPSE_ALL' | translate" (clicked)="collapseAll()">
+          {{ 'GL.COLLAPSE_ALL' | translate }}
+        </avl-button>
 
         <!-- Node count + saving indicator -->
         <span class="ms-auto text-muted small d-flex align-items-center gap-2">
@@ -120,18 +120,15 @@
         <div class="row g-2 align-items-end">
           <div class="col-md-3">
             <label class="form-label small mb-1">{{ 'GL.ORGANIZATION' | translate }} <span class="text-danger">*</span></label>
-            <input
+            <avl-input
               type="number"
-              class="form-control form-control-sm"
               [(ngModel)]="addState.organizationFk"
               [placeholder]="'GL.ENTER_ORG_ID' | translate"
             />
           </div>
           <div class="col-md-3">
             <label class="form-label small mb-1">{{ 'GL.ACCOUNT_NAME' | translate }} <span class="text-danger">*</span></label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
+            <avl-input
               [(ngModel)]="addState.accountChartName"
               [placeholder]="'GL.ACCOUNT_NAME' | translate"
               maxlength="200"
@@ -139,28 +136,18 @@
           </div>
           <div class="col-md-2">
             <label class="form-label small mb-1">{{ 'GL.ACCOUNT_TYPE' | translate }} <span class="text-danger">*</span></label>
-            <select class="form-select form-select-sm" [(ngModel)]="addState.accountType">
-              @for (type of accountTypeOptions; track type.value) {
-              <option [ngValue]="type.value">{{ type.label }}</option>
-              }
-            </select>
+            <avl-select [options]="accountTypeOptions" [(ngModel)]="addState.accountType" />
           </div>
           <div class="col-md-1">
-            <div class="form-check form-switch mt-2">
-              <input class="form-check-input" type="checkbox" [(ngModel)]="addState.isActive" id="addRootActive" />
-              <label class="form-check-label small" for="addRootActive">{{ 'GL.IS_ACTIVE' | translate }}</label>
-            </div>
+            <avl-switch class="mt-2" [(ngModel)]="addState.isActive" id="addRootActive" [label]="'GL.IS_ACTIVE' | translate" />
           </div>
           <div class="col-md-3 d-flex gap-2 justify-content-end">
-            <button class="btn btn-sm btn-primary" [disabled]="!addFormValid || isSaving" (click)="saveAdd()">
-              @if (isSaving) {
-                <span class="spinner-border spinner-border-sm me-1"></span>
-              }
-              <i class="ti ti-check me-1"></i>{{ 'COMMON.SAVE' | translate }}
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" [disabled]="isSaving" (click)="cancelAdd()">
-              <i class="ti ti-x me-1"></i>{{ 'COMMON.CANCEL' | translate }}
-            </button>
+            <avl-button variant="primary" size="sm" iconLeft="ti ti-check" [disabled]="!addFormValid" [loading]="isSaving" (clicked)="saveAdd()">
+              {{ 'COMMON.SAVE' | translate }}
+            </avl-button>
+            <avl-button variant="secondary" size="sm" iconLeft="ti ti-x" [disabled]="isSaving" (clicked)="cancelAdd()">
+              {{ 'COMMON.CANCEL' | translate }}
+            </avl-button>
           </div>
         </div>
         <div class="text-muted small mt-1">
@@ -189,10 +176,13 @@
       <ng-container *ngTemplateOutlet="treeTemplate; context: { nodes: filteredTreeData, depth: 0 }"></ng-container>
     </div>
     } @else if (hasActiveFilters && treeData.length > 0) {
-    <div class="p-3 text-center text-muted">
-      <i class="ti ti-search-off" style="font-size: 2rem;"></i>
-      <p class="mt-2 mb-0">{{ 'COMMON.NO_RESULTS' | translate }}</p>
-      <button class="btn btn-sm btn-link mt-1" (click)="clearAllFilters()">{{ 'COMMON.CLEAR' | translate }}</button>
+    <div class="p-3">
+      <erp-empty-state
+        icon="ti ti-search-off"
+        titleKey="COMMON.NO_RESULTS"
+        actionLabelKey="COMMON.CLEAR"
+        (actionClicked)="clearAllFilters()"
+      />
     </div>
     }
   </div>
@@ -255,76 +245,70 @@
       <div class="tree-badges ms-auto d-flex align-items-center gap-1">
         <!-- Account Type Badge -->
         @if (node.accountTypeName && depth === 0) {
-        <span class="badge bg-primary-subtle text-primary">{{ node.accountTypeName }}</span>
+        <avl-badge tone="info">{{ node.accountTypeName }}</avl-badge>
         }
 
         <!-- Level Badge -->
-        <span class="badge bg-light text-dark border" title="{{ 'GL.LEVEL' | translate }}">
+        <avl-badge tone="neutral" variant="outline" [attr.title]="'GL.LEVEL' | translate">
           L{{ node.level }}
-        </span>
+        </avl-badge>
 
         <!-- Child Count -->
         @if (node.childCount > 0) {
-        <span class="badge bg-info-subtle text-info" title="{{ 'GL.CHILDREN_COUNT' | translate }}">
-          <i class="ti ti-sitemap me-1" style="font-size: 10px;"></i>{{ node.childCount }}
-        </span>
+        <avl-badge tone="info" icon="ti ti-sitemap" [attr.title]="'GL.CHILDREN_COUNT' | translate">
+          {{ node.childCount }}
+        </avl-badge>
         }
 
         <!-- Leaf Badge -->
         @if (node.isLeaf) {
-        <span class="badge bg-outline-secondary" title="{{ 'GL.LEAF_ACCOUNT' | translate }}">
-          <i class="ti ti-file-text"></i>
-        </span>
+        <avl-badge tone="neutral" variant="outline" icon="ti ti-file-text" [attr.title]="'GL.LEAF_ACCOUNT' | translate" />
         }
 
         <!-- Inactive indicator -->
         @if (!node.isActive) {
-        <span class="badge bg-danger">{{ 'COMMON.INACTIVE' | translate }}</span>
+        <avl-badge tone="danger" variant="solid">{{ 'COMMON.INACTIVE' | translate }}</avl-badge>
         }
 
         <!-- ── Action buttons (visible on hover) ────────── -->
         <div class="tree-action-buttons d-flex align-items-center gap-0">
           <!-- Edit -->
-          <button
-            class="btn btn-sm btn-link tree-action-btn p-0"
+          <avl-icon-button
+            icon="ti ti-pencil"
+            variant="ghost"
+            size="sm"
             erpPermission="PERM_GL_ACCOUNT_UPDATE"
-            (click)="startEdit(node); $event.stopPropagation()"
-            title="{{ 'COMMON.EDIT' | translate }}"
-            [attr.aria-label]="'COMMON.EDIT' | translate"
-          >
-            <i class="ti ti-pencil" aria-hidden="true"></i>
-          </button>
+            (clicked)="startEdit(node); $event.stopPropagation()"
+            [label]="'COMMON.EDIT' | translate"
+          />
           <!-- Add Child -->
-          <button
-            class="btn btn-sm btn-link tree-action-btn tree-action-add p-0"
+          <avl-icon-button
+            icon="ti ti-plus"
+            variant="ghost"
+            size="sm"
             erpPermission="PERM_GL_ACCOUNT_CREATE"
-            (click)="startAddChild(node); $event.stopPropagation()"
-            title="{{ 'GL.ADD_CHILD_ACCOUNT' | translate }}"
-            [attr.aria-label]="'GL.ADD_CHILD_ACCOUNT' | translate"
-          >
-            <i class="ti ti-plus" aria-hidden="true"></i>
-          </button>
+            (clicked)="startAddChild(node); $event.stopPropagation()"
+            [label]="'GL.ADD_CHILD_ACCOUNT' | translate"
+          />
           <!-- Status Toggle (Activate / Deactivate) -->
           @if (node.isActive) {
-          <button
-            class="btn btn-sm btn-link tree-action-btn tree-action-deactivate p-0"
+          <avl-icon-button
+            icon="ti ti-toggle-right"
+            variant="ghost"
+            size="sm"
             erpPermission="PERM_GL_ACCOUNT_UPDATE"
-            (click)="toggleStatus(node); $event.stopPropagation()"
-            title="{{ 'COMMON.DEACTIVATE' | translate }}"
-            [attr.aria-label]="'COMMON.DEACTIVATE' | translate"
-          >
-            <i class="ti ti-toggle-right" aria-hidden="true"></i>
-          </button>
+            (clicked)="toggleStatus(node); $event.stopPropagation()"
+            [label]="'COMMON.DEACTIVATE' | translate"
+          />
           } @else {
-          <button
-            class="btn btn-sm btn-link tree-action-btn tree-action-activate p-0"
+          <avl-icon-button
+            icon="ti ti-toggle-left"
+            variant="ghost"
+            size="sm"
             erpPermission="PERM_GL_ACCOUNT_UPDATE"
-            (click)="toggleStatus(node); $event.stopPropagation()"
-            title="{{ 'COMMON.ACTIVATE' | translate }}"
-            [attr.aria-label]="'COMMON.ACTIVATE' | translate"
-          >
-            <i class="ti ti-toggle-left" aria-hidden="true"></i>
-          </button>
+            (clicked)="toggleStatus(node); $event.stopPropagation()"
+            [label]="'COMMON.ACTIVATE' | translate"
+          />
           }
         </div>
       </div>
@@ -337,9 +321,7 @@
         <div class="row g-2 align-items-end">
           <div class="col-md-4">
             <label class="form-label small mb-1">{{ 'GL.ACCOUNT_NAME' | translate }} <span class="text-danger">*</span></label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
+            <avl-input
               [(ngModel)]="editState.accountChartName"
               (ngModelChange)="onEditFieldChange()"
               maxlength="200"
@@ -349,18 +331,14 @@
             <label class="form-label small mb-1">{{ 'GL.ACCOUNT_TYPE' | translate }}<span class="text-danger">*</span></label>
             @if (editTypeLockedByParent) {
             <!-- Read-only: inherited from parent — no select rendered to avoid blank display -->
-            <div class="form-control form-control-sm bg-light d-flex align-items-center justify-content-between">
+            <div class="readonly-type-box d-flex align-items-center justify-content-between">
               <span>{{ editAccountTypeLabel }}</span>
-              <span class="badge bg-info-subtle text-info ms-1" style="font-size:0.65rem">
+              <avl-badge tone="info" class="ms-1" style="font-size:0.65rem">
                 <i class="ti ti-lock me-1"></i>{{ 'GL.ACCOUNT_TYPE_INHERITED' | translate }}
-              </span>
+              </avl-badge>
             </div>
             } @else {
-            <select class="form-select form-select-sm" [(ngModel)]="editState.accountType" (ngModelChange)="onEditFieldChange()" [disabled]="editTypeDisabled">
-              @for (type of accountTypeOptions; track type.value) {
-              <option [ngValue]="type.value">{{ type.label }}</option>
-              }
-            </select>
+            <avl-select [options]="accountTypeOptions" [(ngModel)]="editState.accountType" (ngModelChange)="onEditFieldChange()" [disabled]="editTypeDisabled" />
             @if (editTypeDisabled) {
             <div class="text-muted small mt-1">
               <i class="ti ti-lock me-1"></i>{{ 'GL.TYPE_LOCKED_HAS_CHILDREN' | translate }}
@@ -369,21 +347,21 @@
             }
           </div>
           <div class="col-md-2">
-            <div class="form-check form-switch mt-2">
-              <input class="form-check-input" type="checkbox" [(ngModel)]="editState.isActive" (ngModelChange)="onEditFieldChange()" [id]="'editActive_' + node.accountChartPk" />
-              <label class="form-check-label small" [for]="'editActive_' + node.accountChartPk">{{ 'GL.IS_ACTIVE' | translate }}</label>
-            </div>
+            <avl-switch
+              class="mt-2"
+              [(ngModel)]="editState.isActive"
+              (ngModelChange)="onEditFieldChange()"
+              [id]="'editActive_' + node.accountChartPk"
+              [label]="'GL.IS_ACTIVE' | translate"
+            />
           </div>
           <div class="col-md-3 d-flex gap-2 justify-content-end">
-            <button class="btn btn-sm btn-primary" [disabled]="!editFormValid || !editState.dirty || isSaving" (click)="saveEdit()">
-              @if (isSaving) {
-                <span class="spinner-border spinner-border-sm me-1"></span>
-              }
-              <i class="ti ti-device-floppy me-1"></i>{{ 'COMMON.SAVE' | translate }}
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" [disabled]="isSaving" (click)="cancelEdit()">
-              <i class="ti ti-x me-1"></i>{{ 'COMMON.CANCEL' | translate }}
-            </button>
+            <avl-button variant="primary" size="sm" iconLeft="ti ti-device-floppy" [disabled]="!editFormValid || !editState.dirty" [loading]="isSaving" (clicked)="saveEdit()">
+              {{ 'COMMON.SAVE' | translate }}
+            </avl-button>
+            <avl-button variant="secondary" size="sm" iconLeft="ti ti-x" [disabled]="isSaving" (clicked)="cancelEdit()">
+              {{ 'COMMON.CANCEL' | translate }}
+            </avl-button>
           </div>
         </div>
         @if (editState.dirty) {
@@ -405,9 +383,7 @@
         <div class="row g-2 align-items-end">
           <div class="col-md-4">
             <label class="form-label small mb-1">{{ 'GL.ACCOUNT_NAME' | translate }} <span class="text-danger">*</span></label>
-            <input
-              type="text"
-              class="form-control form-control-sm"
+            <avl-input
               [(ngModel)]="addState.accountChartName"
               [placeholder]="'GL.ACCOUNT_NAME' | translate"
               maxlength="200"
@@ -417,36 +393,26 @@
             <label class="form-label small mb-1">{{ 'GL.ACCOUNT_TYPE' | translate }} <span class="text-danger">*</span></label>
             @if (addState.parentPk !== null) {
             <!-- Read-only: inherited from parent -->
-            <div class="form-control form-control-sm bg-light d-flex align-items-center justify-content-between">
+            <div class="readonly-type-box d-flex align-items-center justify-content-between">
               <span>{{ addAccountTypeLabel }}</span>
-              <span class="badge bg-info-subtle text-info ms-1" style="font-size:0.65rem">
+              <avl-badge tone="info" class="ms-1" style="font-size:0.65rem">
                 <i class="ti ti-lock me-1"></i>{{ 'GL.ACCOUNT_TYPE_INHERITED' | translate }}
-              </span>
+              </avl-badge>
             </div>
             } @else {
-            <select class="form-select form-select-sm" [(ngModel)]="addState.accountType">
-              @for (type of accountTypeOptions; track type.value) {
-              <option [ngValue]="type.value">{{ type.label }}</option>
-              }
-            </select>
+            <avl-select [options]="accountTypeOptions" [(ngModel)]="addState.accountType" />
             }
           </div>
           <div class="col-md-2">
-            <div class="form-check form-switch mt-2">
-              <input class="form-check-input" type="checkbox" [(ngModel)]="addState.isActive" id="addChildActive" />
-              <label class="form-check-label small" for="addChildActive">{{ 'GL.IS_ACTIVE' | translate }}</label>
-            </div>
+            <avl-switch class="mt-2" [(ngModel)]="addState.isActive" id="addChildActive" [label]="'GL.IS_ACTIVE' | translate" />
           </div>
           <div class="col-md-3 d-flex gap-2">
-            <button class="btn btn-sm btn-primary" [disabled]="!addFormValid || isSaving" (click)="saveAdd()">
-              @if (isSaving) {
-                <span class="spinner-border spinner-border-sm me-1"></span>
-              }
-              <i class="ti ti-check me-1"></i>{{ 'COMMON.SAVE' | translate }}
-            </button>
-            <button class="btn btn-sm btn-outline-secondary" [disabled]="isSaving" (click)="cancelAdd()">
-              <i class="ti ti-x me-1"></i>{{ 'COMMON.CANCEL' | translate }}
-            </button>
+            <avl-button variant="primary" size="sm" iconLeft="ti ti-check" [disabled]="!addFormValid" [loading]="isSaving" (clicked)="saveAdd()">
+              {{ 'COMMON.SAVE' | translate }}
+            </avl-button>
+            <avl-button variant="secondary" size="sm" iconLeft="ti ti-x" [disabled]="isSaving" (clicked)="cancelAdd()">
+              {{ 'COMMON.CANCEL' | translate }}
+            </avl-button>
           </div>
         </div>
         <div class="text-muted small mt-1">

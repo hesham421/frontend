@@ -11,6 +11,7 @@ import { createAgGridTheme } from 'src/app/shared/ag-grid/agGridTableStyle';
 import { ErpListComponent } from 'src/app/shared/base/erp-list.component';
 import { SpecificationFilterComponent } from 'src/app/shared/components/specification-filter/specification-filter.component';
 import { ErpEmptyStateComponent } from 'src/app/shared/components/erp-empty-state/erp-empty-state.component';
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
 import { registerErpAgGridModules } from 'src/app/shared/ag-grid';
 import { ErpGridState, SpecFieldOption, SpecFilter, SpecOperatorOption } from 'src/app/shared/models';
 import { ErpNotificationService } from 'src/app/shared/services/erp-notification.service';
@@ -36,7 +37,8 @@ registerErpAgGridModules();
     TranslateModule,
     SpecificationFilterComponent,
     ErpEmptyStateComponent,
-    ErpPermissionDirective
+    ErpPermissionDirective,
+    AvlButtonComponent
   ],
   providers: [MasterLookupFacade, MasterLookupApiService],
   templateUrl: './master-lookup-search.component.html',

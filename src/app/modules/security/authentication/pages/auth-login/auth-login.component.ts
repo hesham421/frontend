@@ -4,15 +4,17 @@ import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { form, Field } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { AuthenticationService } from 'src/app/core/services/authentication.service';
 import { LanguageService } from 'src/app/core/services/language.service';
 import { FeatureFlagService } from 'src/app/core/services/feature-flag.service';
 import { DASHBOARD_PATH } from 'src/app/app-config';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { IconService } from '@ant-design/icons-angular';
-import { EyeInvisibleOutline, EyeOutline } from '@ant-design/icons-angular/icons';
+import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
+import { AvlCheckboxComponent } from 'src/app/shared/forms/avl-checkbox/avl-checkbox.component';
+import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
+import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
+import { AvlAlertComponent } from 'src/app/shared/feedback/avl-alert/avl-alert.component';
 
 interface RoleOption {
   name: string;
@@ -29,7 +31,17 @@ interface LoginData {
 @Component({
   selector: 'app-auth-login',
   standalone: true,
-  imports: [CommonModule, RouterModule, SharedModule, Field, TranslateModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    Field,
+    TranslateModule,
+    AvlInputComponent,
+    AvlCheckboxComponent,
+    AvlButtonComponent,
+    AvlIconButtonComponent,
+    AvlAlertComponent
+  ],
   templateUrl: './auth-login.component.html',
   styleUrls: ['./auth-login.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -40,9 +52,10 @@ export class AuthLoginComponent implements OnInit {
   authenticationService = inject(AuthenticationService);
   languageService = inject(LanguageService);
   readonly featureFlags = inject(FeatureFlagService);
-  private iconService = inject(IconService);
   private cd = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
+
+  readonly currentYear = new Date().getFullYear();
 
   showPassword = true;
   submitted = false;
@@ -70,8 +83,6 @@ export class AuthLoginComponent implements OnInit {
   }
 
   constructor() {
-    this.iconService.addIcon(...[EyeOutline, EyeInvisibleOutline]);
-
     if (window.location.pathname !== '/security/login') {
       if (this.authenticationService.currentUserValue) {
         this.router.navigateByUrl(DASHBOARD_PATH);
@@ -93,7 +104,9 @@ export class AuthLoginComponent implements OnInit {
     return val.username.trim() !== '' && val.password.trim() !== '';
   }
 
-  onSubmit(): void {
+  onSubmit(event: Event): void {
+    event.preventDefault();
+
     this.submitted = true;
 
     if (!this.isFormValid) {

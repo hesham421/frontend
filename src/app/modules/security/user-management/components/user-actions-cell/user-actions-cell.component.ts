@@ -5,6 +5,7 @@ import { ICellRendererParams } from 'ag-grid-community';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ErpPermissionDirective } from 'src/app/shared/directives/erp-permission.directive';
+import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
 import { UserDto } from '../../models/user.model';
 
 export type UserActionsCellRendererParams = ICellRendererParams<UserDto> & {
@@ -16,29 +17,27 @@ export type UserActionsCellRendererParams = ICellRendererParams<UserDto> & {
   selector: 'app-user-actions-cell',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, TranslateModule, ErpPermissionDirective],
+  imports: [CommonModule, TranslateModule, ErpPermissionDirective, AvlIconButtonComponent],
   template: `
     @if (user; as u) {
     <div class="d-flex align-items-center gap-1">
-      <button
-        type="button"
-        class="btn btn-sm btn-info"
+      <avl-icon-button
+        icon="ti ti-edit"
+        variant="ghost"
+        size="sm"
         erpPermission="PERM_USER_UPDATE"
-        [title]="'COMMON.EDIT' | translate"
-        (click)="onEditClick($event, u)"
-      >
-        <i class="ti ti-edit"></i>
-      </button>
+        [label]="'COMMON.EDIT' | translate"
+        (clicked)="onEditClick($event, u)"
+      />
 
-      <button
-        type="button"
-        class="btn btn-sm btn-danger"
+      <avl-icon-button
+        icon="ti ti-trash"
+        variant="ghost"
+        size="sm"
         erpPermission="PERM_USER_DELETE"
-        [title]="'COMMON.DELETE' | translate"
-        (click)="onDeleteClick($event, u)"
-      >
-        <i class="ti ti-trash"></i>
-      </button>
+        [label]="'COMMON.DELETE' | translate"
+        (clicked)="onDeleteClick($event, u)"
+      />
     </div>
     }
   `
