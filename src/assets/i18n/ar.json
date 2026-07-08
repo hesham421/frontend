@@ -128,6 +128,7 @@
   },
   "AUTH": {
     "LOGIN": "تسجيل الدخول",
+    "RETRY_IN_SECONDS": "أعد المحاولة خلال {{seconds}} ثانية",
     "REGISTER": "إنشاء حساب",
     "FORGOT_PASSWORD": "نسيت كلمة المرور",
     "RESET_PASSWORD": "إعادة تعيين كلمة المرور",

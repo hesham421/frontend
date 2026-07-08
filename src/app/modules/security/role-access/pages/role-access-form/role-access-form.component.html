@@ -13,6 +13,12 @@
           <avl-switch formControlName="active" [label]="'ROLE_ACCESS.IS_ACTIVE' | translate" />
         </div>
 
+        <div class="col-md-9 mb-3">
+          <erp-form-field labelKey="ROLE_ACCESS.DESCRIPTION" [control]="roleForm.get('description')">
+            <avl-input formControlName="description" [placeholder]="'ROLE_ACCESS.DESCRIPTION_PLACEHOLDER' | translate" />
+          </erp-form-field>
+        </div>
+
         @if (!isEditMode) {
         <div class="col-md-3 mb-3 d-flex align-items-end">
           <avl-button

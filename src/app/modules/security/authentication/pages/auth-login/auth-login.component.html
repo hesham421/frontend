@@ -111,8 +111,16 @@
           }
         </div>
 
-        <avl-button type="submit" variant="primary" size="lg" [block]="true" [loading]="loading" iconRight="ti ti-arrow-right">
-          {{ 'AUTH.LOGIN' | translate }}
+        <avl-button
+          type="submit"
+          variant="primary"
+          size="lg"
+          [block]="true"
+          [loading]="loading"
+          [disabled]="isRateLimited"
+          iconRight="ti ti-arrow-right"
+        >
+          {{ isRateLimited ? ('AUTH.RETRY_IN_SECONDS' | translate: { seconds: retryAfterSeconds }) : ('AUTH.LOGIN' | translate) }}
         </avl-button>
 
         @if (error) {

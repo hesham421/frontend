@@ -166,6 +166,7 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
         this.roleForm.patchValue(
           {
             name: role.roleName,
+            description: role.description ?? '',
             active: role.active
           },
           { emitEvent: false }
@@ -216,6 +217,7 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
   private initForm(): void {
     this.roleForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
+      description: [''],
       active: [true]
     });
   }
@@ -239,11 +241,12 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const value = this.roleForm.getRawValue() as { name: string; active: boolean };
+    const value = this.roleForm.getRawValue() as { name: string; description: string; active: boolean };
     this.facade.createRole(
       {
         roleName: value.name,
         roleCode: this.deriveRoleCode(value.name),
+        description: value.description || undefined,
         active: value.active
       },
       (created) => {
