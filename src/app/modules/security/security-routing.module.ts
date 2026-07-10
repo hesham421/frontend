@@ -23,28 +23,11 @@ const routes: Routes = [
       }
     ]
   },
-  {
-    path: 'register',
-    component: GuestLayouts,
-    children: [
-      {
-        path: '',
-        loadComponent: () =>
-          import('./authentication/pages/auth-register/auth-register.component').then((c) => c.AuthRegisterComponent)
-      }
-    ]
-  },
-  {
-    path: 'forgot-password',
-    component: GuestLayouts,
-    children: [
-      {
-        path: '',
-        loadComponent: () =>
-          import('./authentication/pages/forgot-password/forgot-password.component').then((c) => c.ForgotPasswordComponent)
-      }
-    ]
-  },
+  // Legacy Mantis-template routes, superseded by the AVELYNQ-migrated
+  // sign-up / password-recovery flows below. Kept as redirects so old
+  // links/bookmarks don't 404.
+  { path: 'register', redirectTo: 'sign-up', pathMatch: 'full' },
+  { path: 'forgot-password', redirectTo: 'password-recovery', pathMatch: 'full' },
   {
     // SCR-SEC-008 (التسجيل الذاتي / Sign Up) — PLAN-SEC-002 Phase F1.
     // Reachable from the login screen's "AUTH.NO_ACCOUNT" link.

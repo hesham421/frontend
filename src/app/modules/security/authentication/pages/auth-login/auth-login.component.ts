@@ -18,6 +18,7 @@ import { AvlCheckboxComponent } from 'src/app/shared/forms/avl-checkbox/avl-chec
 import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
 import { AvlIconButtonComponent } from 'src/app/shared/buttons/avl-icon-button/avl-icon-button.component';
 import { AvlAlertComponent } from 'src/app/shared/feedback/avl-alert/avl-alert.component';
+import { AuthBrandPanelComponent } from '../../components/auth-brand-panel/auth-brand-panel.component';
 
 interface RoleOption {
   name: string;
@@ -43,7 +44,8 @@ interface LoginData {
     AvlCheckboxComponent,
     AvlButtonComponent,
     AvlIconButtonComponent,
-    AvlAlertComponent
+    AvlAlertComponent,
+    AuthBrandPanelComponent
   ],
   templateUrl: './auth-login.component.html',
   styleUrls: ['./auth-login.component.scss'],
@@ -57,8 +59,6 @@ export class AuthLoginComponent implements OnInit {
   readonly featureFlags = inject(FeatureFlagService);
   private cd = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
-
-  readonly currentYear = new Date().getFullYear();
 
   showPassword = true;
   submitted = false;
