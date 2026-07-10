@@ -1,14 +1,17 @@
 import { Component, signal, inject, ChangeDetectorRef, OnInit, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { form, Field } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
+import { interval } from 'rxjs';
+import { takeWhile } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AuthenticationService } from 'src/app/core/services/authentication.service';
 import { LanguageService } from 'src/app/core/services/language.service';
 import { FeatureFlagService } from 'src/app/core/services/feature-flag.service';
 import { DASHBOARD_PATH } from 'src/app/app-config';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
 import { AvlCheckboxComponent } from 'src/app/shared/forms/avl-checkbox/avl-checkbox.component';
@@ -63,6 +66,9 @@ export class AuthLoginComponent implements OnInit {
   loading = false;
   returnUrl!: string;
 
+  /** Seconds remaining before another login attempt is allowed (from the 429 `Retry-After` header). */
+  retryAfterSeconds = 0;
+
   private readonly loginData = signal<LoginData>({
     username: '',
     password: ''
@@ -104,12 +110,28 @@ export class AuthLoginComponent implements OnInit {
     return val.username.trim() !== '' && val.password.trim() !== '';
   }
 
+  get isRateLimited(): boolean {
+    return this.retryAfterSeconds > 0;
+  }
+
+  private startRetryCountdown(seconds: number): void {
+    this.retryAfterSeconds = seconds;
+    this.cd.detectChanges();
+
+    interval(1000)
+      .pipe(takeWhile(() => this.retryAfterSeconds > 0), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.retryAfterSeconds = Math.max(0, this.retryAfterSeconds - 1);
+        this.cd.detectChanges();
+      });
+  }
+
   onSubmit(event: Event): void {
     event.preventDefault();
 
     this.submitted = true;
 
-    if (!this.isFormValid) {
+    if (!this.isFormValid || this.isRateLimited) {
       return;
     }
 
@@ -136,9 +158,18 @@ export class AuthLoginComponent implements OnInit {
           this.cd.detectChanges();
         }
       },
-      error: (error: { error?: { message?: string }; message?: string }) => {
+      error: (error: HttpErrorResponse) => {
         this.error = error?.error?.message || error?.message || 'AUTH.INVALID_CREDENTIALS';
         this.loading = false;
+
+        if (error?.status === 429) {
+          const retryAfterHeader = error.headers?.get('Retry-After');
+          const seconds = retryAfterHeader ? parseInt(retryAfterHeader, 10) : NaN;
+          if (!isNaN(seconds) && seconds > 0) {
+            this.startRetryCountdown(seconds);
+          }
+        }
+
         this.cd.detectChanges();
       }
     });
