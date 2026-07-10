@@ -1,0 +1,64 @@
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-3">
+    <h4>{{ (isEditMode() ? 'USER_PROFILES.EDIT' : 'USER_PROFILES.CREATE') | translate }}</h4>
+  </div>
+
+  <app-card [padding]="20">
+    <form [formGroup]="form" class="row">
+      <div class="col-md-4 mb-3">
+        <erp-form-field labelKey="USER_PROFILES.USER_ID" [control]="form.get('userIdFk')" [required]="true"
+                        [hintKey]="isEditMode() ? 'USER_PROFILES.USER_ID_READONLY_HINT' : undefined">
+          <avl-input formControlName="userIdFk" type="number" [mono]="true" />
+        </erp-form-field>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <erp-form-field labelKey="USER_PROFILES.BRANCH" [control]="form.get('branchIdFk')" [required]="true">
+          <avl-select
+            [options]="branchOptions"
+            [placeholder]="'USER_PROFILES.SELECT_BRANCH' | translate"
+            [value]="branchIdStringValue"
+            (valueChange)="onBranchChange($event)"
+          />
+        </erp-form-field>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <erp-form-field labelKey="USER_PROFILES.PREFERRED_LANG" [control]="form.get('preferredLang')">
+          <avl-select
+            [options]="languageOptions"
+            [placeholder]="'COMMON.SELECT' | translate"
+            [value]="preferredLangStringValue"
+            (valueChange)="onPreferredLangChange($event)"
+          />
+        </erp-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <erp-form-field labelKey="USER_PROFILES.FULL_NAME_EN" [control]="form.get('fullNameEn')">
+          <avl-input formControlName="fullNameEn" />
+        </erp-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <erp-form-field labelKey="USER_PROFILES.FULL_NAME_AR" [control]="form.get('fullNameAr')">
+          <avl-input formControlName="fullNameAr" />
+        </erp-form-field>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <erp-form-field labelKey="USER_PROFILES.EMPLOYEE_ID" [control]="form.get('employeeIdFk')">
+          <avl-input formControlName="employeeIdFk" type="number" [mono]="true" />
+        </erp-form-field>
+      </div>
+    </form>
+  </app-card>
+
+  <erp-action-bar
+    [saveKey]="'COMMON.SAVE'"
+    [loading]="facade.saving()"
+    [showCancel]="false"
+    (saveClicked)="save()"
+    (backClicked)="navigateBack()"
+  ></erp-action-bar>
+</div>

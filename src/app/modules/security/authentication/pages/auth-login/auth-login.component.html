@@ -45,7 +45,7 @@
         <h2 class="avl-login-main__title">{{ 'AUTH.LOGIN' | translate }}</h2>
         @if (featureFlags.config().showRegistration) {
           <a
-            [routerLink]="[authenticationService.isLoggedIn() ? '/auth/register' : '/register']"
+            [routerLink]="[authenticationService.isLoggedIn() ? '/auth/sign-up' : '/sign-up']"
             class="avl-login-main__register-link"
           >
             {{ 'AUTH.NO_ACCOUNT' | translate }}
@@ -103,7 +103,7 @@
           <avl-checkbox [checkedInput]="true" [label]="'AUTH.REMEMBER_ME' | translate" />
           @if (featureFlags.config().showForgotPassword) {
             <a
-              [routerLink]="[authenticationService.isLoggedIn() ? '/auth/forgot-password' : '/forgot-password']"
+              [routerLink]="[authenticationService.isLoggedIn() ? '/auth/password-recovery' : '/password-recovery']"
               class="avl-login-main__forgot-link"
             >
               {{ 'AUTH.FORGOT_PASSWORD' | translate }}

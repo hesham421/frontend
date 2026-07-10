@@ -9,6 +9,7 @@ import {
   ViewContainerRef,
   effect,
   inject,
+  signal,
   untracked
 } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
@@ -21,6 +22,7 @@ import { DialogService } from 'src/app/shared/overlay/dialog/dialog.service';
 import { AvlOverlayRef } from 'src/app/shared/overlay/avl-overlay-ref';
 
 import { CardComponent } from 'src/app/theme/shared/components/card/card.component';
+import { AvlTabsComponent, TabItem } from 'src/app/shared/components/avl-tabs/avl-tabs.component';
 import { ErpFormFieldComponent } from 'src/app/shared/components/erp-form-field/erp-form-field.component';
 import { ErpSectionComponent } from 'src/app/shared/components/erp-section/erp-section.component';
 import { ErpActionBarComponent } from 'src/app/shared/components/erp-action-bar/erp-action-bar.component';
@@ -45,6 +47,10 @@ import { RoleAccessApiService } from '../../services/role-access-api.service';
 import { ActivePageDto, AddRolePagesRequestItem, RoleDto, RolePagePermissionDto } from '../../models/role-access.model';
 import { confirmRemoveRolePage, RoleConfirmActionDeps } from '../../helpers/role-confirm-actions';
 
+import { RoleBranchFacade } from '../../facades/role-branch.facade';
+import { RoleBranchApiService } from '../../services/role-branch-api.service';
+import { DATA_ACCESS_LEVELS, RoleBranchDto } from '../../models/role-branch.model';
+
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { LanguageService } from 'src/app/core/services/language.service';
 
@@ -67,12 +73,13 @@ import { LanguageService } from 'src/app/core/services/language.service';
     AvlSwitchComponent,
     AvlCheckboxComponent,
     AvlButtonComponent,
-    AvlIconButtonComponent
+    AvlIconButtonComponent,
+    AvlTabsComponent
   ],
   templateUrl: './role-access-form.component.html',
   styleUrl: './role-access-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RoleAccessFacade, RoleAccessApiService]
+  providers: [RoleAccessFacade, RoleAccessApiService, RoleBranchFacade, RoleBranchApiService]
 })
 export class RoleAccessFormComponent implements OnInit, OnDestroy {
   private readonly fb = inject(FormBuilder);
@@ -88,6 +95,7 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
   readonly translate = inject(TranslateService);
   readonly languageService = inject(LanguageService);
   readonly facade = inject(RoleAccessFacade);
+  readonly branchFacade = inject(RoleBranchFacade);
 
   private readonly dialogService = inject(ErpDialogService);
   private readonly notificationService = inject(ErpNotificationService);
@@ -98,6 +106,24 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
   roleId: number | null = null;
 
   permissions: RolePagePermissionDto[] = [];
+
+  /** SCR-SEC-002 extension (PLAN-SEC-002 Phase F1) — Branch Scope sub-tab.
+   *  CORE-9: composite screen, no new SCR-ID/route for this sub-tab.
+   *  Content is a placeholder shell until Phase F2's RoleBranchFacade
+   *  (search → API-SEC-037, assign → API-SEC-036, update → API-SEC-038,
+   *  remove → API-SEC-039) lands. */
+  readonly activeTab = signal<string>('pages');
+
+  get roleTabs(): TabItem[] {
+    return [
+      { id: 'pages', label: this.translate.instant('ROLE_ACCESS.PAGES_ACCESS') },
+      { id: 'branch-scope', label: this.translate.instant('ROLE_ACCESS.BRANCH_SCOPE') }
+    ];
+  }
+
+  onTabChange(tabId: string): void {
+    this.activeTab.set(tabId);
+  }
 
   addPagesModalRef: AvlOverlayRef | null = null;
   copyFromModalRef: AvlOverlayRef | null = null;
@@ -130,6 +156,104 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
     return this.facade.activePages();
   }
 
+  // --- Branch Scope sub-tab (RoleBranchFacade, PLAN-SEC-002 Phase F2) ---
+
+  get roleBranches(): RoleBranchDto[] {
+    return this.branchFacade.roleBranches();
+  }
+
+  get isBranchScopeSaving(): boolean {
+    return this.branchFacade.saving();
+  }
+
+  get dataAccessLevelOptions(): AvlSelectOption[] {
+    return DATA_ACCESS_LEVELS.map((level) => ({ value: level, label: this.translate.instant(`ROLE_ACCESS.DATA_ACCESS_LEVEL_${level}`) }));
+  }
+
+  /** Branches not yet assigned to this role — the "Assign Branch" modal's dropdown source. */
+  get assignableBranchOptions(): AvlSelectOption[] {
+    const assigned = new Set(this.roleBranches.map((rb) => rb.branchIdFk));
+    return this.branchFacade
+      .activeBranches()
+      .filter((b) => !assigned.has(b.id))
+      .map((b) => ({ value: String(b.id), label: b.nameEn || b.branchCode }));
+  }
+
+  assignBranchModalRef: AvlOverlayRef | null = null;
+  selectedNewBranchId: number | null = null;
+  /** RULE-SEC-035 (PLAN-SEC-002 F3): dataAccessLevel is required — no explicit
+   *  Validator needed here because the dropdown has no blank option and always
+   *  carries this default, so an empty submission is structurally impossible
+   *  (unlike branchIdFk, which the confirm button's [disabled] guard below
+   *  enforces for RULE-SEC-034). */
+  selectedNewDataAccessLevel: string = DATA_ACCESS_LEVELS[0];
+
+  get selectedNewBranchIdStringValue(): string {
+    return this.selectedNewBranchId === null ? '' : String(this.selectedNewBranchId);
+  }
+
+  onNewBranchChange(value: string): void {
+    this.selectedNewBranchId = value === '' ? null : Number(value);
+  }
+
+  onNewDataAccessLevelChange(value: string): void {
+    this.selectedNewDataAccessLevel = value;
+  }
+
+  branchNameFor(branchId: number): string {
+    const branch = this.branchFacade.activeBranches().find((b) => b.id === branchId);
+    return branch ? branch.nameEn || branch.branchCode : String(branchId);
+  }
+
+  openAssignBranchModal(content: TemplateRef<unknown>): void {
+    if (!this.roleId) return;
+    this.selectedNewBranchId = null;
+    this.selectedNewDataAccessLevel = DATA_ACCESS_LEVELS[0];
+
+    // Dialog, not Drawer: a short single-purpose assign prompt (same reasoning as Copy From).
+    this.assignBranchModalRef = this.overlayDialogService.open(content, { size: 'md', viewContainerRef: this.viewContainerRef });
+  }
+
+  onAssignBranchConfirm(): void {
+    if (!this.roleId || !this.selectedNewBranchId) return;
+
+    // RULE-SEC-036: client-side duplicate check before submit (UX only — server remains
+    // authoritative per ERR-SEC-1036).
+    if (this.roleBranches.some((rb) => rb.branchIdFk === this.selectedNewBranchId)) {
+      this.notificationService.warning('ROLE_ACCESS.BRANCH_ALREADY_ASSIGNED');
+      return;
+    }
+
+    this.branchFacade.assign(
+      { roleIdFk: this.roleId, branchIdFk: this.selectedNewBranchId, dataAccessLevel: this.selectedNewDataAccessLevel },
+      () => {
+        this.notificationService.success('MESSAGES.CREATE_SUCCESS');
+        this.assignBranchModalRef?.close();
+        this.assignBranchModalRef = null;
+      }
+    );
+  }
+
+  onDataAccessLevelChange(row: RoleBranchDto, value: string): void {
+    if (!this.roleId || value === row.dataAccessLevel) return;
+    this.branchFacade.updateDataAccessLevel(this.roleId, row.branchIdFk, { dataAccessLevel: value });
+  }
+
+  confirmRemoveBranch(branchId: number): void {
+    if (!this.roleId) return;
+    if (!this.authService.hasPermission('PERM_ROLE_DELETE')) {
+      this.notificationService.warning('MESSAGES.NO_PERMISSION');
+      return;
+    }
+
+    this.dialogService.confirmDelete('ROLE_ACCESS.REMOVE_BRANCH_CONFIRM', { branch: this.branchNameFor(branchId) }).then((confirmed: boolean) => {
+      if (!confirmed || !this.roleId) return;
+      this.branchFacade.remove(this.roleId, branchId, () => {
+        this.notificationService.success('MESSAGES.DELETE_SUCCESS');
+      });
+    });
+  }
+
   get isLoading(): boolean {
     return this.facade.loading();
   }
@@ -147,6 +271,12 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
 
     effect(() => {
       const saveError = this.facade.saveError();
+      if (!saveError) return;
+      untracked(() => this.notificationService.error(saveError));
+    });
+
+    effect(() => {
+      const saveError = this.branchFacade.saveError();
       if (!saveError) return;
       untracked(() => this.notificationService.error(saveError));
     });
@@ -204,6 +334,10 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
         this.facade.setSize(50);
         this.facade.setPage(0);
         this.facade.loadRoles();
+
+        // Branch Scope sub-tab data (PLAN-SEC-002 Phase F2)
+        this.branchFacade.loadActiveBranches();
+        this.branchFacade.loadRoleBranches(this.roleId);
       } else {
         this.isEditMode = false;
         this.roleId = null;
@@ -364,5 +498,6 @@ export class RoleAccessFormComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.facade.clearCurrentEntity();
+    this.branchFacade.resetChildState();
   }
 }

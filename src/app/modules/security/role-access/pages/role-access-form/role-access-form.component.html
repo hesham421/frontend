@@ -38,6 +38,10 @@
     </erp-section>
 
     @if (isEditMode) {
+    <avl-tabs [tabs]="roleTabs" [value]="activeTab()" (valueChange)="onTabChange($event)"></avl-tabs>
+    }
+
+    @if (isEditMode && activeTab() === 'pages') {
     <erp-section titleKey="ROLE_ACCESS.PAGES_ACCESS">
       <div class="table-responsive">
         <table class="table table-sm table-hover align-middle">
@@ -104,6 +108,65 @@
       </div>
     </erp-section>
     }
+
+    @if (isEditMode && activeTab() === 'branch-scope') {
+    <!-- RoleBranchFacade (PLAN-SEC-002 Phase F2) — no new SCR-ID/route per CORE-9. -->
+    <erp-section titleKey="ROLE_ACCESS.BRANCH_SCOPE">
+      <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle">
+          <thead>
+            <tr>
+              <th>{{ 'ROLE_ACCESS.BRANCH' | translate }}</th>
+              <th>{{ 'ROLE_ACCESS.DATA_ACCESS_LEVEL' | translate }}</th>
+              <th class="text-center col-perm">{{ 'COMMON.STATUS' | translate }}</th>
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @if (roleBranches.length === 0) {
+              <tr>
+                <td colspan="4" class="text-muted py-4 text-center">
+                  {{ 'ROLE_ACCESS.NO_BRANCHES_ASSIGNED' | translate }}
+                </td>
+              </tr>
+            } @else {
+              @for (rb of roleBranches; track rb.branchIdFk) {
+                <tr>
+                  <td>
+                    <div class="fw-semibold">{{ branchNameFor(rb.branchIdFk) }}</div>
+                  </td>
+                  <td style="max-width: 260px;">
+                    <avl-select
+                      erpPermission="ROLE.UPDATE"
+                      [options]="dataAccessLevelOptions"
+                      [value]="rb.dataAccessLevel"
+                      (valueChange)="onDataAccessLevelChange(rb, $event)"
+                    />
+                  </td>
+                  <td class="text-center">
+                    <span class="badge" [class.bg-success]="rb.isActiveFl" [class.bg-secondary]="!rb.isActiveFl">
+                      {{ (rb.isActiveFl ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <avl-icon-button
+                      icon="ti ti-x"
+                      variant="ghost"
+                      size="sm"
+                      erpPermission="ROLE.DELETE"
+                      [label]="'COMMON.REMOVE' | translate"
+                      (clicked)="confirmRemoveBranch(rb.branchIdFk)"
+                    />
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </erp-section>
+    }
   </div>
 
   @if (isEditMode) {
@@ -114,28 +177,44 @@
       (saveClicked)="onSavePermissions()"
       (backClicked)="navigateBack()"
     >
-      <avl-button
-        actionBarEnd
-        variant="secondary"
-        size="sm"
-        iconLeft="ti ti-copy"
-        data-testid="role-access-copy-from"
-        erpPermission="ROLE.UPDATE"
-        (clicked)="openCopyFromModal(copyFromModal)"
-      >
-        {{ 'ROLE_ACCESS.COPY_FROM' | translate }}
-      </avl-button>
-      <avl-button
-        actionBarEnd
-        variant="secondary"
-        size="sm"
-        iconLeft="ti ti-plus"
-        data-testid="role-access-add-page"
-        erpPermission="ROLE.UPDATE"
-        (clicked)="openAddPagesModal(addPagesModal)"
-      >
-        {{ 'ROLE_ACCESS.ADD_PAGE' | translate }}
-      </avl-button>
+      @if (activeTab() === 'pages') {
+      <ng-container actionBarEnd>
+        <avl-button
+          variant="secondary"
+          size="sm"
+          iconLeft="ti ti-copy"
+          data-testid="role-access-copy-from"
+          erpPermission="ROLE.UPDATE"
+          (clicked)="openCopyFromModal(copyFromModal)"
+        >
+          {{ 'ROLE_ACCESS.COPY_FROM' | translate }}
+        </avl-button>
+        <avl-button
+          variant="secondary"
+          size="sm"
+          iconLeft="ti ti-plus"
+          data-testid="role-access-add-page"
+          erpPermission="ROLE.UPDATE"
+          (clicked)="openAddPagesModal(addPagesModal)"
+        >
+          {{ 'ROLE_ACCESS.ADD_PAGE' | translate }}
+        </avl-button>
+      </ng-container>
+      }
+      @if (activeTab() === 'branch-scope') {
+      <ng-container actionBarEnd>
+        <avl-button
+          variant="secondary"
+          size="sm"
+          iconLeft="ti ti-plus"
+          data-testid="role-access-assign-branch"
+          erpPermission="ROLE.CREATE"
+          (clicked)="openAssignBranchModal(assignBranchModal)"
+        >
+          {{ 'ROLE_ACCESS.ASSIGN_BRANCH' | translate }}
+        </avl-button>
+      </ng-container>
+      }
     </erp-action-bar>
   } @else {
     <erp-action-bar
@@ -166,6 +245,45 @@
       (clicked)="addSelectedPages({ create: false, update: false, delete: false })"
     >
       {{ 'ROLE_ACCESS.ADD_SELECTED' | translate }}
+    </avl-button>
+  </div>
+</ng-template>
+
+<ng-template #assignBranchModal>
+  <div class="modal-header">
+    <h5 class="modal-title">{{ 'ROLE_ACCESS.ASSIGN_BRANCH' | translate }}</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="assignBranchModalRef?.close()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="mb-3">
+      <label class="form-label">{{ 'ROLE_ACCESS.BRANCH' | translate }}</label>
+      <avl-select
+        data-testid="role-access-assign-branch-select"
+        [options]="assignableBranchOptions"
+        [placeholder]="'USER_PROFILES.SELECT_BRANCH' | translate"
+        [value]="selectedNewBranchIdStringValue"
+        (valueChange)="onNewBranchChange($event)"
+      />
+    </div>
+    <div class="mb-3">
+      <label class="form-label">{{ 'ROLE_ACCESS.DATA_ACCESS_LEVEL' | translate }}</label>
+      <avl-select
+        data-testid="role-access-assign-branch-level"
+        [options]="dataAccessLevelOptions"
+        [value]="selectedNewDataAccessLevel"
+        (valueChange)="onNewDataAccessLevelChange($event)"
+      />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <avl-button variant="secondary" (clicked)="assignBranchModalRef?.close()">{{ 'COMMON.CANCEL' | translate }}</avl-button>
+    <avl-button
+      variant="primary"
+      data-testid="role-access-assign-branch-confirm"
+      [disabled]="!selectedNewBranchId || isBranchScopeSaving"
+      (clicked)="onAssignBranchConfirm()"
+    >
+      {{ 'ROLE_ACCESS.ASSIGN_BRANCH' | translate }}
     </avl-button>
   </div>
 </ng-template>

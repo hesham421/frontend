@@ -64,6 +64,9 @@ const routes: Routes = [
   { path: 'login', redirectTo: 'security/login', pathMatch: 'full' },
   { path: 'register', redirectTo: 'security/register', pathMatch: 'full' },
   { path: 'forgot-password', redirectTo: 'security/forgot-password', pathMatch: 'full' },
+  // PLAN-SEC-002 Phase F1 — same root-level redirect pattern as register/forgot-password above
+  { path: 'sign-up', redirectTo: 'security/sign-up', pathMatch: 'full' },
+  { path: 'password-recovery', redirectTo: 'security/password-recovery', pathMatch: 'full' },
   { path: 'users', redirectTo: 'security/users', pathMatch: 'full' },
   { path: 'pages', redirectTo: 'security/pages', pathMatch: 'full' },
   { path: 'role-access', redirectTo: 'security/role-access', pathMatch: 'full' },
