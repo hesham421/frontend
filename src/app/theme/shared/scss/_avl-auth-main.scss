@@ -1,0 +1,128 @@
+// Shared AVELYNQ auth "main panel" rules — the form-side half of the
+// .avl-split shell, used by sign-up and password-recovery (login has its
+// own richer variant in auth-login.component.scss since it also carries
+// the role-picker/social-login demo blocks).
+
+.avl-auth-root {
+  min-height: 100vh;
+}
+
+.avl-auth-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(24px, 5vw, 40px);
+  background: var(--surface-card);
+}
+
+.avl-auth-main__inner {
+  width: 100%;
+  max-width: 380px;
+}
+
+.avl-auth-main__mobile-logo {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 22px;
+
+  img {
+    height: 30px;
+    width: auto;
+    background: var(--navy-850);
+    border-radius: var(--radius-md);
+    padding: 3px;
+  }
+}
+
+.avl-auth-main__wordmark {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  color: var(--text-strong);
+}
+
+.avl-auth-main__wordmark-accent {
+  color: var(--teal-500);
+}
+
+.avl-auth-main__toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.avl-auth-main__lang-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--control-sm);
+  padding: 0 12px;
+  background: #fff;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  color: var(--text-body);
+}
+
+.avl-auth-main__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.avl-auth-main__title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-strong);
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.avl-auth-main__link {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-link);
+  text-decoration: none;
+}
+
+.avl-auth-main__subtitle {
+  font-size: var(--fs-body);
+  color: var(--text-muted);
+  margin: 4px 0 24px;
+}
+
+.avl-auth-main__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.avl-auth-main__error {
+  display: block;
+}
+
+.avl-auth-main__result {
+  text-align: center;
+  padding: 12px 0;
+
+  i {
+    font-size: 48px;
+    margin-bottom: 8px;
+    display: inline-block;
+  }
+
+  h4 {
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+}

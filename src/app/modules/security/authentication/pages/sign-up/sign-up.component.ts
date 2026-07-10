@@ -7,14 +7,16 @@ import { TranslateModule } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
 
 import { AuthenticationService } from 'src/app/core/services/authentication.service';
+import { LanguageService } from 'src/app/core/services/language.service';
 
 import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
 import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
-import { CardComponent } from 'src/app/theme/shared/components/card/card.component';
+import { AvlAlertComponent } from 'src/app/shared/feedback/avl-alert/avl-alert.component';
 import { getFormFieldError } from 'src/app/shared/utils/form-error-resolver';
 
 import { SignUpFacade } from '../../facades/sign-up.facade';
 import { SignUpApiService } from '../../services/sign-up-api.service';
+import { AuthBrandPanelComponent } from '../../components/auth-brand-panel/auth-brand-panel.component';
 
 /**
  * SignUpComponent (SCR-SEC-008 — التسجيل الذاتي / Sign Up)
@@ -34,7 +36,16 @@ import { SignUpApiService } from '../../services/sign-up-api.service';
 @Component({
   selector: 'app-sign-up',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, TranslateModule, AvlInputComponent, AvlButtonComponent, CardComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    AvlInputComponent,
+    AvlButtonComponent,
+    AvlAlertComponent,
+    AuthBrandPanelComponent
+  ],
   templateUrl: './sign-up.component.html',
   styleUrls: ['./sign-up.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,6 +56,7 @@ export class SignUpComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   readonly authenticationService = inject(AuthenticationService);
+  readonly languageService = inject(LanguageService);
   readonly facade = inject(SignUpFacade);
 
   private readonly token = toSignal(this.route.queryParamMap.pipe(map((params) => params.get('token'))), {

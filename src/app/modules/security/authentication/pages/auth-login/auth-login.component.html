@@ -1,25 +1,5 @@
 <div class="avl-split avl-login-root">
-  <!-- Brand panel -->
-  <aside class="avl-split__aside avl-login-aside">
-    <div class="avl-login-aside__glow" aria-hidden="true"></div>
-
-    <img src="assets/avelynq/avelynq-lockup-dark.png" alt="AVELYNQ" class="avl-login-aside__logo" />
-
-    <div class="avl-login-aside__content">
-      <div class="avl-login-aside__eyebrow">{{ 'AUTH.BRAND_EYEBROW' | translate }}</div>
-      <h1 class="avl-login-aside__heading">
-        {{ 'AUTH.BRAND_HEADING_LINE1' | translate }}<br />{{ 'AUTH.BRAND_HEADING_LINE2' | translate }}
-      </h1>
-      <p class="avl-login-aside__subtitle">{{ 'AUTH.BRAND_SUBTITLE' | translate }}</p>
-      <div class="avl-login-aside__pills">
-        <span class="avl-login-aside__pill">{{ 'AUTH.BRAND_PILL_STRUCTURE' | translate }}</span>
-        <span class="avl-login-aside__pill">{{ 'AUTH.BRAND_PILL_GROWTH' | translate }}</span>
-        <span class="avl-login-aside__pill">{{ 'AUTH.BRAND_PILL_STABILITY' | translate }}</span>
-      </div>
-    </div>
-
-    <div class="avl-login-aside__copyright">{{ 'AUTH.BRAND_COPYRIGHT' | translate: { year: currentYear } }}</div>
-  </aside>
+  <app-auth-brand-panel class="avl-split__aside" />
 
   <!-- Form panel -->
   <main class="avl-split__main avl-login-main">

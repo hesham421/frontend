@@ -1,82 +1,89 @@
-<div class="auth-main">
-  <div class="auth-wrapper v3">
-    <div class="auth-form">
-      <div class="auth-header">
-        <a href="javascript:"><img src="assets/images/logo-dark.svg" alt="logo" /></a>
+<div class="avl-split avl-auth-root">
+  <app-auth-brand-panel class="avl-split__aside" />
+
+  <main class="avl-split__main avl-auth-main">
+    <div class="avl-auth-main__inner">
+      <div class="avl-only-md-down avl-auth-main__mobile-logo">
+        <img src="assets/avelynq/avelynq-mark-dark.png" alt="" />
+        <span class="avl-auth-main__wordmark">AVEL<span class="avl-auth-main__wordmark-accent">Y</span>NQ</span>
       </div>
-      <app-card [showHeader]="false" [padding]="30" cardClass="my-5">
 
-        @if (isActivationStep()) {
-          <!-- Activation step (emailed link, API-SEC-041) -->
-          <div class="text-center py-3">
-            @if (facade.activating()) {
-              <div class="spinner-border text-primary mb-3" role="status">
-                <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
-              </div>
-              <p class="mb-0">{{ 'AUTH.ACTIVATING_ACCOUNT' | translate }}</p>
-            } @else if (facade.activated()) {
-              <i class="ti ti-circle-check text-success mb-2" style="font-size: 48px;"></i>
-              <h4 class="mb-2">{{ 'AUTH.ACCOUNT_ACTIVATED' | translate }}</h4>
-              <p class="text-muted mb-3">{{ 'AUTH.ACCOUNT_ACTIVATED_HINT' | translate }}</p>
-              <a [routerLink]="['/login']" class="link-primary">{{ 'AUTH.BACK_TO_LOGIN' | translate }}</a>
-            } @else if (facade.activateError()) {
-              <i class="ti ti-circle-x text-danger mb-2" style="font-size: 48px;"></i>
-              <h4 class="mb-2">{{ 'AUTH.ACTIVATION_FAILED' | translate }}</h4>
-              <p class="text-muted mb-3">{{ facade.activateError() | translate }}</p>
-              <a [routerLink]="['/login']" class="link-primary">{{ 'AUTH.BACK_TO_LOGIN' | translate }}</a>
-            }
-          </div>
-        } @else if (facade.signupResult()) {
-          <!-- Post-submit: account created, disabled pending activation (RULE-SEC-030) -->
-          <div class="text-center py-3">
-            <i class="ti ti-mail-check text-success mb-2" style="font-size: 48px;"></i>
-            <h4 class="mb-2">{{ 'AUTH.CHECK_YOUR_EMAIL' | translate }}</h4>
-            <p class="text-muted mb-3">{{ 'AUTH.CHECK_YOUR_EMAIL_HINT' | translate }}</p>
-            <a [routerLink]="['/login']" class="link-primary">{{ 'AUTH.BACK_TO_LOGIN' | translate }}</a>
-          </div>
-        } @else {
-          <div class="d-flex justify-content-between align-items-end mb-4">
-            <h3 class="mb-0"><b>{{ 'AUTH.SIGN_UP_TITLE' | translate }}</b></h3>
-            <a [routerLink]="[authenticationService.isLoggedIn() ? '/auth/login' : '/login']" class="link-primary">
-              {{ 'AUTH.ALREADY_HAVE_ACCOUNT' | translate }}
-            </a>
-          </div>
+      <div class="avl-auth-main__toolbar">
+        <button
+          type="button"
+          class="avl-auth-main__lang-btn"
+          (click)="languageService.toggleLanguage()"
+          [title]="'AUTH.SWITCH_LANGUAGE' | translate"
+        >
+          <i class="ti ti-language" aria-hidden="true"></i>
+          <span>{{ languageService.currentLanguage() === 'ar' ? 'English' : 'العربية' }}</span>
+        </button>
+      </div>
 
-          @if (facade.submitError()) {
-            <div class="alert alert-danger" role="alert">{{ facade.submitError() | translate }}</div>
+      @if (isActivationStep()) {
+        <!-- Activation step (emailed link, API-SEC-041) -->
+        <div class="avl-auth-main__result">
+          @if (facade.activating()) {
+            <div class="spinner-border text-primary mb-3" role="status">
+              <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+            </div>
+            <p class="mb-0">{{ 'AUTH.ACTIVATING_ACCOUNT' | translate }}</p>
+          } @else if (facade.activated()) {
+            <i class="ti ti-circle-check text-success"></i>
+            <h4>{{ 'AUTH.ACCOUNT_ACTIVATED' | translate }}</h4>
+            <p>{{ 'AUTH.ACCOUNT_ACTIVATED_HINT' | translate }}</p>
+            <a [routerLink]="['/login']" class="avl-auth-main__link">{{ 'AUTH.BACK_TO_LOGIN' | translate }}</a>
+          } @else if (facade.activateError()) {
+            <i class="ti ti-circle-x text-danger"></i>
+            <h4>{{ 'AUTH.ACTIVATION_FAILED' | translate }}</h4>
+            <p>{{ facade.activateError() | translate }}</p>
+            <a [routerLink]="['/login']" class="avl-auth-main__link">{{ 'AUTH.BACK_TO_LOGIN' | translate }}</a>
           }
+        </div>
+      } @else if (facade.signupResult()) {
+        <!-- Post-submit: account created, disabled pending activation (RULE-SEC-030) -->
+        <div class="avl-auth-main__result">
+          <i class="ti ti-mail-check text-success"></i>
+          <h4>{{ 'AUTH.CHECK_YOUR_EMAIL' | translate }}</h4>
+          <p>{{ 'AUTH.CHECK_YOUR_EMAIL_HINT' | translate }}</p>
+          <a [routerLink]="['/login']" class="avl-auth-main__link">{{ 'AUTH.BACK_TO_LOGIN' | translate }}</a>
+        </div>
+      } @else {
+        <div class="avl-auth-main__header">
+          <h2 class="avl-auth-main__title">{{ 'AUTH.SIGN_UP_TITLE' | translate }}</h2>
+          <a [routerLink]="[authenticationService.isLoggedIn() ? '/auth/login' : '/login']" class="avl-auth-main__link">
+            {{ 'AUTH.ALREADY_HAVE_ACCOUNT' | translate }}
+          </a>
+        </div>
 
-          <form [formGroup]="form" (ngSubmit)="onSubmit($event)">
-            <div class="mb-3">
-              <avl-input
-                formControlName="username"
-                [label]="'AUTH.USERNAME' | translate"
-                [error]="submitted && form.get('username')?.invalid ? (fieldErrorKey(form.get('username')) | translate) : undefined"
-              />
-            </div>
-            <div class="mb-3">
-              <avl-input
-                formControlName="email"
-                type="email"
-                [label]="'AUTH.EMAIL' | translate"
-                [error]="submitted && form.get('email')?.invalid ? (fieldErrorKey(form.get('email')) | translate) : undefined"
-              />
-            </div>
-            <div class="mb-3">
-              <avl-input
-                formControlName="password"
-                type="password"
-                [label]="'AUTH.PASSWORD' | translate"
-                [error]="submitted && form.get('password')?.invalid ? (fieldErrorKey(form.get('password')) | translate) : undefined"
-              />
-            </div>
-
-            <avl-button type="submit" variant="primary" [block]="true" [loading]="facade.submitting()">
-              {{ 'AUTH.CREATE_ACCOUNT' | translate }}
-            </avl-button>
-          </form>
+        @if (facade.submitError()) {
+          <avl-alert tone="danger" class="avl-auth-main__error">{{ facade.submitError() | translate }}</avl-alert>
         }
-      </app-card>
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit($event)" class="avl-auth-main__form">
+          <avl-input
+            formControlName="username"
+            [label]="'AUTH.USERNAME' | translate"
+            [error]="submitted && form.get('username')?.invalid ? (fieldErrorKey(form.get('username')) | translate) : undefined"
+          />
+          <avl-input
+            formControlName="email"
+            type="email"
+            [label]="'AUTH.EMAIL' | translate"
+            [error]="submitted && form.get('email')?.invalid ? (fieldErrorKey(form.get('email')) | translate) : undefined"
+          />
+          <avl-input
+            formControlName="password"
+            type="password"
+            [label]="'AUTH.PASSWORD' | translate"
+            [error]="submitted && form.get('password')?.invalid ? (fieldErrorKey(form.get('password')) | translate) : undefined"
+          />
+
+          <avl-button type="submit" variant="primary" [block]="true" [loading]="facade.submitting()">
+            {{ 'AUTH.CREATE_ACCOUNT' | translate }}
+          </avl-button>
+        </form>
+      }
     </div>
-  </div>
+  </main>
 </div>

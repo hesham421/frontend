@@ -132,19 +132,11 @@ export class NavRightComponent implements OnInit {
         },
         {
           title: 'Register',
-          url: '/register'
-        },
-        {
-          title: 'Reset Password',
-          url: '/'
+          url: '/sign-up'
         },
         {
           title: 'Forgot Password',
-          url: '/forgot-password'
-        },
-        {
-          title: 'Verification Code',
-          url: '/'
+          url: '/password-recovery'
         }
       ]
     },

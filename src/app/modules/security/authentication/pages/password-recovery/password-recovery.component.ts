@@ -6,13 +6,16 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validatio
 import { TranslateModule } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
 
+import { LanguageService } from 'src/app/core/services/language.service';
+
 import { AvlInputComponent } from 'src/app/shared/forms/avl-input/avl-input.component';
 import { AvlButtonComponent } from 'src/app/shared/buttons/avl-button/avl-button.component';
-import { CardComponent } from 'src/app/theme/shared/components/card/card.component';
+import { AvlAlertComponent } from 'src/app/shared/feedback/avl-alert/avl-alert.component';
 import { getFormFieldError } from 'src/app/shared/utils/form-error-resolver';
 
 import { ForgotPasswordFacade } from '../../facades/forgot-password.facade';
 import { ForgotPasswordApiService } from '../../services/forgot-password-api.service';
+import { AuthBrandPanelComponent } from '../../components/auth-brand-panel/auth-brand-panel.component';
 
 function passwordsMatchValidator(): ValidatorFn {
   return (group): ValidationErrors | null => {
@@ -33,7 +36,16 @@ function passwordsMatchValidator(): ValidatorFn {
 @Component({
   selector: 'app-password-recovery',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, TranslateModule, AvlInputComponent, AvlButtonComponent, CardComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    AvlInputComponent,
+    AvlButtonComponent,
+    AvlAlertComponent,
+    AuthBrandPanelComponent
+  ],
   templateUrl: './password-recovery.component.html',
   styleUrls: ['./password-recovery.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +54,7 @@ function passwordsMatchValidator(): ValidatorFn {
 export class PasswordRecoveryComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
+  readonly languageService = inject(LanguageService);
   readonly facade = inject(ForgotPasswordFacade);
 
   private readonly token = toSignal(this.route.queryParamMap.pipe(map((params) => params.get('token'))), {
