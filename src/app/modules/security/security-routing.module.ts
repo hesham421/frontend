@@ -45,6 +45,33 @@ const routes: Routes = [
       }
     ]
   },
+  {
+    // SCR-SEC-008 (التسجيل الذاتي / Sign Up) — PLAN-SEC-002 Phase F1.
+    // Reachable from the login screen's "AUTH.NO_ACCOUNT" link.
+    path: 'sign-up',
+    component: GuestLayouts,
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./authentication/pages/sign-up/sign-up.component').then((c) => c.SignUpComponent)
+      }
+    ]
+  },
+  {
+    // SCR-SEC-009 (نسيان كلمة المرور واستعادتها / Forgot-Reset Password) —
+    // PLAN-SEC-002 Phase F1. One route, two steps: request view by default,
+    // reset view when a `token` query param is present (emailed link).
+    // Reachable from the login screen's "AUTH.FORGOT_PASSWORD" link.
+    path: 'password-recovery',
+    component: GuestLayouts,
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./authentication/pages/password-recovery/password-recovery.component').then((c) => c.PasswordRecoveryComponent)
+      }
+    ]
+  },
   // Redirect old sample-page path to the new dashboard
   {
     path: 'sample-page',
@@ -91,6 +118,41 @@ const routes: Routes = [
     path: 'pages',
     redirectTo: 'pages-registry',
     pathMatch: 'full'
+  },
+  {
+    // SCR-SEC-006 (ملفات المستخدمين / نطاق البيانات) — PLAN-SEC-002 Phase F1.
+    // Shell only — UserProfileFacade (Phase F2) fills in real state.
+    path: 'user-profiles',
+    component: AdminLayout,
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./user-profiles/pages/user-profile-search/user-profile-search.component').then(
+            (c) => c.UserProfileSearchComponent
+          ),
+        canActivate: [authGuard, permissionGuard],
+        data: { permission: 'PERM_USER_PROFILE_VIEW' }
+      },
+      {
+        path: 'create',
+        loadComponent: () =>
+          import('./user-profiles/pages/user-profile-entry/user-profile-entry.component').then(
+            (c) => c.UserProfileEntryComponent
+          ),
+        canActivate: [authGuard, permissionGuard],
+        data: { permission: 'PERM_USER_PROFILE_CREATE' }
+      },
+      {
+        path: 'edit/:id',
+        loadComponent: () =>
+          import('./user-profiles/pages/user-profile-entry/user-profile-entry.component').then(
+            (c) => c.UserProfileEntryComponent
+          ),
+        canActivate: [authGuard, permissionGuard],
+        data: { permission: 'PERM_USER_PROFILE_UPDATE' }
+      }
+    ]
   },
   {
     path: 'role-access',

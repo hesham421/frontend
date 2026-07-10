@@ -121,6 +121,12 @@ export function getFormFieldError(
     return { key: 'VALIDATION.URL_INVALID' };
   }
 
+  // RULE-SEC-034 (PLAN-SEC-002 F3): branchIdFk required, catalog-exact message
+  // (Section 4.2 ERR-SEC-1034) instead of the generic VALIDATION.REQUIRED text.
+  if (errors['branchRequiredSec034']) {
+    return { key: 'USER_PROFILES.BRANCH_REQUIRED_ACTIVE' };
+  }
+
   // Fallback for unknown errors
   return { key: 'VALIDATION.INVALID_VALUE' };
 }

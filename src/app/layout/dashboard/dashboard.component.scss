@@ -192,6 +192,10 @@
     background: color-mix(in srgb, var(--amber-600) 12%, transparent);
     color: var(--amber-600);
   }
+  &.card-user-profiles .dash-card__icon {
+    background: color-mix(in srgb, var(--slate-700) 12%, transparent);
+    color: var(--slate-700);
+  }
 }
 
 // ─── Empty State (no permitted modules) ──────────────────────

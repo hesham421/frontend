@@ -48,6 +48,14 @@ export default class DashboardComponent {
       colorClass: 'card-users'
     },
     {
+      titleKey: 'DASHBOARD.CARDS.USER_PROFILES',
+      descriptionKey: 'DASHBOARD.CARDS.USER_PROFILES_DESC',
+      icon: 'ti ti-id-badge-2',
+      route: '/security/user-profiles',
+      permission: 'PERM_USER_PROFILE_VIEW',
+      colorClass: 'card-user-profiles'
+    },
+    {
       titleKey: 'DASHBOARD.CARDS.ROLES',
       descriptionKey: 'DASHBOARD.CARDS.ROLES_DESC',
       icon: 'ti ti-shield-check',
