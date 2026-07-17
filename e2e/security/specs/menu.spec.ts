@@ -124,26 +124,30 @@ test.describe('TC-MENU — Menu Management', () => {
     const rootTrigger = page.locator('li.coded-hasmenu', { hasText: 'PWTest Menu Root' });
     await expect(rootTrigger).toBeVisible();
 
-    // FINDING (CONTRACT_BREAK / real UI bug, only reachable once a page
-    // actually has a child — never exercised before since every pre-existing
-    // SEC_PAGES row has PARENT_ID_FK NULL): `NavCollapseComponent.isEnabled`
-    // defaults to `false` and is only ever flipped to `true` by matching
-    // `item.role` (populated from `MenuItemDto.permCode`) against the
-    // current user's role NAME. But `MenuService.java`'s `MenuItemDto`
-    // builder never sets `.permCode(...)` at all — every menu response from
-    // this backend has `permCode: null` — so `item.role` is never populated
-    // and this legacy per-item enable/disable path is permanently dead. Net
-    // effect: EVERY parent/collapse-type sidebar entry in the whole app
-    // (i.e. any page with children) renders with `class="nav-link disabled"`
-    // (`pointer-events: none`) and can never be clicked/expanded by any
-    // user, including SUPER_ADMIN — confirmed live: clicking it hangs
-    // Playwright in an actionability retry loop that never resolves. Plain
-    // leaf items (no children) are unaffected — `NavItemComponent.isEnabled`
-    // defaults to `true`, so the same dead code path fails open instead of
-    // closed for them (see TC-MENU-002's passing leaf-item check).
-    await expect(rootTrigger.locator('> a.nav-link')).toHaveClass(/disabled/);
+    // FIXED (was CONTRACT_BREAK, only reachable once a page actually has a child —
+    // never exercised before since every pre-existing SEC_PAGES row has
+    // PARENT_ID_FK NULL): `NavCollapseComponent.isEnabled` defaulted to `false`
+    // and was only ever flipped to `true` by matching `item.role` against the
+    // current user's role NAME — but `item.role` is populated from a permission
+    // CODE (`MenuItemDto.permCode`, e.g. "PERM_X_VIEW"), which can never equal a
+    // role name like "SUPER_ADMIN". That mismatch meant no menu item's `role`
+    // check could ever legitimately pass. `NavItemComponent` (leaf items) sidesteps
+    // this by defaulting `isEnabled` to `true` ("disabled only if role check
+    // fails"); `NavCollapseComponent` inconsistently defaulted to `false`
+    // ("enabled only if role check explicitly passes") — since the backend's menu
+    // is already filtered server-side to exactly the pages this user is permitted
+    // to see, no additional client-side role re-check is meaningful here at all.
+    // Fixed by aligning NavCollapseComponent's default to match NavItemComponent's
+    // (`isEnabled = true`), rather than populating `permCode` with a value that
+    // could never satisfy this comparison. Every parent/collapse-type sidebar
+    // entry is now clickable/expandable, for every user, same as leaf items.
+    await expect(rootTrigger.locator('> a.nav-link')).not.toHaveClass(/disabled/);
     const pointerEvents = await rootTrigger.locator('> a.nav-link').evaluate((el) => getComputedStyle(el).pointerEvents);
-    expect(pointerEvents).toBe('none');
+    expect(pointerEvents).not.toBe('none');
+
+    // Confirm it's actually clickable/expandable now, not just missing the CSS class.
+    await rootTrigger.locator('> a.nav-link').click();
+    await expect(page.getByRole('link', { name: 'PWTest Menu Child' })).toBeVisible();
   });
 
   test('TC-MENU-002 — Own menu reflects permission changes (page removed from role)', async ({ page, request }) => {

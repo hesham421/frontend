@@ -6,10 +6,10 @@ import { TranslateService } from '@ngx-translate/core';
 // project import
 import { AuthenticationService } from 'src/app/core/services/authentication.service';
 import { SharedModule } from 'src/app/theme/shared/shared.module';
-import { ScrollbarComponent } from 'src/app/theme/shared/components/scrollbar/scrollbar.component';
 import { LanguageService, SupportedLanguage } from 'src/app/core/services/language.service';
 import { AvlDropdownDirective, AvlDropdownToggleDirective, AvlDropdownItemDirective } from 'src/app/shared/overlay/dropdown/dropdown.directive';
 import { AvlTabsComponent, TabItem } from 'src/app/shared/components/avl-tabs/avl-tabs.component';
+import { NotificationBellComponent } from 'src/app/shared/components/notification-bell/notification-bell.component';
 
 // third party
 import screenfull from 'screenfull';
@@ -44,7 +44,7 @@ import {
 
 @Component({
   selector: 'app-nav-right',
-  imports: [SharedModule, RouterModule, ScrollbarComponent, AvlDropdownDirective, AvlDropdownToggleDirective, AvlDropdownItemDirective, AvlTabsComponent],
+  imports: [SharedModule, RouterModule, AvlDropdownDirective, AvlDropdownToggleDirective, AvlDropdownItemDirective, AvlTabsComponent, NotificationBellComponent],
   templateUrl: './nav-right.component.html',
   styleUrls: ['./nav-right.component.scss']
 })
@@ -189,37 +189,6 @@ export class NavRightComponent implements OnInit {
           url: '/'
         }
       ]
-    }
-  ];
-
-  notifications = [
-    {
-      avatarClass: 'user-avatar bg-light-success',
-      iconClass: 'gift',
-      time: '3:00 AM',
-      message: "It's <b>Cristina danny's</b> birthday today.",
-      date: '2 min ago'
-    },
-    {
-      avatarClass: 'user-avatar bg-light-primary',
-      iconClass: 'message',
-      time: '6:00 PM',
-      message: '<b>Aida Burg</b> commented your post.',
-      date: '5 August'
-    },
-    {
-      avatarClass: 'user-avatar bg-light-danger',
-      iconClass: 'setting',
-      time: '2:45 PM',
-      message: 'Your Profile is Complete &nbsp;<b>60%</b>',
-      date: '7 hours ago'
-    },
-    {
-      avatarClass: 'user-avatar bg-light-primary',
-      iconClass: 'phone',
-      time: '9:10 PM',
-      message: '<b>Cristina Danny</b> invited to join <b>Meeting.</b>',
-      date: 'Daily scrum meeting time'
     }
   ];
 

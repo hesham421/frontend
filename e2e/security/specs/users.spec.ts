@@ -69,22 +69,17 @@ test.describe('TC-USER — User Management', () => {
     await loginAsAdmin(page, request);
   });
 
-  test('TC-USER-001 REAL UI BEHAVIOR — Add User drawer is currently broken (CONTRACT_BREAK, live-verified)', async ({
+  test('TC-USER-001 — Add User drawer happy path (UI)', async ({
     page
   }) => {
-    // GENUINE, LIVE PRODUCTION BUG (not a test artifact): `CreateUserRequest`
-    // (backend record) has ONLY `username`+`password` fields. The Angular
-    // drawer's submit path (`UserListComponent.createUser()`) ALWAYS includes
-    // `enabled: this.userForm.enabled` in the POST body — it's a plain
-    // boolean, never omitted/undefined, defaulting to `true` on every fresh
-    // form. This backend enforces
-    // `spring.jackson.deserialization.fail-on-unknown-properties=true`
-    // globally (erp-main/application.properties) — so ANY create-user
-    // submission through the real "Add User" button 400s with
-    // `INVALID_JSON`, confirmed live via curl replicating the exact payload
-    // shape. The Add User feature is completely non-functional end-to-end in
-    // this environment today. This test documents that real, current
-    // behavior rather than working around it.
+    // FIXED (was CONTRACT_BREAK): `CreateUserRequest` (backend record) previously had
+    // only `username`+`password`, while the Angular drawer's submit path
+    // (`UserListComponent.createUser()`) always includes `enabled` in the POST body —
+    // with `spring.jackson.deserialization.fail-on-unknown-properties=true` globally,
+    // that 400'd every real Add User submission. Fixed by adding an optional `enabled`
+    // field to `CreateUserRequest` (erp-security) so the field the real UI already
+    // sends is accepted, and `UserService.createUser` now respects it (falling back to
+    // true when absent). Asserting the real (now-working) happy path below.
     const users = new UserListPage(page);
     const username = pwUsername();
 
@@ -96,11 +91,10 @@ test.describe('TC-USER — User Management', () => {
     );
     await users.save();
     const res = await createRes;
-    expect(res.status()).toBe(400); // CONTRACT_BREAK — see comment above.
+    expect(res.status(), `expected 2xx, got ${res.status()}`).toBeLessThan(300);
     const body = await res.json();
-    expect(body.error?.code).toBe('INVALID_JSON');
-    await users.expectFormError(/.+/); // the drawer does surface the failure to the user, at least
-    await users.dismissDrawer();
+    expect(body.data.username).toBe(username);
+    expect(body.data.enabled).toBe(true);
   });
 
   test('TC-USER-001/002 — Create User happy path + duplicate username (API — see UI bug above)', async ({

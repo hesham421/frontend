@@ -268,6 +268,11 @@ export class PagesFormComponent implements OnInit, OnDestroy {
   private updatePage(formValue: { nameAr: string; nameEn: string; route: string; icon: string; module: string; parentId: number | null; displayOrder: number; active: boolean; }): void {
     if (!this.pageId) return;
 
+    // `active` is intentionally omitted here: UpdatePageRequest has no such field
+    // (toggling it is owned by the dedicated /deactivate and /reactivate endpoints),
+    // and the backend rejects unknown JSON properties globally
+    // (spring.jackson.deserialization.fail-on-unknown-properties=true), so including
+    // it 400s the entire Update Page flow.
     const updateRequest: UpdatePageRequest = {
       nameAr: formValue.nameAr,
       nameEn: formValue.nameEn,
@@ -275,8 +280,7 @@ export class PagesFormComponent implements OnInit, OnDestroy {
       icon: formValue.icon?.trim() ? formValue.icon.trim() : undefined,
       module: formValue.module?.trim() ? formValue.module.trim() : undefined,
       parentId: formValue.parentId ?? undefined,
-      displayOrder: formValue.displayOrder,
-      active: formValue.active
+      displayOrder: formValue.displayOrder
     };
     
     this.facade.updatePage(this.pageId, updateRequest, () => {

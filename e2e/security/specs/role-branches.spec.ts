@@ -21,12 +21,14 @@ const roleCode = (label: string) => `PWTEST_${label}_${uniq()}`;
 const ACTIVE_BRANCH_LABEL = 'Default Branch';
 /**
  * The branch-scope UI displays a role-branch row's name via `branchNameFor(branchId)`
- * (role-access-form.component.ts), which falls back to the raw numeric branchId whenever
- * `RoleBranchFacade.activeBranches()` is empty — see the TC-RB-001 finding below for why
- * that's ALWAYS the case in this environment. So rows actually render "1", not "Default
- * Branch", for every test that assigns via API and then loads the tab.
+ * (role-access-form.component.ts), which falls back to the raw numeric branchId only when
+ * `RoleBranchFacade.activeBranches()` is empty. That used to always be true —
+ * RoleBranchApiService.searchActiveBranches() sent `field: 'isActive'`, which the backend
+ * rejects (only `isActiveFl` is a valid search field on this endpoint), so the lookup
+ * silently 400'd. Now fixed (see TC-RB-001), so activeBranches() resolves correctly and
+ * rows render "Default Branch".
  */
-const RENDERED_BRANCH_LABEL = '1';
+const RENDERED_BRANCH_LABEL = ACTIVE_BRANCH_LABEL;
 
 test.describe('TC-RB — Security DataScope Role Branches (Group 10)', () => {
   test.beforeEach(async ({ page, request }) => {
@@ -34,24 +36,14 @@ test.describe('TC-RB — Security DataScope Role Branches (Group 10)', () => {
   });
 
   // ── TC-RB-001 — Assign Branch Scope to Role happy path (real Assign Branch modal) ──
-  // FINDING (BUSINESS_LOGIC_ISSUE, real app bug — not a test issue, not fixed here per the
-  // "never modify frontend/src/app/**" rule): RoleBranchApiService.searchActiveBranches()
-  // (role-branch-api.service.ts) sends `filters: [{ field: 'isActive', operator: 'EQUALS',
-  // value: true }]` to POST /api/v1/org/branches/search. Confirmed via direct API probing:
-  //   field 'isActive'   -> 400 SEARCH_ERROR "Field 'isActive' is not allowed for searching"
-  //   field 'isActiveFl' -> 200, returns branch_pk=1 "Default Branch" correctly
-  // RoleBranchFacade.loadActiveBranches()'s catchError silently swallows that 400 and sets
-  // activeBranches to `[]`. Two consequences, both confirmed by dumping the live DOM:
-  //   1. The Assign Branch modal's Branch <select> renders ONLY the disabled placeholder
-  //      option ("Select a branch") — zero real branches, for every role, always. The
-  //      confirm button (`[disabled]="!selectedNewBranchId || ..."`) can never enable.
-  //   2. Every already-assigned branch-scope row's name cell falls back to the raw
-  //      `branchIdFk` ("1") instead of "Default Branch" (`branchNameFor()`'s fallback path).
-  // This means the REAL Assign Branch UI is currently unusable end-to-end in this
-  // environment — happy-path assignment cannot be completed through it. Documented directly
-  // below rather than hung on a 60s selectOption timeout against a dropdown that can never
-  // populate.
-  test('TC-RB-001 — Assign Branch Scope happy path (UI) — BLOCKED by app bug, documented', async ({ page, request }) => {
+  // FIXED (was BUSINESS_LOGIC_ISSUE): RoleBranchApiService.searchActiveBranches()
+  // (role-branch-api.service.ts) sent `filters: [{ field: 'isActive', operator: 'EQUALS',
+  // value: true }]` to POST /api/v1/org/branches/search, which the backend rejects (only
+  // `isActiveFl` is a valid search field there) — silently swallowed by
+  // RoleBranchFacade.loadActiveBranches()'s catchError, leaving activeBranches() empty, so
+  // the Assign Branch modal's dropdown only ever showed the disabled placeholder. Fixed by
+  // sending `isActiveFl` instead. Asserting the real (now-working) happy path below.
+  test('TC-RB-001 — Assign Branch Scope happy path (UI)', async ({ page, request }) => {
     const session = await fetchAdminSession(request);
     const api = new SecurityApiClient(request, session);
     const role = (await (await api.post('/api/roles', { roleCode: roleCode('RB1'), roleName: `PW RB Assign Role ${uniq()}` })).json()).data;
@@ -62,20 +54,27 @@ test.describe('TC-RB — Security DataScope Role Branches (Group 10)', () => {
     await roPage.assignBranchButton.click();
 
     const branchSelect = page.getByTestId('role-access-assign-branch-select').locator('select');
-    await expect(branchSelect.locator('option')).toHaveCount(1); // only the disabled placeholder
-    // data-testid sits on the <avl-button> host — [disabled] is passed down to its inner
-    // native <button>, so assert against that, not the custom-element host.
-    await expect(page.getByTestId('role-access-assign-branch-confirm').locator('button')).toBeDisabled();
+    await expect(branchSelect.locator('option', { hasText: ACTIVE_BRANCH_LABEL })).toHaveCount(1);
 
-    // The underlying assign OPERATION itself works fine (proven at the API level — TC-RB-002..005,
-    // TC-RB-013, TC-RB-014 below all succeed) — it's specifically the UI's branch-picker that's
-    // broken. DB validation that the API path this modal WOULD call still behaves correctly:
+    const assignRes = page.waitForResponse(
+      (r) => r.url().includes('/api/v1/security/role-branches') && r.request().method() === 'POST'
+    );
+    await roPage.selectAssignBranch(ACTIVE_BRANCH_LABEL);
+    await roPage.selectAssignLevel('BRANCH_ONLY');
+    await roPage.confirmAssignBranch();
+    const res = await assignRes;
+    expect(res.status(), `expected 2xx, got ${res.status()}`).toBeLessThan(300);
+
+    await roPage.expectBranchRowVisible(ACTIVE_BRANCH_LABEL);
+
     const search = await api.post('/api/v1/security/role-branches/search', {
       filters: [{ field: 'roleIdFk', operator: 'EQUALS', value: role.id }],
       page: 0,
       size: 10
     });
-    expect((await search.json()).data.content).toEqual([]); // nothing assigned — UI never got there
+    const content = (await search.json()).data.content;
+    expect(content).toHaveLength(1);
+    expect(content[0].branchIdFk).toBe(1);
   });
 
   // ── TC-RB-002 — roleIdFk doesn't exist ──

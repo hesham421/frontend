@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { test, expect } from '@playwright/test';
 import { SignUpPage } from '../pages/SignUpPage';
 import { PasswordRecoveryPage } from '../pages/PasswordRecoveryPage';
@@ -19,20 +21,24 @@ import { SECURITY_API_URL } from '../support/auth';
  * don't need).
  *
  * DB-token-dependent happy paths (activate, reset-password, "new token invalidates
- * prior", already-used-token negatives): confirmed via manual mcp__postgres__query +
- * curl exploration during test authoring that `account_activation_token` /
- * `password_reset_token` store the raw token in plaintext and ARE queryable —
- * so the doc's "no DB/log access" assumption is only half true. However this
- * Playwright harness has no Postgres client wired into the Node runtime (no `pg`
- * dependency in package.json, no support/db.ts) — only the *authoring agent* can
- * read the token via the mcp__postgres__query tool, not the spec at test-run time.
- * Automating the true end-to-end happy path would require adding DB connectivity
- * to the e2e harness itself, which is new test infrastructure, not test-writing —
- * out of scope here. These are marked SKIPPED/DB_PRECONDITION below with what was
- * manually verified instead (all matched the doc exactly: enabled flips 0->1 on
- * activate, RULE-SEC-039 old-token invalidation confirmed, login with new password
- * succeeds / old password fails after reset).
+ * prior", already-used-token negatives): `account_activation_token`/
+ * `password_reset_token` store the raw token in plaintext and are queryable, but this
+ * Playwright harness has no Postgres client wired into the Node runtime itself (no
+ * `pg` dependency, no support/db.ts) — so the token can't be read from inside the
+ * spec at run time. Automated via the same filesystem-handoff + env-var pattern as
+ * e2e-flows.spec.ts's TC-E2E-004/005: a first test/phase drives the signup/activate/
+ * forgot-password step and writes state to a JSON file in the scratchpad dir; between
+ * runs the real token is fetched with one `mcp__postgres__query` SELECT (done by the
+ * test-execution agent) and passed in via an env var; the next phase reads the
+ * handoff back and completes the flow. TC-SSA-014 (expired token) is the one
+ * exception left genuinely unautomatable — it needs either a real 24h wait or a
+ * short-TTL config override, neither available here.
  */
+const HANDOFF_DIR = path.join(__dirname, '..', '..', '..', '.tmp-e2e-handoff');
+fs.mkdirSync(HANDOFF_DIR, { recursive: true });
+const HANDOFF_ACTIVATE = path.join(HANDOFF_DIR, 'ssa-activate.json');
+const HANDOFF_FORGOT = path.join(HANDOFF_DIR, 'ssa-forgot.json');
+const HANDOFF_RESET = path.join(HANDOFF_DIR, 'ssa-reset.json');
 
 function uniqueId(): string {
   return `${Date.now()}_${Math.floor(Math.random() * 100000)}`;
@@ -184,14 +190,39 @@ test.describe('TC-SSA — Self-Service Auth', () => {
   // Activate — DB-token-dependent happy path: SKIPPED (see file header)
   // ---------------------------------------------------------------------
 
-  test('TC-SSA-011 — Activate happy path — SKIPPED', async () => {
+  test('TC-SSA-011 — Activate happy path', async ({ page, request }) => {
+    // Two-phase, filesystem-handoff pattern (see file header): reuse the pending
+    // signup across re-runs so a token fetched from a PRIOR run's DB row stays
+    // valid for whichever run actually supplies it via env var.
+    const existing = fs.existsSync(HANDOFF_ACTIVATE) ? JSON.parse(fs.readFileSync(HANDOFF_ACTIVATE, 'utf-8')) : null;
+    const reuse = existing?.stage === 'signed-up';
+    const username = reuse ? existing.username : pwtestUsername();
+    const email = reuse ? existing.email : pwtestEmail();
+    const password = 'password123';
+
+    if (!reuse) {
+      const signupRes = await request.post(`${SECURITY_API_URL}/api/auth/signup`, { data: { username, email, password } });
+      expect(signupRes.status()).toBe(200);
+      fs.writeFileSync(HANDOFF_ACTIVATE, JSON.stringify({ username, email, password, stage: 'signed-up' }));
+    }
+
     test.skip(
-      true,
-      'DB_PRECONDITION: activation token only exists in account_activation_token, not returned by any API. ' +
-        'e2e harness has no DB client wired in to read it at run time. Manually verified via mcp__postgres__query ' +
-        '+ curl during authoring: token is plaintext/queryable, POST /api/auth/signup/activate flips users.enabled 0->1, ' +
-        'subsequent login-token succeeds. Functionality confirmed correct; just not automatable in this harness as-is.'
+      !process.env['PWTEST_SSA011_TOKEN'],
+      'Supply PWTEST_SSA011_TOKEN from: ' +
+        `SELECT token FROM account_activation_token WHERE user_id_fk = (SELECT users_pk FROM users WHERE username = '${username}') ` +
+        'AND used_fl = 0 ORDER BY created_at DESC LIMIT 1; (then re-run this test)'
     );
+    const token = process.env['PWTEST_SSA011_TOKEN']!;
+
+    const signUp = new SignUpPage(page);
+    await signUp.gotoActivation(token);
+    await signUp.expectActivated();
+
+    const loginRes = await request.post(`${SECURITY_API_URL}/api/auth/login-token`, { data: { username, password } });
+    expect(loginRes.status()).toBe(200); // RULE-SEC-030: enabled flips 0->1 on activate
+
+    // TC-SSA-013 reuses this now-consumed token to hit the already-used guard.
+    fs.writeFileSync(HANDOFF_ACTIVATE, JSON.stringify({ username, email, password, token, stage: 'activated' }));
   });
 
   test('TC-SSA-012 — Activate invalid/unknown token (UI)', async ({ page }) => {
@@ -206,13 +237,16 @@ test.describe('TC-SSA — Self-Service Auth', () => {
     expect(errorText).toContain('The operation failed');
   });
 
-  test('TC-SSA-013 — Activate already-used token — SKIPPED', async () => {
-    test.skip(
-      true,
-      'DB_PRECONDITION: requires the real value of a token already consumed via TC-SSA-011-equivalent flow; ' +
-        'same DB-read limitation as TC-SSA-011. Manually verified via curl: re-POSTing a consumed activation ' +
-        'token returns 400 TOKEN_ALREADY_USED, matching the doc exactly.'
-    );
+  test('TC-SSA-013 — Activate already-used token', async ({ request }) => {
+    test.skip(!fs.existsSync(HANDOFF_ACTIVATE), 'Run TC-SSA-011 to completion first (need an already-consumed token).');
+    const { token, stage } = JSON.parse(fs.readFileSync(HANDOFF_ACTIVATE, 'utf-8'));
+    test.skip(stage !== 'activated', 'Run TC-SSA-011 to completion first (need an already-consumed token).');
+
+    const res = await request.post(`${SECURITY_API_URL}/api/auth/signup/activate`, { data: { token } });
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    console.log('TC-SSA-013 observed error.code:', body?.error?.code);
+    if (body?.error?.code) expect(body.error.code).toBe('TOKEN_ALREADY_USED');
   });
 
   test('TC-SSA-014 — Activate expired token — SKIPPED', async () => {
@@ -273,28 +307,115 @@ test.describe('TC-SSA — Self-Service Auth', () => {
     await recovery.expectRequestSuccess(); // same "Check Your Email" view as TC-SSA-016
   });
 
-  test('TC-SSA-018 — Forgot Password: new token invalidates prior (RULE-SEC-039) — SKIPPED', async () => {
+  test('TC-SSA-018 — Forgot Password: new token invalidates prior (RULE-SEC-039)', async ({ request }) => {
+    // Needs an activated user with a real email — reuses TC-SSA-011's handoff'd account.
+    test.skip(!fs.existsSync(HANDOFF_ACTIVATE), 'Run TC-SSA-011 to completion first (need an activated user).');
+    const { email, stage } = JSON.parse(fs.readFileSync(HANDOFF_ACTIVATE, 'utf-8'));
+    test.skip(stage !== 'activated', 'Run TC-SSA-011 to completion first (need an activated user).');
+
+    const existingForgot = fs.existsSync(HANDOFF_FORGOT) ? JSON.parse(fs.readFileSync(HANDOFF_FORGOT, 'utf-8')) : null;
+    if (!existingForgot || existingForgot.email !== email) {
+      // First forgot-password call — issues reset-token-1.
+      const first = await request.post(`${SECURITY_API_URL}/api/auth/forgot-password`, { data: { email } });
+      expect(first.status()).toBe(200);
+      fs.writeFileSync(HANDOFF_FORGOT, JSON.stringify({ email, stage: 'first-requested' }));
+    }
+
     test.skip(
-      true,
-      'DB_PRECONDITION: requires reading the FIRST issued reset token value to attempt reusing it after the ' +
-        'second forgot-password call, which needs DB access at run time (see file header). Manually verified via ' +
-        'mcp__postgres__query + curl during authoring: calling forgot-password a second time immediately flips ' +
-        'the prior password_reset_token row to used_fl=1, and re-POSTing that prior token to /api/auth/reset-password ' +
-        'returns 400 TOKEN_ALREADY_USED — RULE-SEC-039 confirmed working exactly as documented.'
+      !process.env['PWTEST_SSA018_FIRST_TOKEN'],
+      'Supply PWTEST_SSA018_FIRST_TOKEN from: ' +
+        `SELECT token FROM password_reset_token WHERE user_id_fk = (SELECT users_pk FROM users WHERE email = '${email}') ` +
+        'AND used_fl = 0 ORDER BY created_at DESC LIMIT 1; (then re-run this test)'
     );
+    const firstToken = process.env['PWTEST_SSA018_FIRST_TOKEN']!;
+
+    // Second forgot-password call — issues reset-token-2 and flips token-1 to used_fl=1.
+    const second = await request.post(`${SECURITY_API_URL}/api/auth/forgot-password`, { data: { email } });
+    expect(second.status()).toBe(200);
+
+    // Re-using the now-invalidated first token must fail.
+    const resetRes = await request.post(`${SECURITY_API_URL}/api/auth/reset-password`, {
+      data: { token: firstToken, newPassword: 'password456' }
+    });
+    expect(resetRes.status()).toBe(400);
+    const body = await resetRes.json();
+    console.log('TC-SSA-018 observed error.code:', body?.error?.code);
+    if (body?.error?.code) expect(body.error.code).toBe('TOKEN_ALREADY_USED');
   });
 
   // ---------------------------------------------------------------------
   // Reset Password — DB-token-dependent happy path: SKIPPED (see file header)
   // ---------------------------------------------------------------------
 
-  test('TC-SSA-019 — Reset Password happy path — SKIPPED', async () => {
+  test('TC-SSA-019 — Reset Password happy path', async ({ request }) => {
+    // Self-contained (its own signup/activate/forgot-password chain, own handoff file)
+    // rather than reusing TC-SSA-011/018's account, so it doesn't depend on those tests'
+    // run order or leave TC-SSA-021 fighting over the same reset token.
+    const existing = fs.existsSync(HANDOFF_RESET) ? JSON.parse(fs.readFileSync(HANDOFF_RESET, 'utf-8')) : null;
+
+    let username: string, email: string;
+    if (!existing) {
+      username = pwtestUsername();
+      email = pwtestEmail();
+      const signupRes = await request.post(`${SECURITY_API_URL}/api/auth/signup`, { data: { username, email, password: 'password123' } });
+      expect(signupRes.status()).toBe(200);
+      fs.writeFileSync(HANDOFF_RESET, JSON.stringify({ username, email, stage: 'signed-up' }));
+      test.skip(
+        true,
+        'Supply PWTEST_SSA019_ACTIVATION_TOKEN from: ' +
+          `SELECT token FROM account_activation_token WHERE user_id_fk = (SELECT users_pk FROM users WHERE username = '${username}') ` +
+          'AND used_fl = 0 ORDER BY created_at DESC LIMIT 1; (then re-run this test)'
+      );
+      return;
+    }
+    ({ username, email } = existing);
+
+    if (existing.stage === 'signed-up') {
+      test.skip(
+        !process.env['PWTEST_SSA019_ACTIVATION_TOKEN'],
+        'Supply PWTEST_SSA019_ACTIVATION_TOKEN from: ' +
+          `SELECT token FROM account_activation_token WHERE user_id_fk = (SELECT users_pk FROM users WHERE username = '${username}') ` +
+          'AND used_fl = 0 ORDER BY created_at DESC LIMIT 1; (then re-run this test)'
+      );
+      const activateRes = await request.post(`${SECURITY_API_URL}/api/auth/signup/activate`, {
+        data: { token: process.env['PWTEST_SSA019_ACTIVATION_TOKEN'] }
+      });
+      expect(activateRes.status()).toBeLessThan(300);
+
+      const forgotRes = await request.post(`${SECURITY_API_URL}/api/auth/forgot-password`, { data: { email } });
+      expect(forgotRes.status()).toBe(200);
+      fs.writeFileSync(HANDOFF_RESET, JSON.stringify({ username, email, stage: 'reset-requested' }));
+      test.skip(
+        true,
+        'Supply PWTEST_SSA019_RESET_TOKEN from: ' +
+          `SELECT token FROM password_reset_token WHERE user_id_fk = (SELECT users_pk FROM users WHERE username = '${username}') ` +
+          'AND used_fl = 0 ORDER BY created_at DESC LIMIT 1; (then re-run this test)'
+      );
+      return;
+    }
+
     test.skip(
-      true,
-      'DB_PRECONDITION: same DB-read limitation as TC-SSA-011/018. Manually verified via mcp__postgres__query + ' +
-        'curl during authoring: valid reset token -> 200 empty body -> login with new password succeeds, login with ' +
-        'old password returns 401 INVALID_CREDENTIALS. Functionality confirmed correct.'
+      !process.env['PWTEST_SSA019_RESET_TOKEN'],
+      'Supply PWTEST_SSA019_RESET_TOKEN from: ' +
+        `SELECT token FROM password_reset_token WHERE user_id_fk = (SELECT users_pk FROM users WHERE username = '${username}') ` +
+        'AND used_fl = 0 ORDER BY created_at DESC LIMIT 1; (then re-run this test)'
     );
+    const resetToken = process.env['PWTEST_SSA019_RESET_TOKEN']!;
+    const newPassword = 'newpassword456';
+
+    const resetRes = await request.post(`${SECURITY_API_URL}/api/auth/reset-password`, {
+      data: { token: resetToken, newPassword }
+    });
+    expect(resetRes.status()).toBe(200);
+
+    const oldLogin = await request.post(`${SECURITY_API_URL}/api/auth/login-token`, { data: { username, password: 'password123' } });
+    expect(oldLogin.status()).toBe(401);
+
+    const newLogin = await request.post(`${SECURITY_API_URL}/api/auth/login-token`, { data: { username, password: newPassword } });
+    expect(newLogin.status()).toBe(200);
+
+    // TC-SSA-021 reuses this now-consumed token to hit the already-used guard.
+    fs.writeFileSync(HANDOFF_RESET, JSON.stringify({ username, email, resetToken, stage: 'reset-done' }));
   });
 
   test('TC-SSA-020 — Reset Password invalid/unknown token (UI)', async ({ page }) => {
@@ -308,13 +429,18 @@ test.describe('TC-SSA — Self-Service Auth', () => {
     expect(errorText).toContain('The operation failed');
   });
 
-  test('TC-SSA-021 — Reset Password already-used token — SKIPPED', async () => {
-    test.skip(
-      true,
-      'DB_PRECONDITION: requires the real value of an already-consumed reset token; same DB-read limitation as ' +
-        'TC-SSA-011/018/019. Manually verified via curl during authoring: re-POSTing a consumed reset token returns ' +
-        '400 TOKEN_ALREADY_USED, matching the doc exactly.'
-    );
+  test('TC-SSA-021 — Reset Password already-used token', async ({ request }) => {
+    test.skip(!fs.existsSync(HANDOFF_RESET), 'Run TC-SSA-019 to completion first (need an already-consumed reset token).');
+    const { resetToken, stage } = JSON.parse(fs.readFileSync(HANDOFF_RESET, 'utf-8'));
+    test.skip(stage !== 'reset-done', 'Run TC-SSA-019 to completion first (need an already-consumed reset token).');
+
+    const res = await request.post(`${SECURITY_API_URL}/api/auth/reset-password`, {
+      data: { token: resetToken, newPassword: 'yetanotherpassword789' }
+    });
+    expect(res.status()).toBe(400);
+    const body = await res.json();
+    console.log('TC-SSA-021 observed error.code:', body?.error?.code);
+    if (body?.error?.code) expect(body.error.code).toBe('TOKEN_ALREADY_USED');
   });
 
   // Boundary cases below don't need a real token: confirmed via curl exploration

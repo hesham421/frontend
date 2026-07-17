@@ -360,20 +360,33 @@ test.describe('TC-E2E — Cross-Module End-to-End Flows', () => {
     // Admin-created users have no email (doc §7 note), so forgot-password needs
     // a self-service (signup+activate) account. Signup itself only needs its own
     // activation token, fetched the same handoff way as TC-E2E-004.
-    const username = `pwteste2e005${uniq()}`.toLowerCase();
-    const email = `${username}@pwtest.example.com`;
-    const password = 'Passw0rd1';
+    //
+    // Idempotent by design: this test does signup AND (once a token is supplied)
+    // activation+forgot-password in the SAME test, so a naive fresh `uniq()` on every
+    // invocation would sign up a brand-new user each re-run — orphaning any
+    // already-fetched activation token from a prior run (fetched via
+    // mcp__postgres__query against the FIRST run's username). Reusing the prior
+    // handoff's username/email/password (when present and still at the
+    // 'signed-up' stage) keeps the token valid across the two-phase run.
+    const existing = fs.existsSync(HANDOFF_005) ? JSON.parse(fs.readFileSync(HANDOFF_005, 'utf-8')) : null;
+    const reuseSignup = existing?.stage === 'signed-up';
+    const username = reuseSignup ? existing.username : `pwteste2e005${uniq()}`.toLowerCase();
+    const email = reuseSignup ? existing.email : `${username}@pwtest.example.com`;
+    const password = reuseSignup ? existing.password : 'Passw0rd1';
+
+    if (!reuseSignup) {
+      const signUpPage = new SignUpPage(page);
+      await signUpPage.goto();
+      await signUpPage.fillForm(username, email, password);
+      const signupRes = page.waitForResponse((r) => r.url().includes('/api/auth/signup') && r.request().method() === 'POST');
+      await signUpPage.submit();
+      await signupRes;
+      await signUpPage.expectCheckYourEmail();
+
+      fs.writeFileSync(HANDOFF_005, JSON.stringify({ username, email, password, stage: 'signed-up' }));
+    }
 
     const signUpPage = new SignUpPage(page);
-    await signUpPage.goto();
-    await signUpPage.fillForm(username, email, password);
-    const signupRes = page.waitForResponse((r) => r.url().includes('/api/auth/signup') && r.request().method() === 'POST');
-    await signUpPage.submit();
-    await signupRes;
-    await signUpPage.expectCheckYourEmail();
-
-    fs.writeFileSync(HANDOFF_005, JSON.stringify({ username, email, password, stage: 'signed-up' }));
-
     test.skip(
       !process.env['PWTEST_E2E005_ACTIVATION_TOKEN'],
       'Supply PWTEST_E2E005_ACTIVATION_TOKEN from: ' +

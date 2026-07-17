@@ -305,14 +305,14 @@ export class UserFacade {
     return filters
       .map((f) => ({
         field: f.field,
-        op: this.mapSpecOperator(f.operator),
+        operator: this.mapSpecOperator(f.operator),
         value: f.value
       }))
-      .filter((f) => !!f.field && !!f.op)
+      .filter((f) => !!f.field && !!f.operator)
       .map((f) => ({
         field: f.field,
-        op: f.op,
-        value: this.normalizeSearchValue(f.field, f.op, f.value)
+        operator: f.operator,
+        value: this.normalizeSearchValue(f.field, f.operator, f.value)
       }));
   }
 
@@ -380,15 +380,15 @@ export class UserFacade {
         
         const op = this.mapTextFilterType(filter.type);
         if (op) {
-          filters.push({ field: apiField, op, value: filterValue });
+          filters.push({ field: apiField, operator: op, value: filterValue });
         }
       } else if (filter.filterType === 'number') {
         const op = this.mapNumberFilterType(filter.type);
         if (op) {
           if (filter.type === 'inRange') {
-            filters.push({ field: apiField, op, value: filter.filter, value2: filter.filterTo });
+            filters.push({ field: apiField, operator: op, value: filter.filter, value2: filter.filterTo });
           } else {
-            filters.push({ field: apiField, op, value: filter.filter });
+            filters.push({ field: apiField, operator: op, value: filter.filter });
           }
         }
       }
@@ -431,7 +431,7 @@ export class UserFacade {
       })
       .map(cf => ({
         field: cf.field,
-        op: cf.op,
+        operator: cf.op,
         value: this.convertFilterValue(cf)
       }));
   }

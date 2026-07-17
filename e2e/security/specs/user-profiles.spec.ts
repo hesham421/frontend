@@ -7,37 +7,21 @@ import { SecurityApiClient } from '../support/api-client';
  * Group 9 — Security DataScope User Profiles (§9, TC-UP-001..016).
  *
  * ══════════════════════════════════════════════════════════════════════════
- * REAL, LIVE, CURRENT ENVIRONMENT GAP (verified via source read + DB SELECT +
- * live curl — not assumption) that blocks EVERY test in this group:
- *
- * The doc's own §9 preamble says "Not permission-gated — any authenticated
- * user can call these today ... deliberate, Phase SEC work not yet done."
- * That is now STALE / a CONTRACT_BREAK against the doc: Phase SEC (per
- * project memory) DID add `@PreAuthorize` gates to every
- * `SecUserProfileService` method (`PERM_USER_PROFILE_VIEW`/`_CREATE`/`_UPDATE`),
- * PLUS a frontend route-level `permissionGuard` on `/security/user-profiles`
- * (+`/create`+`/edit/:id`) requiring the same permissions. However:
- *
- *   SELECT * FROM permissions WHERE name LIKE 'PERM_USER_PROFILE%';  -- 0 rows
- *
- * confirms the seed script that was supposed to create + grant those 3
- * permissions (`003_sec_pages_permissions_seed.sql`, BLOCK 2 + BLOCK 3) was
- * never actually run (BLOCK 1 — the SEC_PAGES row itself — did run: page_code
- * 'USER_PROFILE' exists). Net effect, confirmed live:
- *   - `POST /api/v1/security/user-profiles/search` as **admin/SUPER_ADMIN** → 403 FORBIDDEN
- *   - `POST /api/v1/security/user-profiles` as admin → 403 FORBIDDEN
- *   - navigating to `/security/user-profiles` as admin → client-side redirect to `/access-denied`
- * No account in this environment — not even SUPER_ADMIN — can pass these
- * checks right now. This is a `DB_PRECONDITION` gap, not something in scope
- * to fix here (it needs a manual DBA-run SQL grant, which is an INSERT — out
- * of bounds for this SELECT-only test suite).
+ * FORMER ENVIRONMENT GAP, NOW RESOLVED: `PERM_USER_PROFILE_VIEW/_CREATE/_UPDATE`
+ * (`003_sec_pages_permissions_seed.sql` BLOCK 2+3) were missing from `permissions`
+ * for a while, 403-blocking every account including SUPER_ADMIN. Those grants
+ * have since been applied (confirmed live via `mcp__postgres__query`:
+ * `permissions` has all 3 rows, granted to SUPER_ADMIN in `role_permissions`) —
+ * admin can now pass every `@PreAuthorize` check in this group and reach the
+ * real `/security/user-profiles` screen. See "GAP CONFIRMATION" below, which
+ * now asserts the resolved (unblocked) state instead of the old 403s.
  * ══════════════════════════════════════════════════════════════════════════
  *
- * TC-UP-001..014/016 are written in full (so they're ready to run the moment
- * the grant lands) but each opens with a `test.skip()` guarded by a live
- * probe of the actual current state, per TC. TC-UP-015 (no DELETE endpoint)
- * and the gap-confirmation test below are NOT blocked and always run for
- * real, since a 405 for an unmapped HTTP method is decided by Spring's
+ * TC-UP-001..014/016 each still open with a `test.skip()` guarded by a live
+ * probe of the actual current state (`probeBlocked`), so this file self-heals
+ * either direction if the grant is ever reverted — no need to hardcode
+ * "unblocked" everywhere. TC-UP-015 (no DELETE endpoint) is unaffected either
+ * way, since a 405 for an unmapped HTTP method is decided by Spring's
  * DispatcherServlet before the `@PreAuthorize`-guarded service method is ever
  * invoked.
  *
@@ -65,7 +49,7 @@ test.describe('TC-UP — Security DataScope User Profiles', () => {
     await loginAsAdmin(page, request);
   });
 
-  test('GAP CONFIRMATION — admin/SUPER_ADMIN is blocked by PERM_USER_PROFILE_* (DB_PRECONDITION, not a skip)', async ({
+  test('GAP CONFIRMATION — admin/SUPER_ADMIN unblocked now that PERM_USER_PROFILE_* is granted', async ({
     page,
     request
   }) => {
@@ -73,21 +57,16 @@ test.describe('TC-UP — Security DataScope User Profiles', () => {
     const api = new SecurityApiClient(request, session);
 
     const searchRes = await api.post(`${BASE}/search`, { filters: [], sorts: [] });
-    expect(searchRes.status()).toBe(403);
+    expect(searchRes.status()).toBe(200);
 
     const createRes = await api.post(BASE, { userIdFk: 999999999, branchIdFk: ACTIVE_BRANCH_ID });
-    expect(createRes.status()).toBe(403);
+    // Not a permission 403 anymore — falls through to the (still real) business
+    // validation for a nonexistent userIdFk.
+    expect(createRes.status()).not.toBe(403);
 
     const profiles = new UserProfilePage(page);
     await profiles.gotoList();
-    await profiles.expectRedirectedToAccessDenied();
-
-    test.info().annotations.push({
-      type: 'DB_PRECONDITION',
-      description:
-        'PERM_USER_PROFILE_VIEW/_CREATE/_UPDATE have 0 matching rows in `permissions` — ' +
-        '003_sec_pages_permissions_seed.sql BLOCK 2+3 were never run. Blocks all of TC-UP-001..014/016.'
-    });
+    await expect(page).not.toHaveURL(/access-denied/);
   });
 
   test('TC-UP-015 — No DELETE endpoint exists (unaffected by the permission gap — 405 before auth is even checked)', async ({
