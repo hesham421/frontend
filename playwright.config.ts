@@ -4,7 +4,7 @@ import { defineConfig } from '@playwright/test';
 
 declare const process: { env: Record<string, string | undefined> };
 
-const baseURL = process.env['E2E_BASE_URL'] || process.env['PLAYWRIGHT_BASE_URL'];
+const baseURL = process.env['E2E_BASE_URL'] || process.env['PLAYWRIGHT_BASE_URL'] || 'http://localhost:4200';
 
 export default defineConfig({
   testDir: './e2e',
@@ -16,7 +16,12 @@ export default defineConfig({
   use: {
     baseURL,
     trace: 'on-first-retry',
-    screenshot: 'only-on-failure'
+    screenshot: 'only-on-failure',
+    // Uses the system-installed Google Chrome instead of Playwright's managed
+    // Chromium/headless-shell builds — the CDN download for those has proven
+    // unreliable in this environment. Chrome supports headless mode natively,
+    // so no separate headless-shell binary is needed.
+    channel: 'chrome'
   },
   webServer: {
     command: 'npm run start -- --port=4200 --host=127.0.0.1',
