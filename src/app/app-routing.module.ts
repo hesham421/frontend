@@ -32,6 +32,15 @@ const routes: Routes = [
     loadChildren: () => import('./modules/master-data/master-data.module').then((m) => m.MasterDataModule)
   },
   {
+    // NOTIFICATION module (F4) — SCR-NOTIF-001/002/003. Mounted at root (no
+    // 'notification' path prefix) because F4-RULE-1's routes are absolute
+    // top-level paths (/notifications, /notification-templates,
+    // /notification-channel-configs), unlike security/master-data's
+    // module-prefixed pattern.
+    path: '',
+    loadChildren: () => import('./modules/notification').then((m) => m.NotificationModule)
+  },
+  {
     path: 'finance',
     loadChildren: () => import('./modules/finance/finance.module').then((m) => m.FinanceModule)
   },

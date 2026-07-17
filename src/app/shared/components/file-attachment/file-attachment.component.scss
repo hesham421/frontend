@@ -1,0 +1,45 @@
+:host {
+  display: block;
+}
+
+.file-attachment__upload {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3, 12px);
+}
+
+.file-attachment__category-select {
+  padding: var(--space-2, 8px) var(--space-3, 12px);
+  border-radius: var(--radius-md, 6px);
+  border: 1px solid var(--border-color, #d0d5dd);
+}
+
+.file-attachment__error {
+  color: var(--color-danger, #d92d20);
+  margin: var(--space-1, 4px) 0;
+  font-size: 0.875rem;
+}
+
+.file-attachment__loading {
+  color: var(--text-secondary, #667085);
+  font-size: 0.875rem;
+}
+
+.file-attachment__table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    text-align: start;
+    padding: var(--space-2, 8px) var(--space-3, 12px);
+    border-bottom: 1px solid var(--border-color, #eaecf0);
+  }
+}
+
+.file-attachment__row-actions {
+  display: flex;
+  gap: var(--space-2, 8px);
+}

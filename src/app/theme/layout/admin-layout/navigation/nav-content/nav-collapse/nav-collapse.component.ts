@@ -39,7 +39,7 @@ export class NavCollapseComponent implements OnInit {
   themeLayout!: string;
   windowWidth = window.innerWidth;
   current_url: string = '';
-  isEnabled: boolean = false;
+  isEnabled: boolean = true; // Default to enabled - will be disabled only if role check fails (matches NavItemComponent)
 
   ngOnInit() {
     this.themeLayout = MantisConfig.layout;
