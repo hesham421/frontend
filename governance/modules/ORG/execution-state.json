@@ -1,0 +1,151 @@
+{
+  "module": "ORG",
+  "generated_at": "2026-07-02",
+  "current_phase": "F1",
+  "current_sub": "F1-HEADER",
+  "api_docs_path": "../backend/governance/modules/ORG/api-docs/",
+  "_align_status_note": "mirrored from backend — do not hand-edit here, source of truth is backend/governance/modules/ORG/execution-state.json",
+  "align_status": "PENDING",
+  "phases": [
+    {
+      "id": "F1",
+      "status": "PENDING",
+      "subs": [
+        {
+          "id": "F1-HEADER",
+          "status": "PENDING"
+        },
+        {
+          "id": "F1-SCR-ORG-001",
+          "status": "PENDING"
+        },
+        {
+          "id": "F1-SCR-ORG-002",
+          "status": "PENDING"
+        },
+        {
+          "id": "F1-SCR-ORG-003",
+          "status": "PENDING"
+        },
+        {
+          "id": "F1-SCR-ORG-004",
+          "status": "PENDING"
+        },
+        {
+          "id": "F1-SCR-ORG-005",
+          "status": "PENDING"
+        },
+        {
+          "id": "F1-SCR-ORG-006",
+          "status": "PENDING"
+        },
+        {
+          "id": "F1-SCR-ORG-007",
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "id": "F2",
+      "status": "PENDING",
+      "subs": [
+        {
+          "id": "F2-HEADER",
+          "status": "PENDING"
+        },
+        {
+          "id": "F2-SCR-ORG-001",
+          "status": "PENDING"
+        },
+        {
+          "id": "F2-SCR-ORG-002",
+          "status": "PENDING"
+        },
+        {
+          "id": "F2-SCR-ORG-003",
+          "status": "PENDING"
+        },
+        {
+          "id": "F2-SCR-ORG-004",
+          "status": "PENDING"
+        },
+        {
+          "id": "F2-SCR-ORG-005",
+          "status": "PENDING"
+        },
+        {
+          "id": "F2-SCR-ORG-006",
+          "status": "PENDING"
+        },
+        {
+          "id": "F2-SCR-ORG-007",
+          "status": "PENDING"
+        }
+      ]
+    },
+    {
+      "id": "F3",
+      "status": "PENDING",
+      "subs": [
+        {
+          "id": "F3-HEADER",
+          "status": "PENDING"
+        },
+        {
+          "id": "F3-SCR-ORG-001",
+          "status": "PENDING"
+        },
+        {
+          "id": "F3-SCR-ORG-002",
+          "status": "PENDING"
+        },
+        {
+          "id": "F3-SCR-ORG-003",
+          "status": "PENDING"
+        },
+        {
+          "id": "F3-SCR-ORG-004",
+          "status": "PENDING"
+        },
+        {
+          "id": "F3-SCR-ORG-005",
+          "status": "PENDING"
+        },
+        {
+          "id": "F3-SCR-ORG-006",
+          "status": "PENDING"
+        },
+        {
+          "id": "F3-SCR-ORG-007",
+          "status": "PENDING"
+        }
+      ]
+    }
+  ],
+  "test_phases": [
+    {
+      "id": "PLAYWRIGHT",
+      "status": "PENDING",
+      "gated_by_phases": [
+        "F1",
+        "F2",
+        "F3"
+      ],
+      "header_file": "packages/test/PLAYWRIGHT/PLAYWRIGHT-HEADER.md",
+      "mandatory_file": "packages/test/PLAYWRIGHT/MANDATORY-P.md",
+      "subs": [
+        {
+          "id": "INT-FLOW",
+          "status": "PENDING"
+        },
+        {
+          "id": "UI-FLOWS",
+          "status": "PENDING"
+        }
+      ]
+    }
+  ],
+  "blocked": [],
+  "deferred_xm": [],
+  "api_doc_gaps": []
+}

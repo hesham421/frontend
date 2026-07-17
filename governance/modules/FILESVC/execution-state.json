@@ -1,0 +1,86 @@
+{
+  "module": "FILESVC",
+  "generated_at": "2026-07-12",
+  "current_phase": "COMPLETE",
+  "current_sub": null,
+  "api_docs_path": "../backend/governance/modules/FILESVC/api-docs/",
+  "_align_status_note": "mirrored from backend — do not hand-edit here, source of truth is backend/governance/modules/FILESVC/execution-state.json",
+  "align_status": "COMPLETE",
+  "phases": [
+    {
+      "id": "F1",
+      "status": "COMPLETE",
+      "subs": [
+        {
+          "id": "F1",
+          "status": "COMPLETE",
+          "note": "F1 executed 2026-07-15 — models only (create-models skill), per this plan's F1=model-spec/F2=service+facade/F4=components split (F2/F4 own facade/service/routing, not built here). Output: frontend/src/app/shared/components/file-attachment/models/ (file-attachment.model.ts + file-attachment-form.model.ts) — matches execution-plan.md F4's 'Module path: app/shared/components/file-attachment/' (SCR-FILE-001 is a shared embedded component, not a routed module screen, so DOMAIN_DIR/FEATURE_DIR from create-models don't apply verbatim; adapted to shared/components/<feature>/models/). DTOs (FileDocumentSummaryResponse, FileUploadResponse, FileUploadTokenRequest/Response, FileAccessTokenResponse, FileDeleteConfirmation) mirror api-docs exactly — deliberately narrower than F1.md's conceptual FileDocument entity model, which lists fields (ownerId, ownerType, moduleCode, mimeType, updatedBy, updatedAt) that no actual endpoint returns; per execute-filesvc.md STEP 1.5 'never invent a field... regardless of what execution-plan.md implies', api-docs took precedence over F1.md's entity-level spec for wire-shape fields. FileCategoryOptionResponse has no backing endpoint at all (see api_doc_gaps GAP-FILE-003) — shape derived from the FileCategory entity + F1.md's own dropdown model, not invented. FormMapper (FileUploadFormMapper) omits toUpdateRequest() — documented deviation, module has no update capability (SVCAPI's 5 APIs are upload/download/delete/list/issue-token only, no PUT/PATCH). Verified via isolated `npx tsc --noEmit --strict` — clean."
+        }
+      ]
+    },
+    {
+      "id": "F2",
+      "status": "COMPLETE",
+      "subs": [
+        {
+          "id": "F2",
+          "status": "COMPLETE",
+          "note": "F2 executed 2026-07-15 — service+facade layer (create-api-service + create-facade skills), building on F1's models in the same shared/components/file-attachment/ location. Output: services/file-attachment-api.service.ts, facades/file-attachment.facade.ts. Also registered the 12 FILE_* Error Catalog codes (backend/erp-main/i18n/messages.properties) into shared/services/erp-error-mapper.service.ts + en.json/ar.json ERRORS.* keys — required for B.3.7's extractBackendErrorCode()->ErpErrorMapperService flow to resolve anything for this module; without it every FILE_* error would silently fall through to ERRORS.OPERATION_FAILED. Several adaptations from the generic CRUD templates, all load-bearing given this module's shape (Engine/Foundation, no update, no plain search): (1) ONE consolidated FileAttachmentApiService instead of F2.md's 3 conceptual service names (FileTokenService/FileDocumentService/FileCategoryService) — matches create-api-service's one-service-per-feature convention; F2.md's names kept as method groupings in comments/order, not separate classes. (2) upload/download/delete/list use TWO base URLs, not one: root-level permitAll token routes (POLICY-CLI-06, no /api prefix) vs authenticated /api/v1/files/* routes for issue-token/access-token/list — documented in the service, easy to get wrong. (3) downloadFile() bypasses doGet<T>() — binary Blob body with filename/mime in headers, not a JSON ApiResponse envelope; uses the inherited protected `http` directly (still BaseApiService-derived, not a HttpClient-injection bypass). (4) Facade has no currentEntitySignal/clearCurrentEntity() (B.3.8) — no 'current entity' concept exists (upload-only, no edit); clearState() resets panel state instead. Per-row download/delete loading uses Set<fileDocumentPk> signals (isDownloading()/isDeleting()) instead of a single saving flag, matching F2.md's explicit 'LOCAL, scoped to the row' requirement. (5) Upload and delete success both call refetchCurrentPage() (full list refetch) rather than the skill's local array splice/append pattern — this is what F2.md itself specifies ('triggers a files-list refetch (cache-busting) on success'), followed literally over the generic skill template. (6) listCategoryOptions()/loadCategoryOptions() call a GUESSED endpoint (GET /api/v1/files/categories?moduleCode=) that does not exist on the backend yet (GAP-FILE-003, logged in F1) — will 404 until SVCAPI adds it; failure is caught non-fatally (empty dropdown, not a panel-blocking error) so F1/F2 aren't blocked waiting on that backend work. Verified via full-project `npx tsc -p tsconfig.app.json --noEmit` — clean, no errors anywhere in the app."
+        }
+      ]
+    },
+    {
+      "id": "F3",
+      "status": "COMPLETE",
+      "subs": [
+        {
+          "id": "F3",
+          "status": "COMPLETE",
+          "note": "F3 executed 2026-07-15 — validation rule specifications (RULE-FILE-001..007 + F3-SEC-RULE-1), reconciled against what's already real vs what genuinely needs new code vs what can only be wired once F4's component/FormGroup exists. This plan has no dedicated create-validation skill — validators are normally wired inline into a component's FormGroup (create-components skill, Validators.required/.maxLength pattern) — so most of F3 is disposition-tracking, not a from-scratch build: (1) RULE-FILE-002 (Token TTL, ERR-FILE-0002), RULE-FILE-003 (tampered/mismatched token, ERR-FILE-0003), RULE-FILE-007 (ownership/Admin restriction, ERR-FILE-0007) are all server-enforced and already fully satisfied — their error codes were registered into erp-error-mapper.service.ts + en.json/ar.json in F2, nothing further needed here. (2) RULE-FILE-001 (5MB content size limit, ERR-FILE-0001) is the one rule that's genuinely standalone, reusable client-side logic independent of any component — built as fileSizeValidator() in a new validators/ subfolder alongside models/services/facades (file-attachment/validators/file-size.validator.ts), exporting FILE_DEFAULT_MAX_SIZE_BYTES=5_242_880 mirroring FileCategory.DEFAULT_MAX_SIZE_BYTES (backend entity) — F4 wires this into the upload FormGroup, passing the selected FileCategory's maxSizeBytesOverride when set. (3) RULE-FILE-006 (permanent-deletion confirmation dialog) needed new user-facing strings that don't depend on the component existing — added FILE_ATTACHMENT.DELETE_CONFIRM_TITLE/MESSAGE to en.json/ar.json; F4 wires these into ErpDialogService at the delete() call site. (4) RULE-FILE-005 (MIME auto-detection, informational-only, ERR-FILE-0005 has no throw site) and F3-SEC-RULE-1 (canCreate/canDelete-gated field/button visibility) are genuinely F4-only — the former is template display copy, the latter needs permission signals that don't exist until Phase SEC runs; both explicitly deferred, not silently dropped. Verified via full-project `npx tsc -p tsconfig.app.json --noEmit` — clean."
+        }
+      ]
+    },
+    {
+      "id": "F4",
+      "status": "COMPLETE",
+      "subs": [
+        {
+          "id": "F4",
+          "status": "COMPLETE",
+          "note": "F4 executed 2026-07-15 — FileAttachmentComponent, the actual SCR-FILE-001 embedded panel (F4.md: COMPOSITE/PATTERN-2, no route, no Search/Entry split). Output: file-attachment.component.ts/.html/.scss + index.ts, directly under shared/components/file-attachment/ (not a components/ subfolder) — matches execution-plan.md's literal 'Path: app/shared/components/file-attachment/file-attachment.component.ts'. Wires together everything from F1-F3: uploadForm (FormGroup, fileSizeValidator() from F3, FileUploadFormModel shape from F1), the F2 facade for list/upload/download/delete, and RULE-FILE-006's confirm dialog via ErpDialogService before delete. Composed from existing shared primitives (erp-section, erp-empty-state, avl-pagination, avl-button) — no new generic UI primitives invented. Added the remaining FILE_ATTACHMENT.* display strings (TITLE, column headers, button labels, empty-state) to en.json/ar.json alongside F3's confirm-dialog keys. Known, explicitly-deferred gaps (not silent): (1) F3-SEC-RULE-1 permission-gated visibility is NOT wired — canCreate/canDelete signals don't exist until Phase SEC (still PENDING) runs; upload control and delete buttons render unconditionally for now. (2) Category dropdown will render empty until GAP-FILE-003's backend endpoint exists (F1/F2 gap, still open). (3) RULE-FILE-001's client-side size check uses only the platform default (5MB) — FileCategoryOptionResponse's dropdown-only DTO doesn't carry maxSizeBytesOverride, so true per-category limits are only enforced server-side (authoritative anyway per F3.md). Verification: this component has no route yet (by design), so a normal `tsc -p tsconfig.app.json --noEmit` (files: [main.ts] only) would silently skip its template entirely — caught this and re-verified properly by temporarily wiring <app-file-attachment> into app.component.ts/html, running a full `ng build --configuration=development` (real Ivy template compilation, not just tsc), confirming zero errors and the component's own strings present in the compiled main.js bundle, then reverting app.component.ts/html back to their original content. No Playwright/browser visual check was done (not available in this environment, same limitation noted in HANDOFF-PHASE-7-F1.md for a different module) — compile-time verification only."
+        }
+      ]
+    }
+  ],
+  "test_phases": [
+    {
+      "id": "PLAYWRIGHT",
+      "status": "PENDING",
+      "gated_by_phases": [
+        "F1",
+        "F2",
+        "F3",
+        "F4"
+      ],
+      "header_file": null,
+      "mandatory_file": null,
+      "subs": [
+        {
+          "id": "PLAYWRIGHT",
+          "status": "PENDING"
+        }
+      ]
+    }
+  ],
+  "blocked": [],
+  "deferred_xm": [],
+  "api_doc_gaps": [
+    {
+      "id": "GAP-FILE-003",
+      "phase": "F1",
+      "description": "FileCategory dropdown options (needed by SCR-FILE-001's upload form, F1.md ENTITY-FILE-002 / F2.md's FileCategoryService.listOptionsByModule) have no endpoint anywhere: not in api-docs, and not in backend source either (no FileCategoryController/DTO exists — only the FileCategory JPA entity does, in erp-file/entity/FileCategory.java). This is a real gap in SVCAPI, not just a doc gap: the 5 APIs marked COMPLETE there (API-FILE-001..005) don't include a category-options endpoint, same pattern as GAP-FILE-001 (access-token) being an unallocated-but-needed API-ID. FileCategoryOptionResponse was modeled in F1 (file-attachment.model.ts) directly from the entity's fields (fileCategoryPk, categoryCode, nameAr, nameEn, moduleCode) so F1 isn't blocked, but F2 cannot wire a real FileCategoryService.listOptionsByModule() call until this endpoint is built. Flag for Phase F2 (or a SVCAPI follow-up) to add the missing GET endpoint before F2 facade work starts.",
+      "status": "RESOLVED",
+      "resolution": "Resolved 2026-07-15 (post-ALIGN follow-up). Added the missing backend endpoint: GET /api/v1/files/categories?moduleCode={code} — FileCategoryOptionResponse DTO, FileCategoryOptionService.listOptionsByModule() (@PreAuthorize hasAuthority 'PERM_FILE_ATTACHMENT_VIEW', service layer per governance), new FileCategoryRepository.findByModuleCodeAndIsActiveFlTrueOrderByNameEnAsc() derived query, wired into FileController alongside the existing /api/v1/files/{ownerId} route (confirmed no routing collision — Spring MVC correctly prefers the literal 'categories' segment over the {ownerId} path variable). Verified live, not just compiled: mvn BUILD SUCCESS (erp-file/erp-common-utils/erp-main reactor), then a real server restart (user-approved — an existing dev instance on :7272 was already running) and curl-tested end-to-end as admin: moduleCode=PRC returns the seeded PURCHASE_ORDER_DOC category with exact field-for-field match to the frontend's FileCategoryOptionResponse; moduleCode=NONEXISTENT returns []; GET /api/v1/files/1 (the pre-existing {ownerId} route) still returns 200, confirming zero regression from adding the new literal route. Frontend TODO/gap comments removed from file-attachment.model.ts, file-attachment-api.service.ts, and file-attachment.facade.ts (they now describe the real, working endpoint instead of a known gap) — no functional frontend changes needed since the guessed contract (path, query param, response shape) turned out to match exactly."
+    }
+  ]
+}

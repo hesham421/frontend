@@ -19,20 +19,28 @@ content that applies to frontend work.
 Before generating any code:
 
 1. Load the required skill from `governance/.github/skills/frontend/<skill-name>/SKILL.md`.
-2. For a module's PLAYWRIGHT test scenarios, read
-   `governance/modules/[MODULE]/execution-state.json` (frontend-owned copy,
-   PLAYWRIGHT phase only) and `governance/modules/[MODULE]/packages/test/PLAYWRIGHT/`.
+2. For a module's F1-F4 execution phases and PLAYWRIGHT test scenarios, read
+   `governance/modules/[MODULE]/execution-state.json` (frontend-owned file —
+   F1-F4 + PLAYWRIGHT only, plus a READ-ONLY `align_status` field mirrored
+   from `backend/governance/modules/[MODULE]/execution-state.json`'s ALIGN
+   result — never hand-edit `align_status` here) and
+   `governance/modules/[MODULE]/packages/execution/F[N]/` /
+   `governance/modules/[MODULE]/packages/test/PLAYWRIGHT/`.
 3. The AVELYNQ design-system skill at `design-system/avelynq-source/SKILL.md`
    is local to this repository already — it is unrelated to the
    governance-repo skill-routing system and was never moved.
 
-**Most governance content (P0-P3 planning docs, packages/execution/ — including
-the F1-F4 frontend-implementation phase specs — and JUNIT backend tests) now
-lives in `backend/governance/`, not here.** This repo's `governance/` folder
-only carries the frontend-specific slice (PLAYWRIGHT scenarios + frontend
-skills) per the backend/frontend governance split. If you need execution-plan
-content, phase specs, or anything from `packages/execution/`, look in
-`backend/governance/modules/[MODULE]/` instead — it is not duplicated here.
+**Most governance content (P0-P3 planning docs, packages/execution/CORE..INT-R/SEC/ALIGN,
+and JUNIT backend tests) lives in `backend/governance/`, not here** — but
+F1-F4 (the frontend-*implementation* phase specs) and PLAYWRIGHT both live
+HERE, in this repo, not in `backend/governance/`. This repo's `governance/`
+folder carries the frontend-specific slice (F1-F4 execution phases,
+PLAYWRIGHT scenarios, frontend skills) per the backend/frontend governance
+split — `agent3_splitter.py` (which lives in and runs from `backend/`)
+writes F1-F4/PLAYWRIGHT output directly here at generation time, not as a
+manual copy. If you need CORE..INT-R/SEC/ALIGN content or anything from
+`backend/governance/modules/[MODULE]/`, look there instead — it is not
+duplicated here.
 
 If `governance/` is missing or looks incomplete for what you need:
 - Stop implementation.
@@ -69,10 +77,12 @@ workspace/
 | Governance artifact | Location |
 |---------------------|----------|
 | Frontend skills | `governance/.github/skills/frontend/` |
+| F1-F4 execution phases (per module) | `governance/modules/[MODULE]/packages/execution/F[N]/` |
 | PLAYWRIGHT test scenarios (per module) | `governance/modules/[MODULE]/packages/test/PLAYWRIGHT/` |
-| Module execution state (frontend/PLAYWRIGHT slice) | `governance/modules/[MODULE]/execution-state.json` |
+| Module execution state (F1-F4 + PLAYWRIGHT, plus mirrored `align_status`) | `governance/modules/[MODULE]/execution-state.json` |
 | Backend skills | not here — `backend/governance/.github/skills/backend/` |
-| Execution-plan / F1-F4 phase specs | not here — `backend/governance/modules/[MODULE]/packages/execution/` |
+| CORE..INT-R/SEC/ALIGN execution-plan phase specs | not here — `backend/governance/modules/[MODULE]/packages/execution/` |
+| Module execution state (CORE..INT-R, SEC, ALIGN, JUNIT) | not here — `backend/governance/modules/[MODULE]/execution-state.json` |
 | AI commands (`/project:execute-*`) | not here — `backend/governance/.claude/commands/` |
 | AVELYNQ design-system skill | `design-system/avelynq-source/SKILL.md` (local to this repo, unchanged) |
 
@@ -133,11 +143,12 @@ after this engagement confirmed npm was used exclusively throughout.
 |---|---|---|
 | `CLAUDE.md`, `GOVERNANCE-RULES.md`, `WORKSPACE.md`, `master-registry.md`, `modules-registry.json`, `vision.md` | `backend/governance/` | `frontend/governance/` |
 | P0-P4 planning docs (per module) | `backend/governance/modules/<MOD>/` | `frontend/governance/` — except the `P3_5/test-plan.md` reference copies noted below |
-| `packages/execution/<PHASE>/` (CORE, DATA-DOM/DATAOM, SVC-API/SVCAPI, DOC, INT-C/INTC, INT-R/INTR, F1, F2, F3, F4, SEC, ALIGN) — including the F1-F4 frontend-*implementation* phase specs | `backend/governance/modules/<MOD>/packages/execution/` | `frontend/governance/` |
+| `packages/execution/<PHASE>/` — CORE, DATA-DOM/DATAOM, SVC-API/SVCAPI, DOC, INT-C/INTC, INT-R/INTR, SEC, ALIGN | `backend/governance/modules/<MOD>/packages/execution/` | `frontend/governance/` |
+| `packages/execution/F1/`, `F2/`, `F3/`, `F4/` (frontend-*implementation* phase specs) | `frontend/governance/modules/<MOD>/packages/execution/F[N]/` | `backend/governance/` — backend keeps none of these; `agent3_splitter.py` Stage 2 routes them directly at generation time (guardrail-protected, same mechanism as PLAYWRIGHT) |
 | `packages/test/JUNIT/` (JUnit test scenarios) | `backend/governance/modules/<MOD>/packages/test/JUNIT/` | `frontend/governance/` |
 | `packages/test/PLAYWRIGHT/` (Playwright UI/E2E scenarios) | `frontend/governance/modules/<MOD>/packages/test/PLAYWRIGHT/` | `backend/governance/` — backend keeps none of these |
 | `P3_5/test-plan.md` | Source of truth: `backend/governance/modules/<MOD>/P3_5/`. A marked `REFERENCE COPY` also exists at `frontend/governance/modules/<MOD>/P3_5/` for audit purposes only. | Nowhere else. Never hand-edit the frontend copy; never treat it as a second source of truth. |
-| `execution-state.json` | `backend/governance/modules/<MOD>/` (and `SECURITY/gaps/`) | `frontend/governance/` — frontend has no copy |
+| `execution-state.json` — TWO separate files, not a shared/reference one | Backend file (`backend/governance/modules/<MOD>/execution-state.json`) owns CORE..INT-R/SEC/ALIGN + JUNIT. Frontend file (`frontend/governance/modules/<MOD>/execution-state.json`) owns F1-F4 + PLAYWRIGHT, plus one READ-ONLY mirrored field, `align_status` (copied from backend's ALIGN phase status — never hand-edited in the frontend file directly). SECURITY/gaps has its own, structurally different, non-split shape (no `packages/execution/` at all — see its own file). | Neither file duplicates the other's phases/test_phases; `blocked[]`/`deferred_xm[]`/`api_doc_gaps[]` entries route by their own `phase` field. |
 | `governance-tools/` (`config.py`, `marker_parser.py`, `agent1_create_structure.py`, `agent2_archive.py`, `agent3_splitter.py`, `api-doc-generator/`) | `backend/governance/governance-tools/` only | `frontend/governance/` — never duplicated, never re-implemented |
 | `.claude/commands/` (slash commands) | `backend/governance/.claude/commands/` only | `frontend/governance/` |
 | `.github/skills/backend/`, `.github/skills/devops/` | `backend/governance/.github/skills/` | `frontend/governance/` |
@@ -153,12 +164,12 @@ after this engagement confirmed npm was used exclusively throughout.
 
 ### If you are about to do X, the answer is always Y
 
-- **About to add a new execution-plan phase file, JUnit scenario, or slash command?** → `backend/governance/`. Never `frontend/governance/`.
-- **About to add a new PLAYWRIGHT scenario or frontend skill?** → `frontend/governance/`. Never `backend/governance/`.
-- **Found yourself wanting to copy a NEW file from `backend/` into `frontend/` (or vice versa) that isn't already an established reference-copy pattern (`P3_5/test-plan.md`, the Playwright MCP server)?** → STOP. This requires an explicit human decision, not silent duplication. Ask first.
-- **About to regenerate PLAYWRIGHT content locally in `frontend/`?** → Not possible by design. Regeneration only happens via `backend/governance/governance-tools/agent3_splitter.py`; `frontend/` only re-copies the output afterward.
+- **About to add a new CORE..INT-R/SEC/ALIGN execution-plan phase file, JUnit scenario, or slash command?** → `backend/governance/`. Never `frontend/governance/`.
+- **About to add a new F1-F4 execution-plan phase file, PLAYWRIGHT scenario, or frontend skill?** → `frontend/governance/`. Never `backend/governance/`. `agent3_splitter.py` routes F1-F4 and PLAYWRIGHT there automatically — a guardrail refuses to write either back into `backend/governance/`, even if misconfigured.
+- **Found yourself wanting to copy a NEW file from `backend/` into `frontend/` (or vice versa) that isn't already an established reference-copy pattern (`P3_5/test-plan.md`, the Playwright MCP server, the `align_status` mirrored field)?** → STOP. This requires an explicit human decision, not silent duplication. Ask first.
+- **About to regenerate PLAYWRIGHT or F1-F4 content locally in `frontend/`?** → Not possible by design. Regeneration only happens via `backend/governance/governance-tools/agent3_splitter.py`; `frontend/` only receives the routed output.
 - **About to write to `governance-shared/` or initialize a submodule there?** → Forbidden until a separate, explicit human decision authorizes it.
-- **About to edit `execution-state.json` via a script?** → Forbidden. It's hand-maintained only, per the agent phase-execution protocol — no script reads or writes it.
+- **About to edit `execution-state.json` via a script?** → Forbidden, for BOTH the backend and frontend files. Hand-maintained only, per the agent phase-execution protocol — no script reads or writes either one. The one exception: whichever agent completes ALIGN must hand-update the mirrored `align_status` field in the frontend file in the same session — still a hand-edit, not a script.
 - **About to treat `governance-repo/` (the empty shell at the workspace root) as a source of truth for anything?** → Forbidden. It's a superseded remnant; only its git history has archival value.
 
 ### No new top-level content categories without explicit confirmation

@@ -15,9 +15,19 @@ governance/
       P3_5/test-plan.md          ← REFERENCE COPY of backend's source-of-truth
                                      test-plan.md (see "PLAYWRIGHT re-verification"
                                      below) — not a duplicate source of truth
+      execution-state.json       ← F1-F4 + PLAYWRIGHT status ONLY (this repo owns
+                                     these), plus a READ-ONLY `align_status` field
+                                     mirrored from backend/governance/modules/<MOD>/
+                                     execution-state.json's ALIGN result — never
+                                     hand-edit `align_status` here
+      packages/execution/F1/ .. F4/  ← split execution-plan.md output for the
+                                         frontend-*implementation* phases only.
+                                         Written directly here by agent3_splitter.py
+                                         (which runs from backend/) — not copied
+                                         after the fact.
       packages/test/PLAYWRIGHT/
-    NOTIFICATION/ (same P3_5/ + packages/test/PLAYWRIGHT/ shape)
-    ORG/          (same P3_5/ + packages/test/PLAYWRIGHT/ shape)
+    NOTIFICATION/ (same shape)
+    ORG/          (same shape — no F4 folder; ORG's plan never had one)
       ← packages/test/PLAYWRIGHT/ holds the split test-plan.md output, UI/E2E
         scenarios executed via Playwright. Each module's PLAYWRIGHT/ folder has
         scenario files (UI-FLOWS.md, INT-FLOW.md, and module-specific
@@ -37,7 +47,7 @@ governance/
 
 ## What's deliberately NOT here
 
-Almost everything else — P0-P3 planning docs (except the P3_5 reference copies above), `packages/execution/` (including the F1-F4 frontend-*implementation* phase specs, as opposed to the PLAYWRIGHT *test* scenarios above), JUnit scenarios, `execution-state.json`, slash commands, the splitter/api-doc-generator tooling itself, `api-docs/`, the SECURITY module, and root-level governance docs (`GOVERNANCE-RULES.md`, `WORKSPACE.md`, `master-registry.md`, etc.) — all live in `backend/governance/` instead. This wasn't a partial migration; it's the deliberate split boundary. If you're looking for a phase spec or an execution plan and it's not here, check `backend/governance/modules/<MODULE>/` — it isn't duplicated in both places.
+P0-P3 planning docs (except the P3_5 reference copies above), `packages/execution/CORE..INT-R/SEC/ALIGN` (the backend-implementation phases), JUnit scenarios, the CORE..ALIGN/JUNIT slice of `execution-state.json`, slash commands, the splitter/api-doc-generator tooling itself, `api-docs/`, the SECURITY module, and root-level governance docs (`GOVERNANCE-RULES.md`, `WORKSPACE.md`, `master-registry.md`, etc.) — all live in `backend/governance/` instead. This wasn't a partial migration; it's the deliberate split boundary. If you're looking for a CORE..ALIGN phase spec or execution plan and it's not here, check `backend/governance/modules/<MODULE>/` — it isn't duplicated in both places. (F1-F4 and PLAYWRIGHT, by contrast, ARE here — see Layout above — that boundary changed from an earlier version of this doc once it became clear frontend-*implementation* content belongs with frontend, not backend.)
 
 ## PLAYWRIGHT re-verification — a deliberate, bounded capability
 
