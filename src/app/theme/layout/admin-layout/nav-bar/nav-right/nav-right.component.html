@@ -23,53 +23,7 @@
       </div>
     </ng-template>
   </li>
-  <li avlDropdown #notificationDrop="avlDropdown">
-    <a href="javascript:" title="{{ 'NAVIGATION.NOTIFICATION' | translate }}" class="pc-head-link me-0" avlDropdownToggle>
-      <i class="ti ti-bell"></i>
-      <span class="pc-h-badge-dot"></span>
-    </a>
-    <ng-template>
-      <div class="avl-dropdown__panel avl-dropdown__panel--wide">
-        <div class="dropdown-header d-flex align-items-center justify-content-between">
-          <h5 class="m-0">{{ 'NAVIGATION.NOTIFICATION' | translate }}</h5>
-          <a href="javascript:" title="{{ 'NAVIGATION.VIEW_ALL' | translate }}" class="bg-transparent" (click)="notificationDrop.close()">
-            <i class="ti ti-circle-check text-success"></i>
-          </a>
-        </div>
-        <div class="avl-dropdown__divider"></div>
-        <app-scrollbar [customStyle]="{ height: '280px' }">
-          <div class="dropdown-header p-0 text-wrap header-notification-scroll">
-            <div class="list-group list-group-flush w-100">
-              @for (item of notifications; track item) {
-                <a class="list-group-item list-group-item-action">
-                  <div class="d-flex">
-                    <div class="flex-shrink-0">
-                      <div [ngClass]="item.avatarClass">
-                        @if (item.iconClass?.startsWith('ti ')) {
-                          <i class="d-flex" [class]="item.iconClass"></i>
-                        } @else {
-                          <i class="d-flex" antIcon theme="outline" [type]="item.iconClass"></i>
-                        }
-                      </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                      <span class="float-end text-muted">{{ item.time }}</span>
-                      <p class="text-body mb-0" [innerHTML]="item.message"></p>
-                      <span class="text-muted">{{ item.date }}</span>
-                    </div>
-                  </div>
-                </a>
-              }
-            </div>
-          </div>
-        </app-scrollbar>
-        <div class="avl-dropdown__divider"></div>
-        <div class="text-center py-2">
-          <a class="btn btn-link link-primary py-0">{{ 'NAVIGATION.VIEW_ALL' | translate }}</a>
-        </div>
-      </div>
-    </ng-template>
-  </li>
+  <app-notification-bell></app-notification-bell>
   <li avlDropdown class="header-user-profile">
     <a href="javascript:" title="{{ authenticationService.currentUserName }}" class="pc-head-link user-login-info me-0" avlDropdownToggle>
       <span class="pc-avatar-initial">{{ authenticationService.currentUserName?.charAt(0) || '?' }}</span>

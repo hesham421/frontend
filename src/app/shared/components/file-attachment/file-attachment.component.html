@@ -1,0 +1,110 @@
+@if (canView) {
+  <erp-section titleKey="FILE_ATTACHMENT.TITLE">
+    <form
+      class="file-attachment__upload"
+      *erpPermission="'PERM_FILE_ATTACHMENT_CREATE'"
+      [formGroup]="uploadForm"
+      (ngSubmit)="onUpload()"
+    >
+      <input
+        class="file-attachment__file-input"
+        type="file"
+        [attr.aria-label]="'FILE_ATTACHMENT.CHOOSE_FILE' | translate"
+        (change)="onFileSelected($event)"
+      />
+
+      <select
+        class="file-attachment__category-select"
+        formControlName="fileCategoryFk"
+        [attr.aria-label]="'FILE_ATTACHMENT.CATEGORY' | translate"
+      >
+        <option [ngValue]="null" disabled>{{ 'FILE_ATTACHMENT.CATEGORY_PLACEHOLDER' | translate }}</option>
+        @for (option of facade.categoryOptions(); track option.fileCategoryPk) {
+          <option [ngValue]="option.fileCategoryPk">{{ categoryName(option) }}</option>
+        }
+      </select>
+
+      <avl-button
+        type="submit"
+        variant="primary"
+        size="sm"
+        [loading]="facade.uploading()"
+        [disabled]="uploadForm.invalid"
+      >
+        {{ 'FILE_ATTACHMENT.UPLOAD' | translate }}
+      </avl-button>
+    </form>
+
+    @if (uploadForm.get('file')?.touched && uploadForm.get('file')?.hasError('fileSizeExceeded')) {
+      <p class="file-attachment__error">{{ 'ERRORS.FILE_SIZE_EXCEEDED' | translate }}</p>
+    }
+    @if (facade.uploadError()) {
+      <p class="file-attachment__error">{{ facade.uploadError() | translate }}</p>
+    }
+
+    @if (facade.listLoading()) {
+      <p class="file-attachment__loading">{{ 'TABLE.LOADING_DATA' | translate }}</p>
+    } @else if (facade.files().length === 0) {
+      <erp-empty-state titleKey="FILE_ATTACHMENT.NO_FILES" />
+    } @else {
+      <table class="file-attachment__table">
+        <thead>
+          <tr>
+            <th>{{ 'FILE_ATTACHMENT.COL_NAME' | translate }}</th>
+            <th>{{ 'FILE_ATTACHMENT.COL_CATEGORY' | translate }}</th>
+            <th>{{ 'FILE_ATTACHMENT.COL_TYPE' | translate }}</th>
+            <th>{{ 'FILE_ATTACHMENT.COL_SIZE' | translate }}</th>
+            <th>{{ 'FILE_ATTACHMENT.COL_CREATED_AT' | translate }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (file of facade.files(); track file.fileDocumentPk) {
+            <tr>
+              <td>{{ file.fileNameOriginal }}</td>
+              <td>{{ fileCategoryDisplayName(file) }}</td>
+              <td>{{ file.fileTypeId }}</td>
+              <td>{{ formatFileSize(file.fileSizeBytes) }}</td>
+              <td>{{ file.createdAt | date: 'short' }}</td>
+              <td class="file-attachment__row-actions">
+                <avl-button
+                  variant="secondary"
+                  size="sm"
+                  [loading]="facade.isDownloading(file.fileDocumentPk)"
+                  (clicked)="onDownload(file)"
+                >
+                  {{ 'FILE_ATTACHMENT.DOWNLOAD' | translate }}
+                </avl-button>
+                <avl-button
+                  *erpPermission="'PERM_FILE_ATTACHMENT_DELETE'"
+                  variant="danger"
+                  size="sm"
+                  [loading]="facade.isDeleting(file.fileDocumentPk)"
+                  (clicked)="onDelete(file)"
+                >
+                  {{ 'FILE_ATTACHMENT.DELETE' | translate }}
+                </avl-button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (facade.totalElements() > facade.pageSize()) {
+        <avl-pagination
+          [page]="facade.currentPage() + 1"
+          [pageSize]="facade.pageSize()"
+          [total]="facade.totalElements()"
+          (pageChange)="onPageChange($event)"
+        />
+      }
+    }
+
+    @if (facade.downloadError()) {
+      <p class="file-attachment__error">{{ facade.downloadError() | translate }}</p>
+    }
+    @if (facade.deleteError()) {
+      <p class="file-attachment__error">{{ facade.deleteError() | translate }}</p>
+    }
+  </erp-section>
+}

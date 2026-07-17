@@ -25,7 +25,7 @@ export interface PageUserDto {
 
 export interface SearchFilter {
   field: string;
-  op: FilterOperator;
+  operator: FilterOperator;
   value?: string | number | boolean | string[];
   value2?: string | number;
 }

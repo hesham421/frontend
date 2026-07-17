@@ -81,6 +81,17 @@
   />
 </app-card>
 
+<!-- SCR-FILE-001 — embedded attachment panel (needs an existing owner record, edit mode only) -->
+@if (isEditMode() && lookupId()) {
+  <div class="mt-4">
+    <app-file-attachment
+      [ownerId]="lookupId()!"
+      ownerType="MASTER_LOOKUP"
+      moduleCode="MASTERDATA"
+    />
+  </div>
+}
+
 <erp-action-bar
   [saveKey]="isEditMode() ? 'COMMON.UPDATE' : 'COMMON.SAVE'"
   [loading]="facade.saving()"

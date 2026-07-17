@@ -95,7 +95,6 @@ export interface UpdatePageRequest {
   module?: string;
   parentId?: number;
   displayOrder: number;
-  active: boolean;
 }
 
 export interface PageFilterOptions {

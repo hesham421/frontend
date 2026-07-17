@@ -31,7 +31,7 @@
     <avl-alert tone="info" class="d-block mt-3">
       <strong>{{ 'USERS.ACTIVE_FILTERS' | translate }}:</strong> {{ currentFilters().length }}
       @for (filter of currentFilters().slice(0, 3); track $index) {
-        <avl-badge tone="info" class="ms-1">{{ filter.field }} {{ filter.op }}</avl-badge>
+        <avl-badge tone="info" class="ms-1">{{ filter.field }} {{ filter.operator }}</avl-badge>
       }
       @if (currentFilters().length > 3) {
         <avl-badge tone="neutral" class="ms-1">+{{ currentFilters().length - 3 }}</avl-badge>

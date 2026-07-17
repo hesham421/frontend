@@ -48,7 +48,7 @@ export class UserProfileApiService extends BaseApiService {
    */
   searchActiveBranches(): Observable<PagedResponse<BranchOptionDto>> {
     const request = {
-      filters: [{ field: 'isActive', operator: 'EQUALS', value: true }],
+      filters: [{ field: 'isActiveFl', operator: 'EQUALS', value: true }],
       sorts: [{ field: 'nameEn', direction: 'ASC' }],
       page: 0,
       size: 50

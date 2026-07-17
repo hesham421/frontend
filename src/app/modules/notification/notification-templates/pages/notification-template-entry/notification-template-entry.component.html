@@ -1,0 +1,79 @@
+<div class="container-fluid">
+  <div class="d-flex align-items-center mb-3">
+    <h4>{{ (isEditMode() ? 'NOTIFICATION_TEMPLATES.EDIT' : isViewMode() ? 'NOTIFICATION_TEMPLATES.VIEW' : 'NOTIFICATION_TEMPLATES.CREATE') | translate }}</h4>
+  </div>
+
+  <app-card [padding]="20">
+    <form [formGroup]="form" class="row">
+      <div class="col-md-4 mb-3">
+        <erp-form-field
+          labelKey="NOTIFICATION_TEMPLATES.TEMPLATE_CODE"
+          [control]="form.get('templateCode')"
+          [required]="true"
+          [hintKey]="isEditMode() || isViewMode() ? 'NOTIFICATION_TEMPLATES.TEMPLATE_CODE_READONLY_HINT' : undefined"
+        >
+          <avl-input formControlName="templateCode" [mono]="true" />
+        </erp-form-field>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <erp-form-field labelKey="NOTIFICATION_TEMPLATES.CHANNEL" [control]="form.get('channelTypeId')" [required]="true">
+          <avl-select
+            [options]="channelOptions"
+            [placeholder]="'COMMON.SELECT' | translate"
+            [value]="channelTypeStringValue"
+            (valueChange)="onChannelTypeChange($event)"
+          />
+        </erp-form-field>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <erp-form-field labelKey="NOTIFICATION_TEMPLATES.MODULE_CODE" [control]="form.get('moduleCode')" [required]="true">
+          <avl-input formControlName="moduleCode" [mono]="true" />
+        </erp-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <erp-form-field labelKey="NOTIFICATION_TEMPLATES.NAME_EN" [control]="form.get('templateNameEn')" [required]="true">
+          <avl-input formControlName="templateNameEn" />
+        </erp-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <erp-form-field labelKey="NOTIFICATION_TEMPLATES.NAME_AR" [control]="form.get('templateNameAr')" [required]="true">
+          <avl-input formControlName="templateNameAr" />
+        </erp-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <erp-form-field labelKey="NOTIFICATION_TEMPLATES.BODY_EN" [control]="form.get('templateBodyEn')" [required]="true">
+          <textarea class="form-control" rows="4" formControlName="templateBodyEn"></textarea>
+        </erp-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <erp-form-field labelKey="NOTIFICATION_TEMPLATES.BODY_AR" [control]="form.get('templateBodyAr')" [required]="true">
+          <textarea class="form-control" rows="4" formControlName="templateBodyAr"></textarea>
+        </erp-form-field>
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <erp-form-field labelKey="NOTIFICATION_TEMPLATES.IS_ACTIVE" [control]="form.get('isActiveFl')">
+          <avl-switch formControlName="isActiveFl" [disabled]="true" />
+        </erp-form-field>
+      </div>
+    </form>
+  </app-card>
+
+  @if (!isViewMode()) {
+    <erp-action-bar
+      [saveKey]="'COMMON.SAVE'"
+      [loading]="facade.saving()"
+      [showCancel]="false"
+      (saveClicked)="save()"
+      (backClicked)="navigateBack()"
+    ></erp-action-bar>
+  } @else {
+    <erp-action-bar [showSave]="false" [showCancel]="false" (backClicked)="navigateBack()"></erp-action-bar>
+  }
+</div>
