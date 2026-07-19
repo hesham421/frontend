@@ -184,14 +184,6 @@
     background: color-mix(in srgb, var(--blue-700) 12%, transparent);
     color: var(--blue-700);
   }
-  &.card-gl .dash-card__icon {
-    background: color-mix(in srgb, var(--teal-600) 12%, transparent);
-    color: var(--teal-600);
-  }
-  &.card-rules .dash-card__icon {
-    background: color-mix(in srgb, var(--amber-600) 12%, transparent);
-    color: var(--amber-600);
-  }
   &.card-user-profiles .dash-card__icon {
     background: color-mix(in srgb, var(--slate-700) 12%, transparent);
     color: var(--slate-700);

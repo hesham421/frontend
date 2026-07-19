@@ -31,43 +31,6 @@ const routes: Routes = [
     path: 'master-data',
     loadChildren: () => import('./modules/master-data/master-data.module').then((m) => m.MasterDataModule)
   },
-  {
-    // NOTIFICATION module (F4) — SCR-NOTIF-001/002/003. Mounted at root (no
-    // 'notification' path prefix) because F4-RULE-1's routes are absolute
-    // top-level paths (/notifications, /notification-templates,
-    // /notification-channel-configs), unlike security/master-data's
-    // module-prefixed pattern.
-    path: '',
-    loadChildren: () => import('./modules/notification').then((m) => m.NotificationModule)
-  },
-  {
-    path: 'finance',
-    loadChildren: () => import('./modules/finance/finance.module').then((m) => m.FinanceModule)
-  },
-  {
-    path: 'inventory',
-    loadChildren: () => import('./modules/inventory').then((m) => m.InventoryModule)
-  },
-  {
-    path: 'procurement',
-    loadChildren: () => import('./modules/procurement').then((m) => m.ProcurementModule)
-  },
-  {
-    path: 'sales',
-    loadChildren: () => import('./modules/sales').then((m) => m.SalesModule)
-  },
-  {
-    path: 'hr',
-    loadChildren: () => import('./modules/hr').then((m) => m.HrModule)
-  },
-  {
-    path: 'maintenance',
-    loadChildren: () => import('./modules/maintenance').then((m) => m.MaintenanceModule)
-  },
-  {
-    path: 'reports',
-    loadChildren: () => import('./modules/reports').then((m) => m.ReportsModule)
-  },
 
   // Backward-compatible redirects (old paths → security module)
   { path: 'login', redirectTo: 'security/login', pathMatch: 'full' },

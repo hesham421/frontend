@@ -25,28 +25,6 @@ export interface FeatureConfig {
 
   /** Show the app-version badge in the sidebar footer. */
   showVersionBadge: boolean;
-
-  // ── modules ──────────────────────────────────────────────────────
-  /** Enable HR module routes/navigation. */
-  moduleHrEnabled: boolean;
-
-  /** Enable Finance module routes/navigation. */
-  moduleFinanceEnabled: boolean;
-
-  /** Enable Inventory module routes/navigation. */
-  moduleInventoryEnabled: boolean;
-
-  /** Enable Maintenance module routes/navigation. */
-  moduleMaintenanceEnabled: boolean;
-
-  /** Enable Procurement module routes/navigation. */
-  moduleProcurementEnabled: boolean;
-
-  /** Enable Reports module routes/navigation. */
-  moduleReportsEnabled: boolean;
-
-  /** Enable Sales module routes/navigation. */
-  moduleSalesEnabled: boolean;
 }
 
 /**
@@ -60,11 +38,4 @@ export const DEFAULT_FEATURE_CONFIG: Readonly<FeatureConfig> = {
   showForgotPassword: true,
   showThemeConfigurator: true,
   showVersionBadge: true,
-  moduleHrEnabled: true,
-  moduleFinanceEnabled: true,
-  moduleInventoryEnabled: true,
-  moduleMaintenanceEnabled: true,
-  moduleProcurementEnabled: true,
-  moduleReportsEnabled: true,
-  moduleSalesEnabled: true,
 };

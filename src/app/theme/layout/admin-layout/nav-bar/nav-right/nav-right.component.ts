@@ -9,7 +9,6 @@ import { SharedModule } from 'src/app/theme/shared/shared.module';
 import { LanguageService, SupportedLanguage } from 'src/app/core/services/language.service';
 import { AvlDropdownDirective, AvlDropdownToggleDirective, AvlDropdownItemDirective } from 'src/app/shared/overlay/dropdown/dropdown.directive';
 import { AvlTabsComponent, TabItem } from 'src/app/shared/components/avl-tabs/avl-tabs.component';
-import { NotificationBellComponent } from 'src/app/shared/components/notification-bell/notification-bell.component';
 
 // third party
 import screenfull from 'screenfull';
@@ -44,7 +43,7 @@ import {
 
 @Component({
   selector: 'app-nav-right',
-  imports: [SharedModule, RouterModule, AvlDropdownDirective, AvlDropdownToggleDirective, AvlDropdownItemDirective, AvlTabsComponent, NotificationBellComponent],
+  imports: [SharedModule, RouterModule, AvlDropdownDirective, AvlDropdownToggleDirective, AvlDropdownItemDirective, AvlTabsComponent],
   templateUrl: './nav-right.component.html',
   styleUrls: ['./nav-right.component.scss']
 })

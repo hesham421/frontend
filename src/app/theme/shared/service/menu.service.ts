@@ -182,11 +182,8 @@ const ICON_MAPPING: Record<string, string> = {
  */
 const MODULE_ICON_MAPPING: Record<string, string> = {
   'SECURITY': 'safety',
-  'FINANCE': 'bank',
-  'HR': 'team',
   'MASTER_DATA': 'database',
   'MASTERDATA': 'database',
-  'REPORTS': 'pie-chart',
   'SETTINGS': 'setting',
   'SYSTEM': 'tool',
 };

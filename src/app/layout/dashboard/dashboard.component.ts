@@ -78,22 +78,6 @@ export default class DashboardComponent {
       route: '/master-data/master-lookups',
       permission: 'PERM_MASTER_LOOKUP_VIEW',
       colorClass: 'card-master'
-    },
-    {
-      titleKey: 'DASHBOARD.CARDS.GL_ACCOUNTS',
-      descriptionKey: 'DASHBOARD.CARDS.GL_ACCOUNTS_DESC',
-      icon: 'ti ti-calculator',
-      route: '/finance/gl/accounts',
-      permission: 'PERM_GL_ACCOUNT_VIEW',
-      colorClass: 'card-gl'
-    },
-    {
-      titleKey: 'DASHBOARD.CARDS.GL_RULES',
-      descriptionKey: 'DASHBOARD.CARDS.GL_RULES_DESC',
-      icon: 'ti ti-scale',
-      route: '/finance/gl/rules',
-      permission: 'PERM_GL_RULE_VIEW',
-      colorClass: 'card-rules'
     }
   ];
 

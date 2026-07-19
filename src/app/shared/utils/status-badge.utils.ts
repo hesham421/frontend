@@ -52,8 +52,8 @@ export function createStatusBadgeHtml(
  * @example
  * {
  *   field: 'statusIdFk',
- *   headerName: translate.instant('GL.JOURNAL_STATUS'),
- *   cellRenderer: createStatusBadgeCellRenderer(JOURNAL_STATUS_BADGE_MAP, statusOptions)
+ *   headerName: translate.instant('COMMON.STATUS'),
+ *   cellRenderer: createStatusBadgeCellRenderer(STATUS_BADGE_MAP, statusOptions)
  * }
  */
 export function createStatusBadgeCellRenderer(

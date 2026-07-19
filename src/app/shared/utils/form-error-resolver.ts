@@ -127,12 +127,6 @@ export function getFormFieldError(
     return { key: 'USER_PROFILES.BRANCH_REQUIRED_ACTIVE' };
   }
 
-  // RULE-NOTIF-006 (NOTIFICATION F3): templateBodyAr/En both required, catalog-exact
-  // message (ERR-NOTIF-0002) instead of the generic VALIDATION.REQUIRED text.
-  if (errors['bilingualRequiredNotif006']) {
-    return { key: 'NOTIFICATIONS.ERR_BILINGUAL_REQUIRED' };
-  }
-
   // Fallback for unknown errors
   return { key: 'VALIDATION.INVALID_VALUE' };
 }
