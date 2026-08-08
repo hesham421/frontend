@@ -2,6 +2,35 @@
 
 This is the frontend-owned slice of the ERP platform's AI governance content, migrated here from the standalone `governance-repo` repository on 2026-07-17 (see the workspace root's `DEEP-DIVE-BACKEND-FRONTEND-SPLIT.md` and `ARCHITECTURE-OVERVIEW.md` for why and what moved). It's deliberately small — most governance content stayed with `backend/governance/`.
 
+> **v2.1 UPDATE — this "deliberately small" description is accurate for**
+> **v1-model modules only (ORG, NOTIFICATION, FILESVC).** Any module
+> registered from now on (`governance_model: "v2"` in
+> `backend/governance/modules-registry.json`) is DIFFERENT: this repo
+> gains real, native folders for it — `modules/<MODULE>/P3_2/`
+> (frontend-execution-plan.md), `P3_5_FE/` (frontend-test-plan.md),
+> `P4_2/` (frontend audit report), and `packages/frontend-execution/`
+> + `packages/frontend-test/` — none of which are "reference copies."
+> They are generated HERE, natively, by Project 3.2 (Frontend
+> Execution Plan Engine) once `GATE: BACKEND MODULE COMPLETE` and the
+> new `GATE: UI SHELL COMPLETE` both pass (see `CONTRACT-12` in
+> `shared-artifact-contracts.md`, loaded in the governance Claude
+> Projects — not duplicated here).
+>
+> This repo (v2 modules only) is ALSO where the new UI Shell
+> implementation step happens: after Project 2.5's mockups are
+> approved, Claude Code implements the real UI Shell (components +
+> routing + styling, no data binding yet) directly in this repo's
+> application code — BEFORE `P3_2/frontend-execution-plan.md` is even
+> generated. See `backend/governance/CLAUDE.md`'s "UI Shell
+> Implementation Protocol" section for the exact steps (that
+> protocol document stays centralized in `backend/`, per this repo's
+> own "don't duplicate governance content" rule below — it applies
+> here even though the Shell code itself lives in this repo).
+>
+> Everything below this note describes the v1 (legacy) layout and
+> asymmetry, which remains completely accurate and unchanged for
+> ORG/NOTIFICATION/FILESVC.
+
 ## Layout
 
 ```
@@ -9,30 +38,31 @@ governance/
   verify-playwright-reference.sh  ← read-only helper: diffs the P3_5 reference
                                      copies below against backend/'s live source,
                                      when backend/ happens to be a sibling checkout
+                                     (v1 modules only — see v2.1 note above)
 
   modules/
-    FILESVC/
+    FILESVC/  (v1)
       P3_5/test-plan.md          ← REFERENCE COPY of backend's source-of-truth
                                      test-plan.md (see "PLAYWRIGHT re-verification"
                                      below) — not a duplicate source of truth
-      execution-state.json       ← F1-F4 + PLAYWRIGHT status ONLY (this repo owns
-                                     these), plus a READ-ONLY `align_status` field
-                                     mirrored from backend/governance/modules/<MOD>/
-                                     execution-state.json's ALIGN result — never
-                                     hand-edit `align_status` here
-      packages/execution/F1/ .. F4/  ← split execution-plan.md output for the
-                                         frontend-*implementation* phases only.
-                                         Written directly here by agent3_splitter.py
-                                         (which runs from backend/) — not copied
-                                         after the fact.
       packages/test/PLAYWRIGHT/
-    NOTIFICATION/ (same shape)
-    ORG/          (same shape — no F4 folder; ORG's plan never had one)
+    NOTIFICATION/ (v1, same P3_5/ + packages/test/PLAYWRIGHT/ shape)
+    ORG/          (v1, same P3_5/ + packages/test/PLAYWRIGHT/ shape)
       ← packages/test/PLAYWRIGHT/ holds the split test-plan.md output, UI/E2E
         scenarios executed via Playwright. Each module's PLAYWRIGHT/ folder has
         scenario files (UI-FLOWS.md, INT-FLOW.md, and module-specific
         MANDATORY-P.md/PLAYWRIGHT-HEADER.md where present) split from the same
         source test-plan.md that produced backend's JUNIT scenarios.
+
+    <NEW-MODULE>/ (v2, e.g. any module registered from now on)
+      P3_2/frontend-execution-plan.md   ← SOURCE OF TRUTH, generated HERE
+      P3_5_FE/frontend-test-plan.md     ← SOURCE OF TRUTH, generated HERE
+      P4_2/P4.2-audit-report.md         ← SOURCE OF TRUTH, generated HERE
+      packages/frontend-execution/{F1,F2,F3,F4,SEC-FE,ALIGN-FE}/
+      packages/frontend-test/
+      ← NOT reference copies — these are natively frontend-owned for v2
+        modules. No verify-playwright-reference.sh equivalent needed;
+        there's no backend source to drift from.
 
   .github/skills/frontend/    ← 12 frontend task skills (create-components,
                                  create-facade, enforce-design-system, etc.)
@@ -45,9 +75,9 @@ governance/
                            submodule here without a deliberate, separate decision.
 ```
 
-## What's deliberately NOT here
+## What's deliberately NOT here (v1 modules — ORG, NOTIFICATION, FILESVC)
 
-P0-P3 planning docs (except the P3_5 reference copies above), `packages/execution/CORE..INT-R/SEC/ALIGN` (the backend-implementation phases), JUnit scenarios, the CORE..ALIGN/JUNIT slice of `execution-state.json`, slash commands, the splitter/api-doc-generator tooling itself, `api-docs/`, the SECURITY module, and root-level governance docs (`GOVERNANCE-RULES.md`, `WORKSPACE.md`, `master-registry.md`, etc.) — all live in `backend/governance/` instead. This wasn't a partial migration; it's the deliberate split boundary. If you're looking for a CORE..ALIGN phase spec or execution plan and it's not here, check `backend/governance/modules/<MODULE>/` — it isn't duplicated in both places. (F1-F4 and PLAYWRIGHT, by contrast, ARE here — see Layout above — that boundary changed from an earlier version of this doc once it became clear frontend-*implementation* content belongs with frontend, not backend.)
+Almost everything else — P0-P3 planning docs (except the P3_5 reference copies above), `packages/execution/` (including the F1-F4 frontend-*implementation* phase specs, as opposed to the PLAYWRIGHT *test* scenarios above), JUnit scenarios, `execution-state.json`, slash commands, the splitter/api-doc-generator tooling itself, `api-docs/`, the SECURITY module, and root-level governance docs (`GOVERNANCE-RULES.md`, `WORKSPACE.md`, `master-registry.md`, etc.) — all live in `backend/governance/` instead **for v1 modules**. This wasn't a partial migration; it's the deliberate split boundary for the modules that existed at split time. If you're looking for a phase spec or an execution plan and it's not here, check `backend/governance/modules/<MODULE>/` first — for a v1 module it isn't duplicated in both places; for a v2 module, check the `modules/<MODULE>/P3_2/` etc. folders in THIS repo instead (see the v2.1 note at the top of this file).
 
 ## PLAYWRIGHT re-verification — a deliberate, bounded capability
 
