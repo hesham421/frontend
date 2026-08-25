@@ -1,0 +1,21 @@
+/* ============================================================
+   AVELYNQ — Breakpoints
+   Enterprise responsive scale. CSS custom properties cannot be
+   used inside @media conditions, so these are the canonical
+   reference values — mirror them verbatim in Angular SCSS
+   ($bp-md: 768px, …) and in @media rules across the system.
+
+     xs   < 480px   mobile portrait
+     sm  ≥ 480px    mobile landscape / large phone
+     md  ≥ 768px    tablet
+     lg  ≥ 1024px   laptop  (sidebar becomes static here)
+     xl  ≥ 1280px   desktop
+     2xl ≥ 1536px   wide desktop
+   ============================================================ */
+:root {
+  --bp-sm: 480px;  /* @kind other */
+  --bp-md: 768px;  /* @kind other */
+  --bp-lg: 1024px; /* @kind other */
+  --bp-xl: 1280px; /* @kind other */
+  --bp-2xl: 1536px; /* @kind other */
+}

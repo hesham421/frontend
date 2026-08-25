@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="stylesheet" href="_ds/avelon-design-system-a21abd71-1c04-4d1f-8788-d4d6ca8b9452/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/avelon-design-system-a21abd71-1c04-4d1f-8788-d4d6ca8b9452/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/avelon-design-system-a21abd71-1c04-4d1f-8788-d4d6ca8b9452/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/avelon-design-system-a21abd71-1c04-4d1f-8788-d4d6ca8b9452/tokens/breakpoints.css">
+  <link rel="stylesheet" href="_ds/avelon-design-system-a21abd71-1c04-4d1f-8788-d4d6ca8b9452/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/avelon-design-system-a21abd71-1c04-4d1f-8788-d4d6ca8b9452/tokens/elevation.css">
+  <link rel="stylesheet" href="_ds/avelon-design-system-a21abd71-1c04-4d1f-8788-d4d6ca8b9452/tokens/responsive.css">
+  <link rel="stylesheet" href="_ds/avelon-design-system-a21abd71-1c04-4d1f-8788-d4d6ca8b9452/styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css">
+  <script src="_ds/avelon-design-system-a21abd71-1c04-4d1f-8788-d4d6ca8b9452/_ds_bundle.js"></script>
+  <style>
+    @keyframes avl-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    body { margin: 0; }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 5px; border: 2px solid var(--surface-page); }
+  </style>
+</helmet>
+
+<div style="height:100vh;width:100%;display:flex;flex-direction:column;font-family:{{fontFamily}};direction:{{dir}};background:var(--surface-page);color:var(--text-body);overflow:hidden">
+  <div class="avl-app" style="display:flex;flex:1;min-height:0">
+    <div class="{{scrimClass}}" onClick="{{toggleNav}}"></div>
+
+    <aside class="{{sidebarClass}}" style="width:264px;flex-shrink:0;background:var(--navy-850);color:#fff;display:flex;flex-direction:column;height:100%;border-inline-end:1px solid var(--border-inverse)">
+      <div style="height:60px;display:flex;align-items:center;gap:11px;padding:0 20px;border-bottom:1px solid var(--border-inverse);flex-shrink:0">
+        <span style="width:30px;height:30px;border-radius:8px;background:var(--brand-gradient);display:inline-flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px;flex-shrink:0">A</span>
+        <span style="font-family:var(--font-sans);font-weight:700;font-size:19px;letter-spacing:0.04em;color:#fff">AVEL<span style="color:var(--teal-400)">Y</span>NQ</span>
+        <button class="avl-menu-btn" onClick="{{toggleNav}}" aria-label="Close menu" style="margin-inline-start:auto;background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:20px;padding:4px;line-height:1">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+      <nav style="flex:1;overflow-y:auto;padding:14px 12px">
+        <div style="font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.38);padding:0 10px 8px">{{orgGroupLabel}}</div>
+        <sc-for list="{{navItems}}" as="item" hint-placeholder-count="7">
+          <button onClick="{{item.onClick}}" style="position:relative;display:flex;align-items:center;gap:11px;width:100%;padding:9px 10px;margin-bottom:2px;background:{{item.bg}};border:none;border-radius:var(--radius-md);cursor:pointer;font-family:var(--font-sans);font-size:14px;font-weight:{{item.weight}};color:{{item.color}};box-shadow:{{item.shadow}}">
+            <i class="{{item.icon}}" style="font-size:18px;width:20px;color:{{item.iconColor}}"></i>
+            <span style="flex:1;text-align:left">{{item.label}}</span>
+          </button>
+        </sc-for>
+      </nav>
+      <div style="padding:14px 18px;border-top:1px solid var(--border-inverse);font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase;flex-shrink:0">{{taglineLabel}}</div>
+    </aside>
+
+    <div class="avl-app__body" style="flex:1;display:flex;flex-direction:column;min-width:0;height:100%">
+      <header style="height:60px;flex-shrink:0;background:#fff;border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;gap:14px;padding:0 22px">
+        <button class="avl-menu-btn" onClick="{{toggleNav}}" aria-label="Open menu" style="align-items:center;justify-content:center;width:38px;height:38px;flex-shrink:0;background:transparent;border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-body);cursor:pointer;font-size:19px">
+          <i class="ti ti-menu-2"></i>
+        </button>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:11px;color:var(--text-subtle);margin-bottom:1px;font-family:var(--font-sans)">{{vm.breadcrumb}}</div>
+          <div style="font-family:var(--font-sans);font-size:16px;font-weight:600;color:var(--text-strong);letter-spacing:-0.01em">{{vm.title}}</div>
+        </div>
+        <button onClick="{{toggleLang}}" style="display:flex;align-items:center;gap:6px;height:38px;padding:0 12px;flex-shrink:0;background:#fff;border:1px solid var(--border-default);border-radius:var(--radius-md);cursor:pointer;font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--text-body)">
+          <i class="ti ti-language" style="font-size:17px"></i><span>{{langToggleLabel}}</span>
+        </button>
+        <div style="display:flex;align-items:center;gap:9px;flex-shrink:0;padding-inline-start:6px;border-inline-start:1px solid var(--border-subtle)">
+          <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Avatar" name="{{userNameLabel}}" size="sm" hint-size="32px,32px"></x-import>
+          <div style="line-height:1.25">
+            <div style="font-family:var(--font-sans);font-size:13px;font-weight:600;color:var(--text-strong)">{{userNameLabel}}</div>
+            <div style="font-family:var(--font-sans);font-size:11px;color:var(--text-muted)">{{userRoleLabel}}</div>
+          </div>
+        </div>
+      </header>
+
+      <main style="flex:1;overflow-y:auto;padding:24px" key="{{vm.title}}">
+        <sc-if value="{{vm.isSearch}}" hint-placeholder-val="{{true}}">
+        <div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap">
+            <div>
+              <div style="font-size:12px;color:var(--text-subtle);margin-bottom:3px;font-family:var(--font-sans)">{{vm.breadcrumb}}</div>
+              <h1 style="font-family:var(--font-sans);font-size:clamp(19px,2.4vw,22px);font-weight:700;color:var(--text-strong);letter-spacing:-0.01em;margin:0">{{vm.title}}</h1>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <sc-if value="{{vm.hasFilters}}" hint-placeholder-val="{{false}}">
+                <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Button" variant="secondary" onClick="{{openFilters}}" hint-size="auto,38px"><i class="ti ti-filter" style="margin-inline-end:6px"></i>{{filtersLabel}}</x-import>
+              </sc-if>
+              <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Button" variant="primary" onClick="{{openNew}}" hint-size="auto,38px"><i class="ti ti-plus" style="margin-inline-end:6px"></i>{{newLabel}}</x-import>
+            </div>
+          </div>
+
+          <sc-if value="{{vm.hasContextNote}}" hint-placeholder-val="{{false}}">
+            <div style="margin-bottom:14px;padding:10px 14px;background:var(--surface-brand-subtle);border:1px solid var(--blue-200);border-radius:var(--radius-md);font-size:13px;color:var(--blue-700);display:flex;align-items:center;gap:8px;font-family:var(--font-sans)">
+              <i class="ti ti-filter" style="font-size:15px"></i>{{vm.contextNote}}
+              <button onClick="{{clearContext}}" style="margin-inline-start:auto;background:none;border:none;color:var(--blue-700);cursor:pointer;font-size:12px;text-decoration:underline;font-family:var(--font-sans)">{{clearLabel}}</button>
+            </div>
+          </sc-if>
+
+          <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Card" padding="none" hint-size="100%,auto">
+            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;row-gap:10px;padding:14px 18px;border-bottom:1px solid var(--border-subtle)">
+              <div style="flex:1 1 240px">
+                <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Input" iconLeft="ti ti-search" placeholder="{{searchPh}}" value="{{queryValue}}" onChange="{{setQuery}}" hint-size="100%,38px"></x-import>
+              </div>
+              <sc-if value="{{vm.hasFilters}}" hint-placeholder-val="{{false}}">
+                <div style="flex:1 1 160px;max-width:220px">
+                  <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Select" placeholder="{{allTypesLabel}}" value="{{typeFilterValue}}" onChange="{{setTypeFilter}}" options="{{vm.typeOptions}}" hint-size="100%,38px"></x-import>
+                </div>
+              </sc-if>
+              <div style="flex:1"></div>
+              <span style="font-size:12px;color:var(--text-muted);font-family:var(--font-mono)">{{vm.countText}}</span>
+            </div>
+
+            <sc-if value="{{vm.hasRows}}" hint-placeholder-val="{{true}}">
+              <div class="avl-table-scroll">
+                <table style="width:100%;border-collapse:collapse;font-family:var(--font-sans)">
+                  <thead>
+                    <tr>
+                      <th style="text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-subtle);padding:11px 18px;border-bottom:1px solid var(--border-default);background:var(--surface-page);white-space:nowrap">{{vm.codeLabel}}</th>
+                      <th style="text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-subtle);padding:11px 18px;border-bottom:1px solid var(--border-default);background:var(--surface-page);white-space:nowrap">{{nameColLabel}}</th>
+                      <sc-if value="{{vm.hasType}}" hint-placeholder-val="{{false}}">
+                        <th style="text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-subtle);padding:11px 18px;border-bottom:1px solid var(--border-default);background:var(--surface-page);white-space:nowrap">{{typeColLabel}}</th>
+                      </sc-if>
+                      <th style="text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-subtle);padding:11px 18px;border-bottom:1px solid var(--border-default);background:var(--surface-page);white-space:nowrap">{{statusLabel}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <sc-for list="{{vm.rows}}" as="row" hint-placeholder-count="3">
+                      <tr onClick="{{row.onClick}}" style="border-bottom:1px solid var(--border-subtle);cursor:pointer;background:#fff">
+                        <td style="padding:11px 18px;font-family:var(--font-mono);font-size:13px;color:var(--text-strong);white-space:nowrap">{{row.code}}</td>
+                        <td style="padding:11px 18px;font-size:14px;color:var(--text-strong);font-weight:500">{{row.displayName}}</td>
+                        <sc-if value="{{vm.hasType}}" hint-placeholder-val="{{false}}">
+                          <td style="padding:11px 18px">
+                            <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Badge" tone="{{row.typeTone}}" hint-size="auto,22px">{{row.typeLabel}}</x-import>
+                          </td>
+                        </sc-if>
+                        <td style="padding:11px 18px">
+                          <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:{{row.statusColor}}">
+                            <span style="width:7px;height:7px;border-radius:50%;background:{{row.statusDot}}"></span>{{row.statusLabel}}
+                          </span>
+                        </td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{vm.hasRows}}" hint-placeholder-val="{{true}}">
+            </sc-if>
+            <sc-if value="{{vm.showEmpty}}" hint-placeholder-val="{{false}}">
+              <x-import component-from-global-scope="AVELONDesignSystem_a21abd.EmptyState" icon="ti ti-database-off" title="{{vm.emptyTitle}}" message="{{vm.emptyBody}}" hint-size="100%,220px"></x-import>
+            </sc-if>
+          </x-import>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{vm.isTree}}" hint-placeholder-val="{{false}}">
+        <div>
+          <div style="margin-bottom:18px">
+            <div style="font-size:12px;color:var(--text-subtle);margin-bottom:3px;font-family:var(--font-sans)">{{vm.breadcrumb}}</div>
+            <h1 style="font-family:var(--font-sans);font-size:clamp(19px,2.4vw,22px);font-weight:700;color:var(--text-strong);letter-spacing:-0.01em;margin:0 0 14px">{{vm.title}}</h1>
+            <div style="max-width:320px">
+              <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Select" label="{{branchLabel}}" placeholder="{{selectBranchPh}}" value="{{vm.treeBranchId}}" onChange="{{selectBranch}}" options="{{vm.branchOptions}}" hint-size="100%,64px"></x-import>
+            </div>
+          </div>
+
+          <sc-if value="{{vm.hasBranch}}" hint-placeholder-val="{{false}}">
+          <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap">
+            <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Card" padding="none" hint-size="360px,auto" style="flex:1 1 340px;min-width:300px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border-subtle)">
+                <span style="font-size:13px;font-weight:600;color:var(--text-strong);font-family:var(--font-sans)">{{vm.title}}</span>
+                <x-import component-from-global-scope="AVELONDesignSystem_a21abd.IconButton" icon="ti ti-plus" label="{{addRootLabel}}" variant="outline" size="sm" onClick="{{addRootNode}}"></x-import>
+              </div>
+              <sc-if value="{{vm.hasTreeRows}}" hint-placeholder-val="{{true}}">
+                <div style="padding:8px">
+                  <sc-for list="{{vm.treeItems}}" as="node" hint-placeholder-count="4">
+                    <div onClick="{{node.select}}" style="display:flex;align-items:center;gap:8px;padding:8px 10px;padding-inline-start:{{node.indent}};border-radius:var(--radius-md);cursor:pointer;background:{{node.rowBg}}">
+                      <span onClick="{{node.toggleClick}}" style="width:18px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-subtle);font-size:13px;flex-shrink:0">
+                        <i class="{{node.chevronIcon}}"></i>
+                      </span>
+                      <i class="{{node.icon}}" style="font-size:16px;color:{{node.iconColor}};flex-shrink:0"></i>
+                      <span style="font-size:13px;color:var(--text-strong);font-family:var(--font-sans);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{node.name}}</span>
+                      <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-subtle);flex-shrink:0">{{node.code}}</span>
+                      <sc-if value="{{node.hasCcBadge}}" hint-placeholder-val="{{false}}">
+                        <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Badge" tone="{{node.ccTone}}" hint-size="auto,20px">{{node.ccLabel}}</x-import>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{vm.hasTreeRows}}" hint-placeholder-val="{{true}}"></sc-if>
+              <sc-if value="{{vm.showTreeEmpty}}" hint-placeholder-val="{{false}}">
+                <x-import component-from-global-scope="AVELONDesignSystem_a21abd.EmptyState" icon="ti ti-binary-tree-2" title="{{vm.emptyAfterSelect}}" hint-size="100%,180px"></x-import>
+              </sc-if>
+            </x-import>
+
+            <sc-if value="{{vm.hasSelectedNode}}" hint-placeholder-val="{{false}}">
+            <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Card" padding="none" hint-size="360px,auto" style="flex:1 1 340px;min-width:300px">
+              <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border-subtle)">
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:15px;font-weight:600;color:var(--text-strong);font-family:var(--font-sans)">{{vm.nodeTitle}}</div>
+                  <div style="font-size:12px;color:var(--text-muted);margin-top:2px;font-family:var(--font-mono)">{{vm.nodeSubtitle}}</div>
+                </div>
+                <x-import component-from-global-scope="AVELONDesignSystem_a21abd.IconButton" icon="ti ti-x" label="{{closeLabel}}" variant="ghost" size="sm" onClick="{{closeNodePanel}}"></x-import>
+              </div>
+              <div style="padding:18px;display:flex;flex-direction:column;gap:16px">
+                <sc-for list="{{vm.entryFields}}" as="f" hint-placeholder-count="6">
+                  <div>
+                    <sc-if value="{{f.isCode}}" hint-placeholder-val="{{false}}">
+                      <div style="display:flex;flex-direction:column;gap:6px;font-family:var(--font-sans)">
+                        <label style="font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--text-body)">{{f.label}}</label>
+                        <div style="height:var(--control-md);display:flex;align-items:center;padding:0 12px;background:var(--surface-sunken);border:1px solid var(--border-subtle);border-radius:var(--radius-md);font-family:var(--font-mono);font-size:13px;color:var(--text-muted)">{{f.value}}</div>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{f.isText}}" hint-placeholder-val="{{false}}">
+                      <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Input" label="{{f.label}}" value="{{f.value}}" onChange="{{f.onChange}}" hint-size="100%,auto"></x-import>
+                    </sc-if>
+                    <sc-if value="{{f.isSelect}}" hint-placeholder-val="{{false}}">
+                      <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Select" label="{{f.label}}" value="{{f.value}}" onChange="{{f.onChange}}" options="{{f.options}}" hint-size="100%,auto"></x-import>
+                    </sc-if>
+                  </div>
+                </sc-for>
+                <div style="border-top:1px solid var(--border-subtle);padding-top:14px;display:flex;gap:10px;justify-content:flex-end">
+                  <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Button" variant="secondary" onClick="{{closeNodePanel}}" hint-size="auto,38px">{{cancelLabel}}</x-import>
+                  <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Button" variant="primary" onClick="{{closeNodePanel}}" hint-size="auto,38px">{{saveLabel}}</x-import>
+                </div>
+              </div>
+            </x-import>
+            </sc-if>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{vm.hasBranch}}" hint-placeholder-val="{{false}}"></sc-if>
+          <sc-if value="{{vm.showBranchPrompt}}" hint-placeholder-val="{{true}}">
+            <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Card" padding="none" hint-size="100%,220px">
+              <x-import component-from-global-scope="AVELONDesignSystem_a21abd.EmptyState" icon="ti ti-git-branch" title="{{emptyBranchPromptLabel}}" hint-size="100%,220px"></x-import>
+            </x-import>
+          </sc-if>
+        </div>
+        </sc-if>
+      </main>
+    </div>
+  </div>
+</div>
+
+<x-import component-from-global-scope="AVELONDesignSystem_a21abd.Drawer" open="{{vm.hasSelected}}" onClose="{{closeDrawer}}" size="md" icon="{{vm.icon}}" title="{{vm.drawerTitle}}" subtitle="{{vm.drawerSubtitle}}" hint-size="420px,100%">
+  <div>
+    <sc-if value="{{vm.hasBlockedMsg}}" hint-placeholder-val="{{false}}">
+      <div style="margin-bottom:16px">
+        <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Alert" tone="danger" title="{{deactivateBlockedTitle}}" hint-size="100%,auto">{{vm.deactivateBlockedMsg}}</x-import>
+      </div>
+    </sc-if>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <sc-for list="{{vm.entryFields}}" as="f" hint-placeholder-count="6">
+        <div>
+          <sc-if value="{{f.isCode}}" hint-placeholder-val="{{false}}">
+            <div style="display:flex;flex-direction:column;gap:6px;font-family:var(--font-sans)">
+              <label style="font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--text-body)">{{f.label}}</label>
+              <div style="height:var(--control-md);display:flex;align-items:center;padding:0 12px;background:var(--surface-sunken);border:1px solid var(--border-subtle);border-radius:var(--radius-md);font-family:var(--font-mono);font-size:13px;color:var(--text-muted)">{{f.value}}</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{f.isText}}" hint-placeholder-val="{{false}}">
+            <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Input" label="{{f.label}}" value="{{f.value}}" onChange="{{f.onChange}}" hint-size="100%,auto"></x-import>
+          </sc-if>
+          <sc-if value="{{f.isTextarea}}" hint-placeholder-val="{{false}}">
+            <div style="display:flex;flex-direction:column;gap:6px;font-family:var(--font-sans)">
+              <label style="font-size:var(--fs-xs);font-weight:var(--fw-medium);color:var(--text-body)">{{f.label}}</label>
+              <textarea value="{{f.value}}" onChange="{{f.onChange}}" rows="3" style="width:100%;padding:10px 12px;border:1px solid var(--border-default);border-radius:var(--radius-md);font-family:var(--font-sans);font-size:14px;color:var(--text-strong);resize:vertical"></textarea>
+            </div>
+          </sc-if>
+          <sc-if value="{{f.isSelect}}" hint-placeholder-val="{{false}}">
+            <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Select" label="{{f.label}}" value="{{f.value}}" onChange="{{f.onChange}}" options="{{f.options}}" hint-size="100%,auto"></x-import>
+          </sc-if>
+          <sc-if value="{{f.isFlagged}}" hint-placeholder-val="{{false}}">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Select" label="{{f.label}}" value="{{f.value}}" onChange="{{f.onChange}}" options="{{f.options}}" hint-size="100%,auto"></x-import>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;background:var(--amber-50);border:1px solid #E8D49B;border-radius:var(--radius-md)">
+                <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Badge" tone="warning" icon="ti ti-flag" hint-size="auto,22px">{{flaggedBadgeLabel}}</x-import>
+                <x-import component-from-global-scope="AVELONDesignSystem_a21abd.IconButton" icon="ti ti-lock" label="{{manageRegionTypesLabel}}" variant="ghost" size="sm" disabled="{{true}}"></x-import>
+                <span style="font-size:11px;color:var(--amber-700);font-family:var(--font-sans);flex-basis:100%">{{flaggedNoteLabel}}</span>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+
+      <sc-if value="{{vm.hasDrillLinks}}" hint-placeholder-val="{{false}}">
+        <div style="display:flex;flex-direction:column;gap:8px;padding-top:6px;border-top:1px solid var(--border-subtle)">
+          <sc-for list="{{vm.drillLinks}}" as="d" hint-placeholder-count="2">
+            <button onClick="{{d.onClick}}" style="display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--surface-sunken);border:none;border-radius:var(--radius-md);cursor:pointer;font-family:var(--font-sans);font-size:13px;font-weight:500;color:var(--text-body);text-align:left">
+              <i class="{{d.icon}}" style="color:var(--text-muted)"></i>{{d.label}}
+              <i class="ti ti-arrow-right" style="margin-inline-start:auto;color:var(--text-subtle)"></i>
+            </button>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;flex-direction:column;gap:6px;padding-top:10px;border-top:1px solid var(--border-subtle)">
+        <span style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-subtle);font-family:var(--font-sans)">{{recordInfoLabel}}</span>
+        <div style="font-size:12px;color:var(--text-muted);font-family:var(--font-sans)">{{createdByLabel}}: {{recordInfoCreated}}</div>
+        <div style="font-size:12px;color:var(--text-muted);font-family:var(--font-sans)">{{updatedByLabel}}: {{recordInfoUpdated}}</div>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--border-subtle);padding-top:14px;margin-top:16px;display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap">
+      <sc-if value="{{vm.isActiveRecord}}" hint-placeholder-val="{{false}}">
+        <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Button" variant="danger" onClick="{{vm.deactivateAction}}" hint-size="auto,38px">{{deactivateLabel}}</x-import>
+      </sc-if>
+      <sc-if value="{{vm.isActiveRecord}}" hint-placeholder-val="{{false}}"></sc-if>
+      <sc-if value="{{vm.isInactiveRecord}}" hint-placeholder-val="{{false}}">
+        <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Button" variant="secondary" onClick="{{vm.activateAction}}" hint-size="auto,38px">{{activateLabel}}</x-import>
+      </sc-if>
+      <div style="display:flex;gap:10px;margin-inline-start:auto">
+        <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Button" variant="secondary" onClick="{{closeDrawer}}" hint-size="auto,38px">{{cancelLabel}}</x-import>
+        <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Button" variant="primary" onClick="{{saveDrawer}}" hint-size="auto,38px">{{saveLabel}}</x-import>
+      </div>
+    </div>
+  </div>
+</x-import>
+
+<x-import component-from-global-scope="AVELONDesignSystem_a21abd.Drawer" open="{{filtersOpen}}" onClose="{{closeFilters}}" size="sm" icon="ti ti-filter" title="{{filtersLabel}}" subtitle="{{vm.title}}" hint-size="380px,100%">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Select" label="{{typeColLabel}}" placeholder="{{allTypesLabel}}" value="{{typeFilterValue}}" onChange="{{setTypeFilter}}" options="{{vm.typeOptions}}" hint-size="100%,auto"></x-import>
+  </div>
+  <div style="border-top:1px solid var(--border-subtle);padding-top:14px;margin-top:16px;display:flex;gap:10px;justify-content:flex-end">
+    <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Button" variant="ghost" onClick="{{resetFilters}}" hint-size="auto,38px">{{resetLabel}}</x-import>
+    <x-import component-from-global-scope="AVELONDesignSystem_a21abd.Button" variant="primary" onClick="{{closeFilters}}" hint-size="auto,38px"><i class="ti ti-check" style="margin-inline-end:6px"></i>{{applyFiltersLabel}}</x-import>
+  </div>
+</x-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+const LEGAL_ENTITIES = [
+  { id:'LE-001', code:'LE-1000', nameEn:'United Horizon Holding', nameAr:'المجموعة القابضة يونايتد هورايزن', type:'Holding Company', status:'Active', blockDeactivate:true, notes:'Primary holding entity for the Group.' },
+  { id:'LE-002', code:'LE-1010', nameEn:'Horizon Technology Co.', nameAr:'شركة هورايزن للتقنية', type:'Subsidiary', status:'Active', blockDeactivate:true, notes:'Wholly owned technology subsidiary.' },
+  { id:'LE-003', code:'LE-1020', nameEn:'Horizon Ventures JV', nameAr:'هورايزن للمشاريع المشتركة', type:'Joint Venture', status:'Inactive', blockDeactivate:false, notes:'Dormant joint venture, retained for records.' },
+];
+const BRANCHES = [
+  { id:'BR-001', code:'BR-2000', nameEn:'Riyadh Head Office', nameAr:'المكتب الرئيسي - الرياض', legalEntityId:'LE-001', type:'Head Office', status:'Active', blockDeactivate:true, notes:'Group head office.' },
+  { id:'BR-002', code:'BR-2010', nameEn:'Jeddah Regional Branch', nameAr:'فرع جدة الإقليمي', legalEntityId:'LE-001', type:'Regional Branch', status:'Active', blockDeactivate:true, notes:'' },
+  { id:'BR-003', code:'BR-2020', nameEn:'Dammam Sales Office', nameAr:'مكتب الدمام للمبيعات', legalEntityId:'LE-002', type:'Sales Office', status:'Active', blockDeactivate:false, notes:'' },
+  { id:'BR-004', code:'BR-2030', nameEn:'Khobar Regional Branch', nameAr:'فرع الخبر الإقليمي', legalEntityId:'LE-002', type:'Regional Branch', status:'Inactive', blockDeactivate:false, notes:'' },
+];
+const REGIONS = [];
+const PROFIT_CENTERS = [];
+const LOCATION_SITES = [
+  { id:'LS-001', code:'LOC-500', nameEn:'Riyadh Main Office', nameAr:'المكتب الرئيسي بالرياض', branchId:'BR-001', type:'Office', status:'Active', blockDeactivate:false, notes:'' },
+  { id:'LS-002', code:'LOC-510', nameEn:'Riyadh Central Warehouse', nameAr:'المستودع المركزي بالرياض', branchId:'BR-001', type:'Warehouse', status:'Active', blockDeactivate:false, notes:'' },
+  { id:'LS-003', code:'LOC-520', nameEn:'Jeddah Retail Outlet', nameAr:'منفذ بيع جدة', branchId:'BR-002', type:'Retail', status:'Active', blockDeactivate:false, notes:'' },
+];
+const DEPARTMENTS = [
+  { id:'D-001', code:'DPT-100', nameEn:'Executive Office', nameAr:'المكتب التنفيذي', branchId:'BR-001', parentId:null, nodeType:'SUMMARY', notes:'' },
+  { id:'D-002', code:'DPT-110', nameEn:'Finance Department', nameAr:'إدارة المالية', branchId:'BR-001', parentId:'D-001', nodeType:'SUMMARY', notes:'' },
+  { id:'D-003', code:'DPT-111', nameEn:'General Ledger Unit', nameAr:'وحدة الأستاذ العام', branchId:'BR-001', parentId:'D-002', nodeType:'DETAIL', notes:'' },
+  { id:'D-004', code:'DPT-112', nameEn:'Treasury Unit', nameAr:'وحدة الخزينة', branchId:'BR-001', parentId:'D-002', nodeType:'DETAIL', notes:'' },
+  { id:'D-005', code:'DPT-120', nameEn:'Human Resources', nameAr:'الموارد البشرية', branchId:'BR-001', parentId:'D-001', nodeType:'DETAIL', notes:'' },
+];
+const COST_CENTERS = [];
+
+const D = {
+  orgGroup: {en:'Organization', ar:'الهيكل التنظيمي'},
+  filters: {en:'Filters', ar:'عوامل التصفية'},
+  newRecord: {en:'New', ar:'جديد'},
+  applyFilters: {en:'Apply filters', ar:'تطبيق عوامل التصفية'},
+  reset: {en:'Reset', ar:'إعادة تعيين'},
+  save: {en:'Save', ar:'حفظ'},
+  cancel: {en:'Cancel', ar:'إلغاء'},
+  close: {en:'Close', ar:'إغلاق'},
+  deactivate: {en:'Deactivate', ar:'إلغاء التفعيل'},
+  activate: {en:'Activate', ar:'تفعيل'},
+  recordInfo: {en:'Record info', ar:'معلومات السجل'},
+  createdBy: {en:'Created by', ar:'أُنشئ بواسطة'},
+  updatedBy: {en:'Updated by', ar:'آخر تحديث بواسطة'},
+  status: {en:'Status', ar:'الحالة'},
+  active: {en:'Active', ar:'نشط'},
+  inactive: {en:'Inactive', ar:'غير نشط'},
+  notes: {en:'Notes', ar:'ملاحظات'},
+  allTypes: {en:'All types', ar:'كل الأنواع'},
+  showing: {en:'Showing', ar:'عرض'},
+  ofX: {en:'of', ar:'من'},
+  noResultsTitle: {en:'No matches', ar:'لا توجد نتائج'},
+  noResultsBody: {en:'Try a different search term or clear filters.', ar:'جرّب كلمة بحث مختلفة أو امسح عوامل التصفية.'},
+  selectBranchPrompt: {en:'Select a branch to view its tree.', ar:'اختر فرعًا لعرض شجرته.'},
+  branch: {en:'Branch', ar:'الفرع'},
+  selectBranchPh: {en:'Select branch…', ar:'اختر الفرع…'},
+  name: {en:'Name', ar:'الاسم'},
+  nameEn: {en:'Name (English)', ar:'الاسم (إنجليزي)'},
+  nameAr: {en:'Name (Arabic)', ar:'الاسم (عربي)'},
+  legalEntity: {en:'Legal Entity', ar:'الكيان القانوني'},
+  parentNode: {en:'Parent', ar:'الأصل'},
+  none: {en:'— None (root) —', ar:'— بلا (جذر) —'},
+  nodeType: {en:'Node Type', ar:'نوع العقدة'},
+  summary: {en:'Summary', ar:'إجمالي'},
+  detail: {en:'Detail', ar:'تفصيلي'},
+  costCenterType: {en:'Cost Center Type', ar:'نوع مركز التكلفة'},
+  direct: {en:'Direct', ar:'مباشر'},
+  indirect: {en:'Indirect', ar:'غير مباشر'},
+  shared: {en:'Shared', ar:'مشترك'},
+  flaggedBadge: {en:'Flagged · OQ-ORG-002', ar:'مُعلَّم · OQ-ORG-002'},
+  flaggedNote: {en:'No screen exists yet for admins to manage region types — raised as an open question, excluded from this round.', ar:'لا توجد شاشة بعد لإدارة أنواع المناطق — تم رفعها كسؤال مفتوح، ومُستبعدة من هذه الجولة.'},
+  manageRegionTypes: {en:'Manage region types', ar:'إدارة أنواع المناطق'},
+  addRoot: {en:'New (root-level)', ar:'جديد (على مستوى الجذر)'},
+  clear: {en:'Clear', ar:'مسح'},
+  searchPh: {en:'Search by code or name…', ar:'البحث بالرمز أو الاسم…'},
+  filteredBy: {en:'Filtered by', ar:'مُصفّى حسب'},
+  autoGenerated: {en:'Generated on save', ar:'يُنشأ عند الحفظ'},
+  code: {en:'Code', ar:'الرمز'},
+};
+
+const SCREENS = {
+  'legal-entities': {
+    pattern:'search', icon:'ti ti-building-skyscraper',
+    label:{en:'Legal Entities',ar:'الكيانات القانونية'}, breadcrumb:{en:'Organization',ar:'الهيكل التنظيمي'},
+    codeLabel:{en:'Legal Entity Code',ar:'رمز الكيان القانوني'},
+    typeLabel:{en:'Entity Type',ar:'نوع الكيان'},
+    typeOptions:[{v:'Holding Company',en:'Holding Company',ar:'شركة قابضة'},{v:'Subsidiary',en:'Subsidiary',ar:'شركة تابعة'},{v:'Government Entity',en:'Government Entity',ar:'جهة حكومية'},{v:'Joint Venture',en:'Joint Venture',ar:'مشروع مشترك'}],
+    emptyTitle:{en:'No legal entities yet',ar:'لا توجد كيانات قانونية بعد'},
+    emptyBody:{en:'Legal Entities are the root of the org structure everything else sits under. Create the first one to begin.',ar:'الكيانات القانونية هي أساس الهيكل التنظيمي الذي يقوم عليه كل شيء آخر. أنشئ أول كيان للبدء.'},
+    ruleBanner:{en:'Cannot deactivate — active Branches reference this Legal Entity (RULE-ORG-001/002).',ar:'لا يمكن إلغاء التفعيل — توجد فروع نشطة مرتبطة بهذا الكيان (RULE-ORG-001/002).'},
+    parentLovKey:null,
+    drillLinks:[
+      {icon:'ti ti-building-warehouse', label:{en:'View Branches',ar:'عرض الفروع'}, target:'branches', filterField:'legalEntityId'},
+      {icon:'ti ti-chart-donut', label:{en:'View Profit Centers',ar:'عرض مراكز الربح'}, target:'profit-centers', filterField:'legalEntityId'},
+    ],
+    rows: LEGAL_ENTITIES,
+  },
+  branches: {
+    pattern:'search', icon:'ti ti-building-warehouse',
+    label:{en:'Branches',ar:'الفروع'}, breadcrumb:{en:'Organization',ar:'الهيكل التنظيمي'},
+    codeLabel:{en:'Branch Code',ar:'رمز الفرع'},
+    typeLabel:{en:'Branch Type',ar:'نوع الفرع'},
+    typeOptions:[{v:'Head Office',en:'Head Office',ar:'المكتب الرئيسي'},{v:'Regional Branch',en:'Regional Branch',ar:'فرع إقليمي'},{v:'Sales Office',en:'Sales Office',ar:'مكتب مبيعات'}],
+    emptyTitleGeneric:{en:'No branches yet.',ar:'لا توجد فروع بعد.'},
+    emptyTitleContext:(name)=>({en:'No branches under '+name+' yet.',ar:'لا توجد فروع ضمن '+name+' بعد.'}),
+    ruleBanner:{en:'Cannot deactivate — active Departments, Cost Centers, or Location Sites reference this Branch (RULE-ORG-003/004/005).',ar:'لا يمكن إلغاء التفعيل — توجد إدارات أو مراكز تكلفة أو مواقع نشطة مرتبطة بهذا الفرع (RULE-ORG-003/004/005).'},
+    parentLovKey:'legalEntityId', parentLovLabel:{en:'Legal Entity',ar:'الكيان القانوني'}, parentLovSource:'legalEntities',
+    drillLinks:[
+      {icon:'ti ti-sitemap',label:{en:'View Departments',ar:'عرض الإدارات'},target:'departments',filterField:'branchId'},
+      {icon:'ti ti-coin',label:{en:'View Cost Centers',ar:'عرض مراكز التكلفة'},target:'cost-centers',filterField:'branchId'},
+      {icon:'ti ti-map-pin',label:{en:'View Location Sites',ar:'عرض المواقع'},target:'location-sites',filterField:'branchId'},
+    ],
+    rows: BRANCHES,
+  },
+  regions: {
+    pattern:'search', icon:'ti ti-map-2',
+    label:{en:'Regions',ar:'المناطق'}, breadcrumb:{en:'Organization',ar:'الهيكل التنظيمي'},
+    codeLabel:{en:'Region Code',ar:'رمز المنطقة'},
+    typeLabel:{en:'Region Type',ar:'نوع المنطقة'}, flaggedType:true,
+    typeOptions:[{v:'Central',en:'Central',ar:'المنطقة الوسطى'},{v:'Eastern',en:'Eastern',ar:'المنطقة الشرقية'},{v:'Western',en:'Western',ar:'المنطقة الغربية'},{v:'Northern',en:'Northern',ar:'المنطقة الشمالية'},{v:'Southern',en:'Southern',ar:'المنطقة الجنوبية'}],
+    emptyTitleGeneric:{en:'No regions yet.',ar:'لا توجد مناطق بعد.'},
+    emptyBody:{en:'',ar:''},
+    ruleBanner:{en:'Branches referencing this Region are clear to proceed — downstream module impact for other consumers remains unresolved (OQ-001).',ar:'لا توجد فروع نشطة مرتبطة بهذه المنطقة تعيق العملية — أثر ذلك على وحدات أخرى ما زال غير محسوم (OQ-001).'},
+    parentLovKey:'legalEntityId', parentLovLabel:{en:'Legal Entity',ar:'الكيان القانوني'}, parentLovSource:'legalEntities',
+    drillLinks:[],
+    rows: REGIONS,
+  },
+  departments: {
+    pattern:'tree', icon:'ti ti-sitemap',
+    label:{en:'Departments',ar:'الإدارات'}, breadcrumb:{en:'Organization',ar:'الهيكل التنظيمي'},
+    codeLabel:{en:'Department Code',ar:'رمز الإدارة'},
+    emptyAfterSelect:{en:'No departments under this branch yet.',ar:'لا توجد إدارات ضمن هذا الفرع بعد.'},
+    hasCostCenterType:false,
+    nodes: DEPARTMENTS,
+  },
+  'cost-centers': {
+    pattern:'tree', icon:'ti ti-coin',
+    label:{en:'Cost Centers',ar:'مراكز التكلفة'}, breadcrumb:{en:'Organization',ar:'الهيكل التنظيمي'},
+    codeLabel:{en:'Cost Center Code',ar:'رمز مركز التكلفة'},
+    emptyAfterSelect:{en:'No cost centers under this branch yet.',ar:'لا توجد مراكز تكلفة ضمن هذا الفرع بعد.'},
+    hasCostCenterType:true,
+    nodes: COST_CENTERS,
+  },
+  'profit-centers': {
+    pattern:'search', icon:'ti ti-chart-donut',
+    label:{en:'Profit Centers',ar:'مراكز الربح'}, breadcrumb:{en:'Organization',ar:'الهيكل التنظيمي'},
+    codeLabel:{en:'Profit Center Code',ar:'رمز مركز الربح'},
+    typeLabel:null,
+    emptyTitleGeneric:{en:'No profit centers yet.',ar:'لا توجد مراكز ربح بعد.'},
+    ruleBanner:null,
+    parentLovKey:'legalEntityId', parentLovLabel:{en:'Legal Entity',ar:'الكيان القانوني'}, parentLovSource:'legalEntities',
+    drillLinks:[],
+    rows: PROFIT_CENTERS,
+  },
+  'location-sites': {
+    pattern:'search', icon:'ti ti-map-pin',
+    label:{en:'Location Sites',ar:'المواقع'}, breadcrumb:{en:'Organization',ar:'الهيكل التنظيمي'},
+    codeLabel:{en:'Location Code',ar:'رمز الموقع'},
+    typeLabel:{en:'Site Type',ar:'نوع الموقع'},
+    typeOptions:[{v:'Office',en:'Office',ar:'مكتب'},{v:'Warehouse',en:'Warehouse',ar:'مستودع'},{v:'Factory',en:'Factory',ar:'مصنع'},{v:'Site',en:'Site',ar:'موقع'},{v:'Retail',en:'Retail',ar:'بيع بالتجزئة'}],
+    emptyTitleGeneric:{en:'No location sites yet.',ar:'لا توجد مواقع بعد.'},
+    emptyTitleContext:(name)=>({en:'No location sites under '+name+' yet.',ar:'لا توجد مواقع ضمن '+name+' بعد.'}),
+    ruleBanner:null,
+    parentLovKey:'branchId', parentLovLabel:{en:'Branch',ar:'الفرع'}, parentLovSource:'branches',
+    drillLinks:[],
+    rows: LOCATION_SITES,
+  },
+};
+const NAV_ORDER = ['legal-entities','branches','regions','departments','cost-centers','profit-centers','location-sites'];
+Object.keys(SCREENS).forEach(k => SCREENS[k].__id = k);
+const CC_TONE = { Direct:'info', Indirect:'warning', Shared:'accent' };
+
+class Component extends DCLogic {
+  state = {
+    lang:'en', screen:'legal-entities', navOpen:false,
+    query:'', typeFilter:'', filtersOpen:false, contextFilter:null,
+    selectedId:null, fieldEdits:{}, deactivateBlockedMsg:null,
+    treeBranchId:null, expandedNodes:{}, selectedNodeId:null,
+    statusOverrides:{},
+  };
+
+  L(o) { return o ? (o[this.state.lang] || o.en || '') : ''; }
+
+  goScreen = (id, filter) => {
+    const target = SCREENS[id];
+    const presetBranch = (filter && filter.field === 'branchId') ? filter.value : null;
+    this.setState({
+      screen:id, query:'', typeFilter:'', filtersOpen:false,
+      selectedId:null, fieldEdits:{}, deactivateBlockedMsg:null,
+      treeBranchId: target.pattern === 'tree' ? presetBranch : null,
+      expandedNodes:{}, selectedNodeId:null, navOpen:false,
+      contextFilter: target.pattern === 'search' ? (filter || null) : null,
+    });
+  };
+  toggleLang = () => this.setState(s => ({ lang: s.lang === 'en' ? 'ar' : 'en' }));
+  toggleNav = () => this.setState(s => ({ navOpen: !s.navOpen }));
+  setQuery = (e) => this.setState({ query: e.target.value });
+  setTypeFilter = (e) => this.setState({ typeFilter: e.target.value });
+  openFilters = () => this.setState({ filtersOpen: true });
+  closeFilters = () => this.setState({ filtersOpen: false });
+  resetFilters = () => this.setState({ typeFilter: '' });
+  clearContext = () => this.setState({ contextFilter: null });
+  openRecord = (id) => this.setState({ selectedId:id, fieldEdits:{}, deactivateBlockedMsg:null });
+  openNew = () => this.setState({ selectedId:'new', fieldEdits:{}, deactivateBlockedMsg:null });
+  closeDrawer = () => this.setState({ selectedId:null, deactivateBlockedMsg:null });
+  saveDrawer = () => this.setState({ selectedId:null, fieldEdits:{}, deactivateBlockedMsg:null });
+  editField = (key) => (e) => { const v = e.target.value; this.setState(s => ({ fieldEdits:{...s.fieldEdits, [key]:v} })); };
+  attemptDeactivate = (cfg, row) => {
+    if (cfg.ruleBanner && row.blockDeactivate) this.setState({ deactivateBlockedMsg: this.L(cfg.ruleBanner) });
+    else this.setState(s => ({ statusOverrides:{...s.statusOverrides, [row.id]:'Inactive'}, deactivateBlockedMsg:null }));
+  };
+  attemptActivate = (row) => this.setState(s => ({ statusOverrides:{...s.statusOverrides, [row.id]:'Active'}, deactivateBlockedMsg:null }));
+
+  selectBranch = (e) => this.setState({ treeBranchId: e.target.value || null, expandedNodes:{}, selectedNodeId:null });
+  toggleNode = (id) => this.setState(s => ({ expandedNodes:{...s.expandedNodes, [id]: !s.expandedNodes[id]} }));
+  selectNode = (id) => this.setState({ selectedNodeId:id, fieldEdits:{} });
+  closeNodePanel = () => this.setState({ selectedNodeId:null, fieldEdits:{} });
+  addRootNode = () => this.setState({ selectedNodeId:'new-root', fieldEdits:{} });
+
+  buildEntryFields(cfg, record, edits, lang, L) {
+    const fields = [];
+    fields.push({ key:'code', label:L(cfg.codeLabel), value:record.code, isCode:true, isText:false, isTextarea:false, isSelect:false, isFlagged:false });
+    fields.push({ key:'nameAr', label:L(D.nameAr), value: edits.nameAr ?? record.nameAr, onChange:this.editField('nameAr'), isCode:false, isText:true, isTextarea:false, isSelect:false, isFlagged:false });
+    fields.push({ key:'nameEn', label:L(D.nameEn), value: edits.nameEn ?? record.nameEn, onChange:this.editField('nameEn'), isCode:false, isText:true, isTextarea:false, isSelect:false, isFlagged:false });
+    if (cfg.parentLovKey) {
+      const source = cfg.parentLovSource === 'legalEntities' ? LEGAL_ENTITIES.filter(x=>x.status==='Active') : BRANCHES.filter(x=>x.status==='Active');
+      const options = source.map(x => ({ value:x.id, label: (lang==='ar'?x.nameAr:x.nameEn) + ' (' + x.code + ')' }));
+      fields.push({ key:cfg.parentLovKey, label:L(cfg.parentLovLabel), value: edits[cfg.parentLovKey] ?? record[cfg.parentLovKey], onChange:this.editField(cfg.parentLovKey), options, isCode:false, isText:false, isTextarea:false, isSelect:true, isFlagged:false });
+    }
+    if (cfg.typeLabel) {
+      const options = cfg.typeOptions.map(o => ({ value:o.v, label:L({en:o.en, ar:o.ar}) }));
+      const flagged = !!cfg.flaggedType;
+      fields.push({ key:'type', label:L(cfg.typeLabel), value: edits.type ?? record.type, onChange:this.editField('type'), options, isCode:false, isText:false, isTextarea:false, isSelect:!flagged, isFlagged:flagged });
+    }
+    fields.push({ key:'notes', label:L(D.notes), value: edits.notes ?? record.notes, onChange:this.editField('notes'), isCode:false, isText:false, isTextarea:true, isSelect:false, isFlagged:false });
+    return fields;
+  }
+
+  buildSearchVM(cfg, lang, L, s) {
+    let rows = cfg.rows;
+    if (s.contextFilter) rows = rows.filter(r => r[s.contextFilter.field] === s.contextFilter.value);
+    const q = s.query.trim().toLowerCase();
+    if (q) rows = rows.filter(r => r.code.toLowerCase().includes(q) || r.nameEn.toLowerCase().includes(q) || r.nameAr.includes(s.query.trim()));
+    if (s.typeFilter) rows = rows.filter(r => r.type === s.typeFilter);
+
+    const typeMap = {};
+    (cfg.typeOptions||[]).forEach(o => typeMap[o.v] = {en:o.en, ar:o.ar});
+    const displayRows = rows.map(r => {
+      const status = s.statusOverrides[r.id] || r.status;
+      return {
+        id:r.id, code:r.code,
+        displayName: lang==='ar' ? r.nameAr : r.nameEn,
+        typeLabel: cfg.typeLabel ? L(typeMap[r.type]) : '',
+        typeTone: 'info',
+        statusLabel: status==='Active' ? L(D.active) : L(D.inactive),
+        statusColor: status==='Active' ? 'var(--green-600)' : 'var(--text-muted)',
+        statusDot: status==='Active' ? 'var(--green-500)' : 'var(--slate-400)',
+        onClick: () => this.openRecord(r.id),
+      };
+    });
+
+    const contextName = s.contextFilter ? s.contextFilter.label : null;
+    const emptyTitle = (contextName && cfg.emptyTitleContext) ? L(cfg.emptyTitleContext(contextName)) : L(cfg.emptyTitleGeneric || cfg.emptyTitle);
+
+    let selectedRaw = null;
+    if (s.selectedId === 'new') selectedRaw = { id:'new', code:L(D.autoGenerated), nameEn:'', nameAr:'', type:'', notes:'', status:'Active', __isNew:true };
+    else if (s.selectedId) selectedRaw = cfg.rows.find(r => r.id === s.selectedId) || null;
+    const selectedRecord = selectedRaw ? { ...selectedRaw, status: s.statusOverrides[selectedRaw.id] || selectedRaw.status } : null;
+
+    const entryFields = selectedRecord ? this.buildEntryFields(cfg, selectedRecord, s.fieldEdits, lang, L) : [];
+    const drillLinks = (selectedRecord && !selectedRecord.__isNew) ? cfg.drillLinks.map(d => ({
+      icon:d.icon, label:L(d.label),
+      onClick: () => this.goScreen(d.target, { field:d.filterField, value:selectedRecord.id, label: lang==='ar' ? selectedRecord.nameAr : selectedRecord.nameEn }),
+    })) : [];
+
+    const selName = selectedRecord ? (lang==='ar'?selectedRecord.nameAr:selectedRecord.nameEn) : '';
+    return {
+      isSearch:true, isTree:false,
+      rows: displayRows, hasRows: displayRows.length > 0, showEmpty: displayRows.length === 0,
+      emptyTitle, emptyBody: L(cfg.emptyBody) || '',
+      hasContextNote: !!s.contextFilter, contextNote: s.contextFilter ? (L(D.filteredBy) + ': ' + s.contextFilter.label) : '',
+      hasFilters: !!cfg.typeOptions,
+      typeOptions: (cfg.typeOptions||[]).map(o => ({ value:o.v, label:L({en:o.en, ar:o.ar}) })),
+      hasType: !!cfg.typeLabel, codeLabel: L(cfg.codeLabel),
+      countText: L(D.showing) + ' ' + displayRows.length + ' ' + L(D.ofX) + ' ' + cfg.rows.length,
+      hasSelected: !!selectedRecord,
+      drawerTitle: selectedRecord ? (selectedRecord.__isNew ? L(D.newRecord) + ' ' + L(cfg.label) : selName) : '',
+      drawerSubtitle: selectedRecord ? (selectedRecord.__isNew ? '' : selectedRecord.code) : '',
+      entryFields, drillLinks, hasDrillLinks: drillLinks.length > 0,
+      hasBlockedMsg: !!s.deactivateBlockedMsg, deactivateBlockedMsg: s.deactivateBlockedMsg || '',
+      isActiveRecord: !!selectedRecord && !selectedRecord.__isNew && selectedRecord.status === 'Active',
+      isInactiveRecord: !!selectedRecord && !selectedRecord.__isNew && selectedRecord.status === 'Inactive',
+      deactivateAction: selectedRecord ? () => this.attemptDeactivate(cfg, selectedRecord) : null,
+      activateAction: selectedRecord ? () => this.attemptActivate(selectedRecord) : null,
+      icon: cfg.icon,
+    };
+  }
+
+  buildTreeVM(cfg, lang, L, s) {
+    const branchSource = BRANCHES.filter(b => b.status === 'Active');
+    const branchOptions = branchSource.map(b => ({ value:b.id, label:(lang==='ar'?b.nameAr:b.nameEn) + ' (' + b.code + ')' }));
+    const treeBranchId = s.treeBranchId;
+    const nodesForBranch = treeBranchId ? cfg.nodes.filter(n => n.branchId === treeBranchId) : [];
+
+    const visible = [];
+    const flatten = (parentId, depth) => {
+      nodesForBranch.filter(n => n.parentId === parentId).forEach(n => {
+        const children = nodesForBranch.filter(c => c.parentId === n.id);
+        const expanded = !!s.expandedNodes[n.id];
+        visible.push({ node:n, depth, hasChildren: children.length > 0, isExpanded: expanded });
+        if (children.length > 0 && expanded) flatten(n.id, depth + 1);
+      });
+    };
+    flatten(null, 0);
+
+    const treeItems = visible.map(v => {
+      const n = v.node;
+      const isSummary = n.nodeType === 'SUMMARY';
+      return {
+        id:n.id, code:n.code, name: lang==='ar'?n.nameAr:n.nameEn,
+        indent: (v.depth*20 + 12) + 'px',
+        toggleClick: v.hasChildren ? (() => this.toggleNode(n.id)) : (() => {}),
+        select: () => this.selectNode(n.id),
+        icon: isSummary ? 'ti ti-folder' : 'ti ti-file-text',
+        iconColor: isSummary ? 'var(--blue-500)' : 'var(--slate-500)',
+        chevronIcon: v.hasChildren ? (v.isExpanded ? 'ti ti-chevron-down' : 'ti ti-chevron-right') : '',
+        hasCcBadge: cfg.hasCostCenterType && !!n.costCenterType,
+        ccTone: cfg.hasCostCenterType ? (CC_TONE[n.costCenterType] || 'neutral') : 'neutral',
+        ccLabel: cfg.hasCostCenterType ? L(D[n.costCenterType ? n.costCenterType.toLowerCase() : '']) : '',
+        rowBg: s.selectedNodeId === n.id ? 'var(--surface-brand-subtle)' : 'transparent',
+      };
+    });
+
+    let selectedNode = null;
+    if (s.selectedNodeId === 'new-root') selectedNode = { id:'new-root', code:L(D.autoGenerated), nameEn:'', nameAr:'', parentId:null, nodeType:'SUMMARY', costCenterType:'Direct', notes:'', __isNew:true };
+    else if (s.selectedNodeId) selectedNode = nodesForBranch.find(n => n.id === s.selectedNodeId) || null;
+
+    let entryFields = [];
+    let nodeTitle = '', nodeSubtitle = '';
+    if (selectedNode) {
+      const edits = s.fieldEdits;
+      const descendants = new Set();
+      const collect = (id) => { nodesForBranch.filter(n => n.parentId === id).forEach(c => { descendants.add(c.id); collect(c.id); }); };
+      collect(selectedNode.id);
+      const parentOptions = [{ value:'', label:L(D.none) }].concat(
+        nodesForBranch.filter(n => n.id !== selectedNode.id && !descendants.has(n.id)).map(n => ({ value:n.id, label: lang==='ar'?n.nameAr:n.nameEn }))
+      );
+      const branchRec = BRANCHES.find(b => b.id === treeBranchId);
+      entryFields = [
+        { key:'code', label:L(cfg.codeLabel), value:selectedNode.code, isCode:true, isText:false, isSelect:false, isTextarea:false, isFlagged:false },
+        { key:'nameAr', label:L(D.nameAr), value: edits.nameAr ?? selectedNode.nameAr, onChange:this.editField('nameAr'), isCode:false, isText:true, isSelect:false, isTextarea:false, isFlagged:false },
+        { key:'nameEn', label:L(D.nameEn), value: edits.nameEn ?? selectedNode.nameEn, onChange:this.editField('nameEn'), isCode:false, isText:true, isSelect:false, isTextarea:false, isFlagged:false },
+        { key:'branch', label:L(D.branch), value: branchRec ? (lang==='ar'?branchRec.nameAr:branchRec.nameEn) : '', isCode:true, isText:false, isSelect:false, isTextarea:false, isFlagged:false },
+        { key:'parentId', label:L(D.parentNode), value: edits.parentId ?? (selectedNode.parentId || ''), onChange:this.editField('parentId'), options:parentOptions, isCode:false, isText:false, isSelect:true, isTextarea:false, isFlagged:false },
+        { key:'nodeType', label:L(D.nodeType), value: edits.nodeType ?? selectedNode.nodeType, onChange:this.editField('nodeType'), options:[{value:'SUMMARY',label:L(D.summary)},{value:'DETAIL',label:L(D.detail)}], isCode:false, isText:false, isSelect:true, isTextarea:false, isFlagged:false },
+      ];
+      if (cfg.hasCostCenterType) entryFields.push({ key:'costCenterType', label:L(D.costCenterType), value: edits.costCenterType ?? (selectedNode.costCenterType || 'Direct'), onChange:this.editField('costCenterType'), options:[{value:'Direct',label:L(D.direct)},{value:'Indirect',label:L(D.indirect)},{value:'Shared',label:L(D.shared)}], isCode:false, isText:false, isSelect:true, isTextarea:false, isFlagged:false });
+      nodeTitle = selectedNode.__isNew ? (L(D.newRecord) + ' ' + L(cfg.label)) : (lang==='ar'?selectedNode.nameAr:selectedNode.nameEn);
+      nodeSubtitle = selectedNode.__isNew ? '' : selectedNode.code;
+    }
+
+    return {
+      isSearch:false, isTree:true,
+      branchOptions, treeBranchId, hasBranch: !!treeBranchId, showBranchPrompt: !treeBranchId,
+      treeItems, hasTreeRows: treeItems.length > 0, showTreeEmpty: !!treeBranchId && treeItems.length === 0,
+      emptyAfterSelect: L(cfg.emptyAfterSelect),
+      hasSelectedNode: !!selectedNode, nodeTitle, nodeSubtitle, entryFields,
+      hasDrillLinks:false, drillLinks:[], hasBlockedMsg:false, deactivateBlockedMsg:'',
+      isActiveRecord:false, isInactiveRecord:false, deactivateAction:null, activateAction:null,
+      icon: cfg.icon,
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const lang = s.lang;
+    const L = (o) => this.L(o);
+    const cfg = SCREENS[s.screen];
+
+    const navItems = NAV_ORDER.map(id => {
+      const c = SCREENS[id];
+      const active = id === s.screen;
+      return {
+        id, label:L(c.label), icon:c.icon,
+        onClick: () => this.goScreen(id),
+        bg: active ? 'rgba(36,102,216,0.18)' : 'transparent',
+        iconColor: active ? 'var(--teal-400)' : 'rgba(255,255,255,0.6)',
+        weight: active ? 600 : 500,
+        color: active ? '#fff' : 'rgba(255,255,255,0.78)',
+        shadow: active ? 'inset 2px 0 0 var(--teal-400)' : 'none',
+      };
+    });
+
+    const vmBase = { title:L(cfg.label), breadcrumb:L(cfg.breadcrumb), icon:cfg.icon };
+    const vm = cfg.pattern === 'search'
+      ? Object.assign(vmBase, this.buildSearchVM(cfg, lang, L, s))
+      : Object.assign(vmBase, this.buildTreeVM(cfg, lang, L, s));
+
+    return {
+      lang, dir: lang === 'ar' ? 'rtl' : 'ltr', fontFamily: lang === 'ar' ? 'var(--font-arabic)' : 'var(--font-sans)',
+      navItems, orgGroupLabel:L(D.orgGroup),
+      taglineLabel: lang === 'ar' ? 'مبني لينمو' : 'Built to Grow',
+      langToggleLabel: lang === 'en' ? 'العربية' : 'English',
+      toggleLang:this.toggleLang, toggleNav:this.toggleNav, navOpen:s.navOpen,
+      sidebarClass: 'avl-sidebar' + (s.navOpen ? ' is-open' : ''),
+      scrimClass: 'avl-scrim' + (s.navOpen ? ' is-open' : ''),
+      userNameLabel: lang === 'ar' ? 'سارة القحطاني' : 'Sara Al-Qahtani',
+      userRoleLabel: lang === 'ar' ? 'مسؤول الهيكل التنظيمي' : 'Organization Administrator',
+      vm,
+      filtersLabel:L(D.filters), newLabel:L(D.newRecord),
+      openFilters:this.openFilters, openNew:this.openNew, filtersOpen:s.filtersOpen, closeFilters:this.closeFilters,
+      applyFiltersLabel:L(D.applyFilters), resetLabel:L(D.reset), resetFilters:this.resetFilters,
+      clearLabel:L(D.clear), clearContext:this.clearContext,
+      searchPh:L(D.searchPh), queryValue:s.query, setQuery:this.setQuery,
+      allTypesLabel:L(D.allTypes), typeFilterValue:s.typeFilter, setTypeFilter:this.setTypeFilter,
+      typeColLabel: cfg.typeLabel ? L(cfg.typeLabel) : '', nameColLabel: lang==='ar' ? 'الاسم' : 'Name',
+      statusLabel:L(D.status),
+      saveLabel:L(D.save), cancelLabel:L(D.cancel), closeLabel:L(D.close),
+      deactivateLabel:L(D.deactivate), activateLabel:L(D.activate),
+      closeDrawer:this.closeDrawer, saveDrawer:this.saveDrawer,
+      recordInfoLabel:L(D.recordInfo), createdByLabel:L(D.createdBy), updatedByLabel:L(D.updatedBy),
+      recordInfoCreated: lang==='ar' ? 'ترحيل النظام · 01 يناير 2024' : 'System Migration · 01 Jan 2024',
+      recordInfoUpdated: lang==='ar' ? 'خ. المطيري · 14 يوليو 2026' : 'K. Al-Mutairi · 14 Jul 2026',
+      deactivateBlockedTitle: lang==='ar' ? 'تعذّر إلغاء التفعيل' : 'Cannot deactivate',
+      flaggedBadgeLabel:L(D.flaggedBadge), flaggedNoteLabel:L(D.flaggedNote), manageRegionTypesLabel:L(D.manageRegionTypes),
+      branchLabel:L(D.branch), selectBranchPh:L(D.selectBranchPh), selectBranch:this.selectBranch,
+      addRootLabel:L(D.addRoot), addRootNode:this.addRootNode, closeNodePanel:this.closeNodePanel,
+      emptyBranchPromptLabel:L(D.selectBranchPrompt),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

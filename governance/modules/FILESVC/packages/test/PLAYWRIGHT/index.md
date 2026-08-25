@@ -1,3 +1,0 @@
-# Index — test/PLAYWRIGHT
-
-- [PLAYWRIGHT](PLAYWRIGHT.md)

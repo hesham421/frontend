@@ -1,0 +1,111 @@
+/* ============================================================
+   AVELYNQ — Color System
+   Anchored to the brand mark: deep navy foundation, a confident
+   structural blue (trust), and a teal ascent accent (growth).
+   Disciplined, timeless, enterprise. Solid colors lead;
+   gradient is reserved for brand expression only.
+   ============================================================ */
+:root {
+  /* ---- Brand · Navy / Ink (foundation, dark surfaces) ---- */
+  --navy-950: #030814;
+  --navy-900: #060E1E;
+  --navy-850: #0A1628;
+  --navy-800: #0F1E33;
+  --navy-700: #16284290;
+
+  /* ---- Brand · Blue (primary / trust) ---- */
+  --blue-50:  #EAF1FE;
+  --blue-100: #D3E2FC;
+  --blue-200: #ADC7F7;
+  --blue-300: #79A1EE;
+  --blue-400: #4078E2;
+  --blue-500: #2466D8;
+  --blue-600: #1B54BC;
+  --blue-700: #16459C;
+  --blue-800: #143A80;
+  --blue-900: #122F63;
+
+  /* ---- Brand · Teal (growth / ascent accent) ---- */
+  --teal-50:  #E2F7F4;
+  --teal-100: #BFEEE8;
+  --teal-200: #8FE0D7;
+  --teal-300: #4FCcC0;
+  --teal-400: #1FBBAD;
+  --teal-500: #12A99B;
+  --teal-600: #0E8C80;
+  --teal-700: #0C7167;
+
+  /* ---- Brand · Steel (metallic neutral accent — the arch) ---- */
+  --steel-300: #C9CED6;
+  --steel-400: #AEB4BF;
+  --steel-500: #8C94A1;
+
+  /* ---- Neutral · Slate (cool-tinted to sit with navy) ---- */
+  --slate-0:   #FFFFFF;
+  --slate-25:  #F8FAFC;
+  --slate-50:  #F1F5F9;
+  --slate-100: #E6ECF3;
+  --slate-200: #D4DDE7;
+  --slate-300: #B7C3D1;
+  --slate-400: #8C9AAC;
+  --slate-500: #647488;
+  --slate-600: #4A5A6E;
+  --slate-700: #354456;
+  --slate-800: #20303F;
+  --slate-900: #14222F;
+  --slate-950: #0B1622;
+
+  /* ---- Semantic · status (restrained, enterprise) ---- */
+  --green-50:  #E7F4EC;  --green-500: #1F9D5F;  --green-600: #17804D;  --green-700: #126340;
+  --amber-50:  #FBF1DF;  --amber-500: #C77D11;  --amber-600: #A4640A;  --amber-700: #7E4D08;
+  --red-50:    #FBE9E7;  --red-500:   #CB3A2D;  --red-600:   #A92E23;  --red-700:   #87241C;
+  --info-50:   #E7F0FB;  --info-500:  #2466D8;  --info-600:  #1B54BC;
+
+  /* =========================================================
+     SEMANTIC ALIASES — reference these in product code
+     ========================================================= */
+
+  /* Brand */
+  --brand-primary:        var(--blue-500);
+  --brand-primary-hover:  var(--blue-600);
+  --brand-primary-active: var(--blue-700);
+  --brand-accent:         var(--teal-500);
+  --brand-accent-hover:   var(--teal-600);
+  --brand-ink:            var(--navy-850);
+  --brand-gradient:       linear-gradient(135deg, var(--teal-400) 0%, var(--blue-500) 100%);
+
+  /* Text */
+  --text-strong:   var(--slate-900);
+  --text-body:     var(--slate-700);
+  --text-muted:    var(--slate-500);
+  --text-subtle:   var(--slate-400);
+  --text-onbrand:  #FFFFFF;
+  --text-link:     var(--blue-600);
+  --text-disabled: var(--slate-400);
+
+  /* Surfaces */
+  --surface-page:    var(--slate-50);
+  --surface-card:    #FFFFFF;
+  --surface-sunken:  var(--slate-100);
+  --surface-hover:   var(--slate-50);
+  --surface-inverse: var(--navy-850);
+  --surface-brand-subtle: var(--blue-50);
+  --surface-accent-subtle: var(--teal-50);
+
+  /* Borders */
+  --border-subtle:  var(--slate-200);
+  --border-default: var(--slate-300);
+  --border-strong:  var(--slate-400);
+  --border-brand:   var(--blue-500);
+  --border-inverse: #21344B;
+
+  /* Status (fg on subtle bg / solid bg) */
+  --status-success:    var(--green-600);  --status-success-bg: var(--green-50);
+  --status-warning:    var(--amber-600);  --status-warning-bg: var(--amber-50);
+  --status-danger:     var(--red-600);    --status-danger-bg:  var(--red-50);
+  --status-info:       var(--info-600);   --status-info-bg:    var(--info-50);
+  --status-neutral:    var(--slate-600);  --status-neutral-bg: var(--slate-100);
+
+  /* Focus */
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--blue-500) 35%, transparent);
+}

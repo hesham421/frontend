@@ -1,0 +1,59 @@
+/* ============================================================
+   AVELYNQ — Spacing, Radii, Sizing
+   4px base grid. Structured, predictable, dense-friendly.
+   ============================================================ */
+:root {
+  /* Spacing scale (4px base) */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+  --space-11: 80px;
+  --space-12: 96px;
+
+  /* Radii — measured, architectural; never pill-soft for data UI */
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 20px;
+  --radius-pill: 999px;
+
+  /* Control heights — consistent hit targets */
+  --control-sm: 30px;
+  --control-md: 38px;
+  --control-lg: 44px;
+
+  /* Layout */
+  --sidebar-width: 264px;
+  --sidebar-collapsed: 72px;
+  --topbar-height: 60px;
+  --container-max: 1440px;
+  --page-pad: 24px;
+}
+
+/* ============================================================
+   Responsive layout token overrides — the same semantic tokens
+   resolve to tighter values as the viewport narrows, so every
+   surface that references them reflows automatically.
+   ============================================================ */
+@media (max-width: 1279px) {
+  :root { --page-pad: 24px; }
+}
+@media (max-width: 1023px) {
+  :root { --page-pad: 20px; --topbar-height: 58px; }
+}
+@media (max-width: 767px) {
+  :root { --page-pad: 16px; --topbar-height: 56px; }
+}
+@media (max-width: 479px) {
+  :root { --page-pad: 13px; }
+}

@@ -1,0 +1,9 @@
+/* ============================================================
+   AVELYNQ — Webfonts
+   Cairo font family for UI, Display, and Arabic support.
+   - Cairo           → UI, display, and bilingual EN/AR parity
+   - IBM Plex Mono   → data, codes, GL numbers, figures
+   Loaded from Google Fonts. To self-host, replace this @import
+   with local @font-face rules pointing at /assets/fonts.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap');

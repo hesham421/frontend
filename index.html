@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AVELYNQ ERP — Enterprise Continuity System</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css" />
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+    body { background: var(--surface-page, #f8fafc); font-family: var(--font-sans, 'Cairo', -apple-system, sans-serif); color: var(--text-body, #334155); }
+    #root { height: 100vh; display: flex; flex-direction: column; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: var(--slate-300, #cbd5e1); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--slate-400, #94a3b8); }
+    @keyframes avl-spin { to { transform: rotate(360deg); } }
+    @keyframes avl-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .avl-screen { animation: avl-fade var(--dur-slow, 280ms) var(--ease-out, cubic-bezier(0.2,0,0.1,1)); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

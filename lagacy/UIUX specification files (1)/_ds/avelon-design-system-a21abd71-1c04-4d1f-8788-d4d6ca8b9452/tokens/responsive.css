@@ -1,0 +1,287 @@
+/* ============================================================
+   AVELYNQ — Responsive Layout System
+   Production utilities for the Angular ERP shell. These classes
+   govern LAYOUT + RESPONSIVENESS only — no colors, no visual
+   redesign. They are logical-property aware (LTR/RTL) and need
+   no JavaScript except toggling `.is-open` on the sidebar.
+
+   Breakpoints (see breakpoints.css):  sm 480 · md 768 · lg 1024 · xl 1280
+   At ≥1024 (lg) the layout is the approved desktop layout exactly.
+   ============================================================ */
+
+[class^="avl-"],
+[class*=" avl-"],
+[class^="avl-"] *,
+[class*=" avl-"] * { box-sizing: border-box; }
+
+/* ---------- Application shell ----------------------------------- */
+.avl-app {
+  display: flex;
+  height: 100%;
+  min-height: 100%;
+  position: relative;
+}
+.avl-app__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.avl-app__main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ---------- Sidebar — static rail on laptop+desktop (≥lg),
+   off-canvas drawer on tablet+mobile (<lg). The desktop/laptop
+   experience is unchanged; only ≤1023px gets the drawer. -------- */
+.avl-sidebar {
+  flex-shrink: 0;
+  height: 100%;
+}
+.avl-scrim { display: none; }
+
+@media (max-width: 1023px) {
+  .avl-sidebar {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 1100;
+    max-width: 86vw;
+    transform: translateX(-102%);
+    transition: transform var(--dur-base, 180ms) var(--ease-standard, ease);
+    will-change: transform;
+  }
+  .avl-sidebar.is-open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-xl);
+  }
+  [dir="rtl"] .avl-sidebar {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+    transform: translateX(102%);
+  }
+  [dir="rtl"] .avl-sidebar.is-open { transform: translateX(0); }
+
+  .avl-scrim.is-open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1090;
+    background: rgba(3, 8, 20, 0.55);
+    animation: avl-scrim-in var(--dur-fast, 120ms) var(--ease-standard, ease);
+  }
+}
+@keyframes avl-scrim-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Hamburger — only present where the drawer applies (<lg) */
+.avl-menu-btn { display: none; }
+@media (max-width: 1023px) { .avl-menu-btn { display: inline-flex; } }
+
+/* ---------- Container & page padding --------------------------- */
+.avl-container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+}
+.avl-page { padding: var(--page-pad); }
+
+/* ---------- Responsive grids (no JS, no inline conflicts) ------- */
+.avl-grid { display: grid; gap: var(--space-4); }
+.avl-grid--stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.avl-grid--3     { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.avl-grid--2     { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.avl-grid--split { grid-template-columns: 1.5fr 1fr; align-items: start; gap: var(--space-5); }
+/* fills the row with as many tracks as fit — ideal for KPI/card walls */
+.avl-grid--auto  { grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); }
+
+@media (max-width: 1023px) {
+  .avl-grid--stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .avl-grid--3     { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .avl-grid--split { grid-template-columns: 1fr; }
+}
+@media (max-width: 767px) {
+  .avl-grid--3 { grid-template-columns: 1fr; }
+  .avl-grid--2 { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .avl-grid--stats { grid-template-columns: 1fr; }
+}
+
+/* ---------- Cluster: wrapping toolbar / button row ------------- */
+.avl-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.avl-cluster--between { justify-content: space-between; }
+
+/* Page header: title block + actions, stacks on small screens */
+.avl-pagehead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.avl-pagehead > * { min-width: 0; }
+
+/* ---------- Data table: horizontal scroll on small screens ----- */
+/* Dense financial tables stay tabular and scroll sideways rather
+   than crushing columns — the enterprise-correct mobile behavior. */
+.avl-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.avl-table-scroll > table { min-width: 760px; }
+
+/* ---------- Split auth / marketing layout --------------------- */
+.avl-split { display: flex; height: 100%; }
+.avl-split__aside { flex: 1 1 46%; min-width: 0; }
+.avl-split__main  { flex: 1 1 54%; min-width: 0; }
+@media (max-width: 767px) {
+  .avl-split__aside { display: none; }
+  .avl-split__main  { flex: 1 1 100%; }
+}
+
+/* ---------- Dialog / modal (responsive) ----------------------- */
+/* Centered modal on desktop/laptop/tablet; docks as a bottom sheet
+   on phones. Body scrolls within a capped height; never redesigns
+   the surface — same card treatment, just responsive geometry. */
+.avl-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+}
+.avl-dialog__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 8, 20, 0.55);
+  animation: avl-scrim-in var(--dur-fast, 120ms) var(--ease-standard, ease);
+}
+.avl-dialog__panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-height: calc(100dvh - 2 * var(--space-6));
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  animation: avl-dialog-in var(--dur-base, 180ms) var(--ease-out, ease);
+}
+.avl-dialog--sm .avl-dialog__panel { max-width: 420px; }
+.avl-dialog--md .avl-dialog__panel { max-width: 560px; }
+.avl-dialog--lg .avl-dialog__panel { max-width: 760px; }
+.avl-dialog__body { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.avl-dialog__footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+@keyframes avl-dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.99); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Phones: dock the dialog as a bottom sheet */
+@media (max-width: 560px) {
+  .avl-dialog { padding: 0; align-items: flex-end; }
+  .avl-dialog .avl-dialog__panel {
+    max-width: none;
+    max-height: 92dvh;
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+    animation: avl-sheet-in var(--dur-base, 180ms) var(--ease-out, ease);
+  }
+  .avl-dialog__footer { flex-direction: column-reverse; }
+  .avl-dialog__footer > * { width: 100%; }
+}
+@keyframes avl-sheet-in {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avl-dialog__panel, .avl-dialog__scrim { animation: none; }
+}
+
+/* ---------- Drawer / side panel (responsive) ------------------ */
+/* Slides in from the inline-END: right edge in LTR, left edge in RTL
+   (logical properties — no per-direction markup). Full-screen on
+   phones. Same card surface as Dialog; complements it for record
+   details, create/edit forms, filters, and contextual workflows. */
+.avl-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+}
+.avl-drawer__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 8, 20, 0.55);
+  animation: avl-scrim-in var(--dur-fast, 120ms) var(--ease-standard, ease);
+}
+.avl-drawer__panel {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  animation: avl-drawer-in var(--dur-base, 180ms) var(--ease-out, ease);
+}
+.avl-drawer--sm .avl-drawer__panel { max-width: 360px; }
+.avl-drawer--md .avl-drawer__panel { max-width: 480px; }
+.avl-drawer--lg .avl-drawer__panel { max-width: 640px; }
+.avl-drawer__body { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.avl-drawer__footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+@keyframes avl-drawer-in { from { transform: translateX(100%); } to { transform: none; } }
+[dir="rtl"] .avl-drawer__panel { animation-name: avl-drawer-in-rtl; }
+@keyframes avl-drawer-in-rtl { from { transform: translateX(-100%); } to { transform: none; } }
+
+/* Phones: full-screen panel */
+@media (max-width: 560px) {
+  .avl-drawer .avl-drawer__panel { max-width: none; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avl-drawer__panel, .avl-drawer__scrim { animation: none; }
+}
+
+/* ---------- Visibility helpers -------------------------------- */
+@media (max-width: 1023px) { .avl-hide-lg-down { display: none !important; } }
+@media (max-width: 767px)  { .avl-hide-md-down { display: none !important; } }
+@media (max-width: 560px)  { .avl-hide-sm-down { display: none !important; } }
+@media (min-width: 1024px) { .avl-only-lg-down { display: none !important; } }
+@media (min-width: 768px)  { .avl-only-md-down { display: none !important; } }
+
+/* ---------- Coarse-pointer touch targets ---------------------- */
+/* On touch devices, raise small controls to the 44px AA target. */
+@media (pointer: coarse) {
+  .avl-touch-target { min-height: 44px; min-width: 44px; }
+}
+
+/* Hide the horizontal scrollbar on the Tabs strip (webkit) */
+.avl-tabs::-webkit-scrollbar { display: none; }
+
+/* ---------- Reduced motion ------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .avl-sidebar { transition: none; }
+  .avl-scrim.is-open { animation: none; }
+}
