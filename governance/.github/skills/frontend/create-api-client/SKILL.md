@@ -35,7 +35,15 @@ src/features/<feature>/api/<ENTITY_CAMEL>Api.ts
 ```ts
 const BASE = import.meta.env.VITE_API_URL;                         // R.2.3
 
-interface Envelope<T> { data: T; errorCode?: string; message?: string; correlationId?: string }
+// Matches the backend's actual ApiResponse<T>/ApiError/FieldErrorItem shape
+// (com.erp.common.web) — do not simplify this to a flat { data, errorCode }
+// shape, the backend never sends one.
+interface EnvelopeError {
+  code?: string;
+  details?: string;
+  fieldErrors?: { field: string; message: string }[];
+}
+interface Envelope<T> { success?: boolean; message?: string; data: T; error?: EnvelopeError; correlationId?: string }
 
 export interface RequestOptions extends Omit<RequestInit, 'body'> {
   body?: unknown;
@@ -67,13 +75,18 @@ export async function apiClient<T>(path: string, options: RequestOptions = {}, i
 
   if (res.status === 204) return undefined as T;
 
-  const payload = (await res.json().catch(() => ({}))) as Partial<Envelope<T>> & { fieldErrors?: Record<string, string> };
+  const payload = (await res.json().catch(() => ({}))) as Partial<Envelope<T>>;
 
   if (!res.ok) {
+    // Backend sends field errors as an array ([{ field, message }]) — collapse to a
+    // Record once, here, so create-forms' applyServerErrors can keep using Object.entries.
+    const fieldErrors = payload.error?.fieldErrors?.length
+      ? Object.fromEntries(payload.error.fieldErrors.map((fe) => [fe.field, fe.message]))
+      : null;
     throw new ApiError(                               // R.2.5
       kindFromStatus(res.status), res.status,
-      payload.errorCode ?? null, payload.correlationId ?? null,
-      payload.fieldErrors ?? null, payload.message ?? `HTTP ${res.status}`,
+      payload.error?.code ?? null, payload.correlationId ?? null,
+      fieldErrors, payload.message ?? payload.error?.details ?? `HTTP ${res.status}`,
     );
   }
 
@@ -91,6 +104,15 @@ export const http = {
 No retry, no cache, no dedupe (R.2.10) — retry is a QueryClient default, caching is the
 QueryClient's job, and dedupe is automatic on shared keys. Duplicating them here produces
 two policies that drift.
+
+**Envelope shape is not this skill's to invent.** It must match the backend's actual
+`ApiResponse<T>` / `ApiError` / `FieldErrorItem` (`com.erp.common.web`, see
+`backend/governance/.github/context/api-contract.md`) exactly: `error` is a nested object
+(`error.code`, `error.fieldErrors`), never flattened to a top-level `errorCode` field, and
+`fieldErrors` arrives as an array of `{ field, message }`, never a `Record`. Corrected
+2026-08-28 — a prior version of this skill assumed a flat, un-verified shape that never
+matched what the backend sends, which silently broke error-code and field-error handling
+in every feature built from it.
 
 ## Step 2 — Feature api module
 

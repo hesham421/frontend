@@ -12,10 +12,15 @@ Invokes    : frontend/governance/governance-tools/agent1_create_structure.py,
 ## Your Task
 
 Scan this repo for the specified module and generate three files:
-1. `.claude/commands/execute-frontend.md` — implementation phase execution
-2. `.claude/commands/execute-frontend-test.md` — test phase execution,
+1. `.claude/commands/[MODULE]/execute-frontend.md` — implementation phase execution
+2. `.claude/commands/[MODULE]/execute-frontend-test.md` — test phase execution,
    gated on execute-frontend.md's phases
 3. `execution-state.json` — state tracker for both
+
+Each module gets its own `.claude/commands/[MODULE]/` folder — never write
+back to the flat `.claude/commands/execute-frontend.md` (no module name,
+collides with every other module's setup, and silently overwrites whatever
+module was generated last).
 
 Both generated commands reference `TEST-EXECUTION-AGENT.md` for MCP
 boundaries and the failure taxonomy — shared across modules, not
@@ -202,15 +207,15 @@ No `deferred_xm` field here — XM-IDs never appear in frontend state at all.
 
 ---
 
-## Step 3 — Generate `.claude/commands/execute-frontend.md`
+## Step 3 — Generate `.claude/commands/[MODULE]/execute-frontend.md`
 
 ```markdown
-# /project:execute-frontend
+# /[MODULE]/execute-frontend
 
-Execute the current phase for the specified module — with context safety check.
+Execute the current phase for [MODULE] — with context safety check.
 
 ## Usage
-/project:execute-frontend [MODULE] [PHASE]
+/[MODULE]/execute-frontend [PHASE]
 
 ---
 
@@ -300,17 +305,17 @@ Phase/sub completed, tasks executed, blocked items, any api_doc_gaps added.
 
 ---
 
-## Step 3B — Generate `.claude/commands/execute-frontend-test.md`
+## Step 3B — Generate `.claude/commands/[MODULE]/execute-frontend-test.md`
 
 ```markdown
-# /project:execute-frontend-test
+# /[MODULE]/execute-frontend-test
 
 Execute test scenarios for [MODULE] — only for what's actually complete.
 
 > Read `TEST-EXECUTION-AGENT.md` first.
 
 ## Usage
-/project:execute-frontend-test [MODULE]
+/[MODULE]/execute-frontend-test
 
 ---
 
@@ -382,8 +387,8 @@ Preconditions:
   ALIGN-FE ✓                    : [✓ / override logged]
 
 execution-state.json      ✓  governance/modules/[MODULE]/ (this repo)
-execute-frontend.md       ✓  .claude/commands/
-execute-frontend-test.md  ✓  .claude/commands/
+execute-frontend.md       ✓  .claude/commands/[MODULE]/
+execute-frontend-test.md  ✓  .claude/commands/[MODULE]/
 
 Phases detected       : [count]
 Total subs detected   : [count]
@@ -394,10 +399,10 @@ Weight map:
   [PHASE] / [SUB]  → [WEIGHT]  ([N] tasks)
 
 To start execution:
-  /project:execute-frontend [MODULE] [FIRST_PHASE]
+  /[MODULE]/execute-frontend [FIRST_PHASE]
 
 To run tests once implementation is COMPLETE:
-  /project:execute-frontend-test [MODULE]
+  /[MODULE]/execute-frontend-test
 ══════════════════════════════════════════════════════
 ```
 

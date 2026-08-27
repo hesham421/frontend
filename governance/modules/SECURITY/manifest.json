@@ -5,16 +5,16 @@
     "split": false
   },
   "artifacts": {
-    "p3_2": "/Users/ezzat/my project/frontend/governance/modules/SECURITY/P3_2",
-    "p3_5_fe": "/Users/ezzat/my project/frontend/governance/modules/SECURITY/P3_5_FE"
+    "p3_2": "modules/SECURITY/P3_2",
+    "p3_5_fe": "modules/SECURITY/P3_5_FE"
   },
   "registries": {
-    "exec_fe": "/Users/ezzat/my project/frontend/governance/modules/SECURITY/P3_2/registry-exec-fe-security.md",
-    "test_fe": "/Users/ezzat/my project/frontend/governance/modules/SECURITY/P3_5_FE/registry-test-fe-security.md"
+    "exec_fe": "modules/SECURITY/P3_2/registry-exec-fe-security.md",
+    "test_fe": "modules/SECURITY/P3_5_FE/registry-test-fe-security.md"
   },
   "packages": {
-    "frontend_execution": "/Users/ezzat/my project/frontend/governance/modules/SECURITY/packages/frontend-execution",
-    "frontend_test": "/Users/ezzat/my project/frontend/governance/modules/SECURITY/packages/frontend-test"
+    "frontend_execution": "modules/SECURITY/packages/frontend-execution",
+    "frontend_test": "modules/SECURITY/packages/frontend-test"
   },
   "created_at": "2026-08-27T16:50:53.365844",
   "archived_at": "2026-08-27T16:54:42.999002",

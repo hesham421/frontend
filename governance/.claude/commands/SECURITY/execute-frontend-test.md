@@ -1,11 +1,11 @@
-# /project:execute-frontend-test
+# /SECURITY/execute-frontend-test
 
 Execute test scenarios for SECURITY — only for what's actually complete.
 
 > Read `TEST-EXECUTION-AGENT.md` first.
 
 ## Usage
-/project:execute-frontend-test [MODULE]
+/SECURITY/execute-frontend-test
 
 ---
 

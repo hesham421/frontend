@@ -216,6 +216,15 @@ def build_manifest(mod: str) -> dict:
     manifest.json for the same module (never merged, never synced).
     """
     base = get_module_path(mod)
+
+    # Relative to REPO_BASE_PATH, never absolute — see the matching note
+    # in backend's config.py. An absolute path here bakes in the
+    # checking-out machine's home directory and this folder's name at
+    # generation time, both of which differ across machines and drift
+    # on any rename/move.
+    def rel(p: Path) -> str:
+        return str(p.relative_to(REPO_BASE_PATH))
+
     return {
         "module": mod,
         "status": {
@@ -223,15 +232,15 @@ def build_manifest(mod: str) -> dict:
             "split":    False,
         },
         "artifacts": {
-            "p3_2":    str(base / MODULE_STRUCTURE["P3_2"]),
-            "p3_5_fe": str(base / MODULE_STRUCTURE["P3_5_FE"]),
+            "p3_2":    rel(base / MODULE_STRUCTURE["P3_2"]),
+            "p3_5_fe": rel(base / MODULE_STRUCTURE["P3_5_FE"]),
         },
         "registries": {
-            "exec_fe": str(base / MODULE_STRUCTURE["P3_2"] / f"registry-exec-fe-{mod.lower()}.md"),
-            "test_fe": str(base / MODULE_STRUCTURE["P3_5_FE"] / f"registry-test-fe-{mod.lower()}.md"),
+            "exec_fe": rel(base / MODULE_STRUCTURE["P3_2"] / f"registry-exec-fe-{mod.lower()}.md"),
+            "test_fe": rel(base / MODULE_STRUCTURE["P3_5_FE"] / f"registry-test-fe-{mod.lower()}.md"),
         },
         "packages": {
-            "frontend_execution": str(base / "packages" / "frontend-execution"),
-            "frontend_test":      str(base / "packages" / "frontend-test"),
+            "frontend_execution": rel(base / "packages" / "frontend-execution"),
+            "frontend_test":      rel(base / "packages" / "frontend-test"),
         },
     }

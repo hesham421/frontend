@@ -1,9 +1,9 @@
-# /project:execute-frontend
+# /SECURITY/execute-frontend
 
-Execute the current phase for the specified module — with context safety check.
+Execute the current phase for SECURITY — with context safety check.
 
 ## Usage
-/project:execute-frontend [MODULE] [PHASE]
+/SECURITY/execute-frontend [PHASE]
 
 ---
 
@@ -22,7 +22,7 @@ Execute the current phase for the specified module — with context safety check
 ### 0.4 — Print assessment, wait for confirmation
 ```
 ══════════════════════════════════════════════════════
-PHASE ASSESSMENT — [MODULE] / [PHASE]
+PHASE ASSESSMENT — SECURITY / [PHASE]
 ══════════════════════════════════════════════════════
 Subs pending : [list, weight + task count each]
 Plan         : [one pass / chunked — list chunks]

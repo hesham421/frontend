@@ -46,3 +46,8 @@ Thumbs.db
 
 # Docker overrides
 docker-compose.override.yml
+
+# Python (governance-tools) — compiled bytecode is interpreter/machine
+# specific and must never be committed
+__pycache__/
+*.pyc
