@@ -64,7 +64,7 @@ Review           enforce-* as needed → validate-frontend-feature
 ## Install
 
 ```bash
-cp -r react-erp-skills/* .claude/skills/
+cp -r governance/.github/skills/frontend/* .claude/skills/
 ```
 
 Or, using the [Agent Skills](https://agentskills.io/) CLI that `vercel-labs/agent-skills`
