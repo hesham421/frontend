@@ -253,6 +253,60 @@ const translations: Record<Language, Record<string, string>> = {
     confirmReactivate: 'Are you sure you want to reactivate this record?',
     confirmDeleteFile: 'Are you sure you want to remove this attached file?',
     confirmToggleChannel: 'Are you sure you want to change the operating status of this communication channel?',
+    confirmDeleteUserPrefix: 'Permanently remove user account',
+    confirmDeactivateRolePrefix: 'Deactivate role',
+    confirmReactivateRolePrefix: 'Reactivate role',
+    confirmDeactivatePagePrefix: 'Deactivate page',
+    confirmReactivatePagePrefix: 'Reactivate page',
+
+    // Load errors & retry
+    unableToLoadTitle: 'Unable to load data',
+    retry: 'Retry',
+
+    // Action errors (mapApiError — src/lib/errors/mapApiError.ts). The
+    // backend's own wording never reaches the UI; these are the only
+    // messages a failed action can ever show.
+    errNetwork: 'Connection problem. Please check your connection and try again.',
+    errUnauthenticated: 'Your session has expired. Please sign in again.',
+    errForbidden: "You don't have permission to perform this action. Contact your administrator if you believe this is a mistake.",
+    errNotFound: 'This record no longer exists. Please refresh and try again.',
+    errValidation: 'The submitted data is not valid. Please check the fields and try again.',
+    errConflict: 'This action conflicts with existing data. Please review and try again.',
+    errServer: 'Something went wrong on our end. Please try again.',
+    errUnknown: 'Something went wrong. Please try again.',
+    errPermissionAlreadyExists: 'A permission with this name already exists. Choose a different name.',
+    userCreatedRoleAssignFailed: 'User created, but role assignment failed. Edit the user to assign roles.',
+    dataScopeSavedSuccess: 'Data scope saved successfully.',
+    dataScopeDeletedSuccess: 'Data scope removed successfully.',
+    userProfileSavedSuccess: 'Profile saved successfully.',
+
+    // Pagination
+    prevPage: 'Previous',
+    nextPage: 'Next',
+
+    // Success toasts
+    roleSavedSuccess: 'Role saved successfully.',
+    roleCreatedSuccess: 'Role created successfully.',
+    roleActivatedSuccess: 'Role activated successfully.',
+    roleDeactivatedSuccess: 'Role deactivated successfully.',
+    userSavedSuccess: 'User saved successfully.',
+    userCreatedSuccess: 'User created successfully.',
+    userDeletedSuccess: 'User account removed successfully.',
+    permissionSavedSuccess: 'Permission saved successfully.',
+    permissionCreatedSuccess: 'Permission created successfully.',
+    pageSavedSuccess: 'Page saved successfully.',
+    pageCreatedSuccess: 'Page created successfully.',
+    pageDeactivatedSuccess: 'Page deactivated successfully.',
+    pageReactivatedSuccess: 'Page reactivated successfully.',
+
+    // Table column headers missing translation
+    colScreenPage: 'Screen / Page',
+    colTargetPage: 'Target Page',
+    colAssociatedScreen: 'Associated Screen',
+    colModule: 'Module',
+    colRouteUrl: 'Route URL',
+    viewGrants: 'VIEW Grants',
+    writeAdminGrants: 'Write / Admin Grants',
   },
   ar: {
     // Brand & App
@@ -496,6 +550,58 @@ const translations: Record<Language, Record<string, string>> = {
     confirmReactivate: 'هل أنت متأكد من رغبتك في إعادة تفعيل هذا السجل؟',
     confirmDeleteFile: 'هل أنت متأكد من رغبتك في حذف هذا الملف المرفق؟',
     confirmToggleChannel: 'هل أنت متأكد من تغيير الحالة التشغيلية لقناة الاتصال هذه؟',
+    confirmDeleteUserPrefix: 'حذف حساب المستخدم',
+    confirmDeactivateRolePrefix: 'تعطيل الدور',
+    confirmReactivateRolePrefix: 'إعادة تفعيل الدور',
+    confirmDeactivatePagePrefix: 'تعطيل الصفحة',
+    confirmReactivatePagePrefix: 'إعادة تفعيل الصفحة',
+
+    // Load errors & retry
+    unableToLoadTitle: 'تعذّر تحميل البيانات',
+    retry: 'إعادة المحاولة',
+
+    // Action errors (mapApiError — src/lib/errors/mapApiError.ts)
+    errNetwork: 'مشكلة في الاتصال. يرجى التحقق من الاتصال والمحاولة مرة أخرى.',
+    errUnauthenticated: 'انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى.',
+    errForbidden: 'ليس لديك صلاحية لتنفيذ هذا الإجراء. تواصل مع مسؤول النظام إذا كنت تعتقد أن هذا خطأ.',
+    errNotFound: 'لم يعد هذا السجل موجوداً. يرجى تحديث الصفحة والمحاولة مرة أخرى.',
+    errValidation: 'البيانات المُدخلة غير صحيحة. يرجى مراجعة الحقول والمحاولة مرة أخرى.',
+    errConflict: 'يتعارض هذا الإجراء مع بيانات موجودة. يرجى المراجعة والمحاولة مرة أخرى.',
+    errServer: 'حدث خطأ من جانبنا. يرجى المحاولة مرة أخرى.',
+    errUnknown: 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
+    errPermissionAlreadyExists: 'توجد صلاحية بهذا الاسم بالفعل. اختر اسماً مختلفاً.',
+    userCreatedRoleAssignFailed: 'تم إنشاء المستخدم، لكن تعيين الأدوار فشل. عدّل المستخدم لتعيين الأدوار.',
+    dataScopeSavedSuccess: 'تم حفظ نطاق البيانات بنجاح.',
+    dataScopeDeletedSuccess: 'تم إزالة نطاق البيانات بنجاح.',
+    userProfileSavedSuccess: 'تم حفظ الملف الشخصي بنجاح.',
+
+    // Pagination
+    prevPage: 'السابق',
+    nextPage: 'التالي',
+
+    // Success toasts
+    roleSavedSuccess: 'تم حفظ الدور بنجاح.',
+    roleCreatedSuccess: 'تم إنشاء الدور بنجاح.',
+    roleActivatedSuccess: 'تم تفعيل الدور بنجاح.',
+    roleDeactivatedSuccess: 'تم تعطيل الدور بنجاح.',
+    userSavedSuccess: 'تم حفظ بيانات المستخدم بنجاح.',
+    userCreatedSuccess: 'تم إنشاء المستخدم بنجاح.',
+    userDeletedSuccess: 'تم حذف حساب المستخدم بنجاح.',
+    permissionSavedSuccess: 'تم حفظ الصلاحية بنجاح.',
+    permissionCreatedSuccess: 'تم إنشاء الصلاحية بنجاح.',
+    pageSavedSuccess: 'تم حفظ الصفحة بنجاح.',
+    pageCreatedSuccess: 'تم إنشاء الصفحة بنجاح.',
+    pageDeactivatedSuccess: 'تم تعطيل الصفحة بنجاح.',
+    pageReactivatedSuccess: 'تم إعادة تفعيل الصفحة بنجاح.',
+
+    // Table column headers missing translation
+    colScreenPage: 'الشاشة / الصفحة',
+    colTargetPage: 'الصفحة المستهدفة',
+    colAssociatedScreen: 'الشاشة المرتبطة',
+    colModule: 'الوحدة',
+    colRouteUrl: 'مسار الرابط',
+    viewGrants: 'صلاحيات العرض',
+    writeAdminGrants: 'صلاحيات الإضافة والتعديل',
   },
 };
 

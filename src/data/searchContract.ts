@@ -23,6 +23,18 @@ export interface SearchContractRequest {
   size?: number;
 }
 
+// ERP-wide list-density convention (skills/ui-ux/SKILL.md): 7 rows per page by
+// default across every search-backed list screen, paged via Pagination
+// (components/ui/Pagination.tsx) rather than a longer single scroll.
+export const DEFAULT_PAGE_SIZE = 7;
+
+// Hard backend limit on every `POST /<resource>/search` — confirmed via a live
+// SEARCH_ERROR response ("Page size must not exceed 100") when a cross-screen
+// "give me every X for a picker" query asked for more. Any request building
+// its own `size` to fetch "everything at once" (not a paged UI list) must cap
+// at this, not a bigger number.
+export const MAX_PAGE_SIZE = 100;
+
 // Matches Spring Data's Page<T> (see "Pagination Envelope" in api-docs/index.md).
 export interface PagedResponse<T> {
   content: T[];

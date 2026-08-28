@@ -3,11 +3,14 @@ import { useLanguage } from '../../context/LanguageContext';
 import { usePermissionRegistryFacade } from '../../permissions/hooks';
 import { PERMISSION_TYPES, type PermissionType } from '../../permissions/permissionType';
 import type { PermissionDto } from '../../permissions/permissionsApi';
-import { ApiError } from '../../lib/errors/ApiError';
-import { Breadcrumb, Dialog, EmptyState, Alert } from '../../components/ui/OverlaysAndFeedback';
+import { mapApiError } from '../../lib/errors/mapApiError';
+import { Breadcrumb, Dialog, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
-import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
+import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select } from '../../components/ui/FormControls';
+import { Table, type TableColumn } from '../../components/ui/Table';
+import { Pagination } from '../../components/ui/Pagination';
+import { useToast } from '../../components/ui/Toast';
 
 // API-SEC-029 allowed search fields: name, module. `module` is a real
 // server-side filter (joined via the page's module) even though it is not
@@ -22,8 +25,24 @@ const MODULE_FILTERS = [
 
 export const PermissionsPage: React.FC = () => {
   const { t } = useLanguage();
-  const { permissionList, selectedPerm, isLoading, pageOptions, selectPermission, setSearchFilters, createPermission, updatePermission } =
-    usePermissionRegistryFacade();
+  const { showToast } = useToast();
+  const {
+    permissionList,
+    selectedPerm,
+    isLoading,
+    isListLoading,
+    loadError,
+    page,
+    size,
+    totalElements,
+    pageOptions,
+    selectPermission,
+    setSearchFilters,
+    setPage,
+    retry,
+    createPermission,
+    updatePermission,
+  } = usePermissionRegistryFacade();
 
   const [searchText, setSearchText] = useState('');
   const [moduleFilter, setModuleFilter] = useState('ALL');
@@ -65,12 +84,14 @@ export const PermissionsPage: React.FC = () => {
       if (selectedPerm?.id != null) {
         // Only `name` is writable via update — permissionType/pageId are read-only.
         await updatePermission(selectedPerm.id, name);
+        showToast(t('permissionSavedSuccess'), 'success');
       } else {
         await createPermission({ name, permissionType, pageId: pageId ? Number(pageId) : undefined });
+        showToast(t('permissionCreatedSuccess'), 'success');
       }
       setIsPermDialogOpen(false);
     } catch (err) {
-      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+      setErrorMessage(mapApiError(err, t));
     }
   };
 
@@ -79,6 +100,41 @@ export const PermissionsPage: React.FC = () => {
   const pageSelectOptions = [
     { value: '', label: '-- None / Global --' },
     ...pageOptions.map((p) => ({ value: String(p.id), label: `${p.nameEn} (${p.pageCode})` })),
+  ];
+
+  const permissionColumns: TableColumn<PermissionDto>[] = [
+    {
+      key: 'name',
+      header: t('name'),
+      render: (p) => (
+        <span style={{ fontFamily: 'var(--font-mono, monospace)', fontWeight: 600, color: 'var(--text-strong, #14222F)', fontSize: '13px' }}>
+          {p.name}
+        </span>
+      ),
+    },
+    {
+      key: 'type',
+      header: t('permType'),
+      render: (p) => (
+        <Badge variant={p.permissionType === 'VIEW' ? 'success' : p.permissionType === 'DELETE' ? 'danger' : 'primary'} size="sm">
+          {p.permissionType}
+        </Badge>
+      ),
+    },
+    {
+      key: 'targetPage',
+      header: t('colTargetPage'),
+      render: (p) => {
+        const targetPage = pageOptions.find((s) => s.id === p.pageId);
+        return <span style={{ fontSize: '13px', color: 'var(--text-body, #354456)' }}>{targetPage ? targetPage.nameEn : '—'}</span>;
+      },
+    },
+    {
+      key: 'actions',
+      header: t('actions'),
+      align: 'end',
+      render: (p) => <IconButton icon="ti ti-edit" label={t('edit')} variant="ghost" size="sm" onClick={() => handleOpenEdit(p)} />,
+    },
   ];
 
   return (
@@ -110,26 +166,7 @@ export const PermissionsPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalRecords')}
-          value={permissionList.length}
-          icon={<i className="ti ti-key" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label="VIEW Grants"
-          value={permissionList.filter((p) => p.permissionType === 'VIEW').length}
-          icon={<i className="ti ti-eye" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label="Write / Admin Grants"
-          value={permissionList.filter((p) => p.permissionType !== 'VIEW').length}
-          icon={<i className="ti ti-lock" style={{ color: 'var(--amber-500, #DF8B17)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. Filter Bar */}
+      {/* 2. Filter Bar */}
       <Card variant="flat" padding="md">
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 280px', minWidth: '220px' }}>
@@ -171,77 +208,26 @@ export const PermissionsPage: React.FC = () => {
 
       {errorMessage && <Alert variant="danger" message={errorMessage} />}
 
-      {/* 4. Data Grid */}
+      {/* 3. Data Grid */}
       <Card variant="flat" padding="none">
-        {permissionList.length === 0 ? (
-          <EmptyState
-            icon="ti ti-key-off"
-            title={t('noRecordsFound')}
-            description={t('noRecordsDesc')}
-            action={{ label: t('new'), onClick: handleOpenCreate }}
-          />
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'start' }}>
-              <thead>
-                <tr style={{ background: 'var(--surface-page, #F8FAFC)', borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('name')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('permType')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    Target Page
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'end' }}>
-                    {t('actions')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {permissionList.map((p) => {
-                  const targetPage = pageOptions.find((s) => s.id === p.pageId);
-                  const typeVariant = p.permissionType === 'VIEW' ? 'success' : p.permissionType === 'DELETE' ? 'danger' : 'primary';
-
-                  return (
-                    <tr
-                      key={p.id}
-                      style={{
-                        borderBottom: '1px solid var(--border-subtle, #E6ECF3)',
-                        transition: 'background 120ms ease',
-                      }}
-                    >
-                      <td style={{ padding: '14px 18px', fontFamily: 'var(--font-mono, monospace)', fontWeight: 600, color: 'var(--text-strong, #14222F)', fontSize: '13px' }}>
-                        {p.name}
-                      </td>
-                      <td style={{ padding: '14px 18px' }}>
-                        <Badge variant={typeVariant} size="sm">
-                          {p.permissionType}
-                        </Badge>
-                      </td>
-                      <td style={{ padding: '14px 18px', fontSize: '13px', color: 'var(--text-body, #354456)' }}>
-                        {targetPage ? targetPage.nameEn : '—'}
-                      </td>
-                      <td style={{ padding: '14px 18px', textAlign: 'end' }}>
-                        <IconButton
-                          icon="ti ti-edit"
-                          label={t('edit')}
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenEdit(p)}
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+        <Table<PermissionDto>
+          columns={permissionColumns}
+          rows={permissionList}
+          getRowKey={(p) => p.id!}
+          isLoading={isListLoading}
+          loadError={loadError}
+          onRetry={retry}
+          emptyIcon="ti ti-key-off"
+          emptyTitle={t('noRecordsFound')}
+          emptyDescription={t('noRecordsDesc')}
+          emptyAction={{ label: t('new'), onClick: handleOpenCreate }}
+        />
+        {!loadError && (
+          <Pagination page={page} size={size} totalElements={totalElements} onPageChange={setPage} />
         )}
       </Card>
 
-      {/* 5. Create / Edit Dialog (No Delete button — no real delete endpoint) */}
+      {/* 4. Create / Edit Dialog (No Delete button — no real delete endpoint) */}
       <Dialog
         isOpen={isPermDialogOpen}
         onClose={() => setIsPermDialogOpen(false)}
@@ -273,7 +259,7 @@ export const PermissionsPage: React.FC = () => {
             disabled={!!selectedPerm}
           />
           <Select
-            label="Associated Screen"
+            label={t('colAssociatedScreen')}
             options={pageSelectOptions}
             value={pageId}
             onChange={(e) => setPageId(e.target.value)}

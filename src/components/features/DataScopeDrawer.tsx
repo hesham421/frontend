@@ -8,6 +8,9 @@ import type { SecRoleBranchDto } from '../../roleDataScope/roleDataScopeApi';
 import { Drawer, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button } from '../../components/ui/Button';
 import { Select } from '../../components/ui/FormControls';
+import { branchIdToNumber } from '../../lib/branchId';
+import { mapApiError } from '../../lib/errors/mapApiError';
+import { useToast } from '../../components/ui/Toast';
 
 export interface DataScopeDrawerProps {
   isOpen: boolean;
@@ -16,20 +19,16 @@ export interface DataScopeDrawerProps {
   roleId?: number;
 }
 
-// Same bridge as UserProfileDrawer — Organization's branch ids are mock
-// string slugs until that module is wired to a real numeric-id API.
-function branchIdToNumber(id: string): number {
-  return Number(id.replace(/^\D+/, ''));
-}
-
 export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClose, scope: initialScope, roleId }) => {
   const { t } = useLanguage();
+  const { showToast } = useToast();
   const roleOptions = useRolesOptions();
   const branches = useOrganizationStore((state) => state.branches);
 
   const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(roleId ?? initialScope?.roleIdFk);
   const [selectedBranchId, setSelectedBranchId] = useState<number | undefined>(initialScope?.branchIdFk);
   const [dataAccessLevel, setDataAccessLevel] = useState<DataAccessLevel>(initialScope?.dataAccessLevel ?? 'BRANCH_ONLY');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { scope, isLoading, saveScope, deleteScope } = useRoleDataScopeFacade(selectedRoleId, selectedBranchId);
 
@@ -37,6 +36,7 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
     setSelectedRoleId(roleId ?? initialScope?.roleIdFk);
     setSelectedBranchId(initialScope?.branchIdFk);
     setDataAccessLevel(initialScope?.dataAccessLevel ?? 'BRANCH_ONLY');
+    setErrorMessage(null);
   }, [roleId, initialScope, isOpen]);
 
   useEffect(() => {
@@ -45,14 +45,26 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
 
   const handleSave = async () => {
     if (selectedRoleId == null || selectedBranchId == null) return;
-    await saveScope(dataAccessLevel);
-    onClose();
+    setErrorMessage(null);
+    try {
+      await saveScope(dataAccessLevel);
+      showToast(t('dataScopeSavedSuccess'), 'success');
+      onClose();
+    } catch (err) {
+      setErrorMessage(mapApiError(err, t));
+    }
   };
 
   const handleDelete = async () => {
     if (!scope) return;
-    await deleteScope();
-    onClose();
+    setErrorMessage(null);
+    try {
+      await deleteScope();
+      showToast(t('dataScopeDeletedSuccess'), 'success');
+      onClose();
+    } catch (err) {
+      setErrorMessage(mapApiError(err, t));
+    }
   };
 
   const roleSelectOptions = (roleOptions.data ?? []).map((r) => ({ value: String(r.id), label: `${r.roleName} (${r.roleCode})` }));
@@ -89,6 +101,7 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {errorMessage && <Alert variant="danger" message={errorMessage} />}
         {/* RULE-SEC-036 has no client pre-check — duplicate (role, branch) pairs surface via 409/422 on save. */}
         <Select
           label={`${t('navRoles')} *`}

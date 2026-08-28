@@ -3,10 +3,13 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
 import { useUserProfileFacade } from '../../userProfiles/hooks';
 import type { UserDto } from '../../users/usersApi';
-import { Drawer } from '../../components/ui/OverlaysAndFeedback';
+import { Drawer, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button } from '../../components/ui/Button';
 import { Input, Select } from '../../components/ui/FormControls';
 import { Badge } from '../../components/ui/DataDisplay';
+import { branchIdToNumber } from '../../lib/branchId';
+import { mapApiError } from '../../lib/errors/mapApiError';
+import { useToast } from '../../components/ui/Toast';
 
 export interface UserProfileDrawerProps {
   isOpen: boolean;
@@ -14,16 +17,9 @@ export interface UserProfileDrawerProps {
   user: UserDto | null;
 }
 
-// Organization's own module hasn't been wired to a real API yet (out of
-// SECURITY's scope) — useOrganizationStore's branch ids are mock string
-// slugs ('br-1'), but branchIdFk (RULE-SEC-034) is a real number. Bridges
-// the numeric suffix until Organization ships a real numeric-id branch list.
-function branchIdToNumber(id: string): number {
-  return Number(id.replace(/^\D+/, ''));
-}
-
 export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, onClose, user }) => {
   const { t } = useLanguage();
+  const { showToast } = useToast();
   const branches = useOrganizationStore((state) => state.branches);
   const { profile, isLoading, saveProfile } = useUserProfileFacade(user?.id);
 
@@ -32,6 +28,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
   const [branchId, setBranchId] = useState<number | undefined>(undefined);
   const [preferredLang, setPreferredLang] = useState<'ar' | 'en'>('ar');
   const [employeeId, setEmployeeId] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (profile) {
@@ -47,18 +44,25 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
       setPreferredLang('ar');
       setEmployeeId('');
     }
+    setErrorMessage(null);
   }, [profile, user]);
 
   const handleSave = async () => {
     if (!user?.id || branchId == null) return;
-    await saveProfile({
-      branchIdFk: branchId,
-      fullNameAr,
-      fullNameEn,
-      preferredLang,
-      employeeIdFk: employeeId ? Number(employeeId) : undefined,
-    });
-    onClose();
+    setErrorMessage(null);
+    try {
+      await saveProfile({
+        branchIdFk: branchId,
+        fullNameAr,
+        fullNameEn,
+        preferredLang,
+        employeeIdFk: employeeId ? Number(employeeId) : undefined,
+      });
+      showToast(t('userProfileSavedSuccess'), 'success');
+      onClose();
+    } catch (err) {
+      setErrorMessage(mapApiError(err, t));
+    }
   };
 
   const activeBranches = branches
@@ -88,6 +92,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {errorMessage && <Alert variant="danger" message={errorMessage} />}
         <Input
           label={`${t('fullNameEn')} *`}
           value={fullNameEn}

@@ -4,8 +4,13 @@ import type { CreateRoleRequest, PageAssignmentDto, UpdateRoleRequest } from './
 // F3/SCR-SEC-003 — RULE-SEC-048. roleCode is CREATE-only and immutable
 // (matches UpdateRoleRequest's real shape, which has no roleCode field at
 // all); uniqueness of both fields is ON_SUBMIT/server-only.
-const roleCodeSchema = z.string().regex(/^[A-Z][A-Z0-9_]*$/);
-const roleNameSchema = z.string().min(1).max(60);
+const roleCodeSchema = z
+  .string()
+  .regex(/^[A-Z][A-Z0-9_]*$/, 'Role code must start with a letter and contain only uppercase letters, numbers, and underscores.');
+const roleNameSchema = z
+  .string()
+  .min(1, 'Role name is required.')
+  .max(60, 'Role name must be 60 characters or fewer.');
 
 export const createRoleSchema = z.object({
   roleCode: roleCodeSchema,

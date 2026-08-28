@@ -3,11 +3,15 @@ import { useLanguage } from '../../context/LanguageContext';
 import { usePageRegistryFacade } from '../../pageRegistry/hooks';
 import { createPageSchema, updatePageSchema, excludeSelfFromParentOptions } from '../../pageRegistry/pageRegistry.schema';
 import type { PageResponse } from '../../pageRegistry/pageRegistryApi';
-import { ApiError } from '../../lib/errors/ApiError';
-import { Breadcrumb, Drawer, EmptyState, Alert } from '../../components/ui/OverlaysAndFeedback';
+import { mapApiError } from '../../lib/errors/mapApiError';
+import { Breadcrumb, Drawer, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
-import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
+import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select, Switch } from '../../components/ui/FormControls';
+import { Table, type TableColumn } from '../../components/ui/Table';
+import { Pagination } from '../../components/ui/Pagination';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 
 type StatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
 
@@ -23,14 +27,33 @@ const MODULE_OPTIONS = [
 
 export const PagesRegistryPage: React.FC = () => {
   const { t, lang } = useLanguage();
-  const { pageList, selectedPage, isLoading, kpiCounts, activePages, selectPage, setSearchFilters, createPage, updatePage, deactivatePage, reactivatePage } =
-    usePageRegistryFacade();
+  const { showToast } = useToast();
+  const {
+    pageList,
+    selectedPage,
+    isLoading,
+    isListLoading,
+    loadError,
+    page: pageNum,
+    size,
+    totalElements,
+    activePages,
+    selectPage,
+    setSearchFilters,
+    setPage,
+    retry,
+    createPage,
+    updatePage,
+    deactivatePage,
+    reactivatePage,
+  } = usePageRegistryFacade();
 
   const [searchText, setSearchText] = useState('');
   const [moduleFilter, setModuleFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('ALL');
   const [isPageDrawerOpen, setIsPageDrawerOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [confirmToggle, setConfirmToggle] = useState<{ page: PageResponse; activate: boolean } | null>(null);
 
   const [pageCode, setPageCode] = useState('');
   const [nameEn, setNameEn] = useState('');
@@ -95,6 +118,7 @@ export const PagesRegistryPage: React.FC = () => {
           return;
         }
         await updatePage(selectedPage.id, parsed.data);
+        showToast(t('pageSavedSuccess'), 'success');
       } else {
         const parsed = createPageSchema.safeParse({
           pageCode: pageCode.toUpperCase(),
@@ -113,27 +137,28 @@ export const PagesRegistryPage: React.FC = () => {
           return;
         }
         await createPage(parsed.data);
+        showToast(t('pageCreatedSuccess'), 'success');
       }
       setIsPageDrawerOpen(false);
     } catch (err) {
-      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+      setErrorMessage(mapApiError(err, t));
     }
   };
 
-  const handleDeactivate = async (id: number) => {
+  const handleConfirmToggle = async () => {
+    if (!confirmToggle?.page.id) return;
     try {
-      await deactivatePage(id);
+      if (confirmToggle.activate) {
+        await reactivatePage(confirmToggle.page.id);
+        showToast(t('pageReactivatedSuccess'), 'success');
+      } else {
+        await deactivatePage(confirmToggle.page.id);
+        showToast(t('pageDeactivatedSuccess'), 'success');
+      }
     } catch (err) {
-      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+      setErrorMessage(mapApiError(err, t));
     }
-  };
-
-  const handleReactivate = async (id: number) => {
-    try {
-      await reactivatePage(id);
-    } catch (err) {
-      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
-    }
+    setConfirmToggle(null);
   };
 
   const moduleFilterOptions = [{ value: 'ALL', label: t('all') }, ...MODULE_OPTIONS];
@@ -151,6 +176,92 @@ export const PagesRegistryPage: React.FC = () => {
       activePages.filter((p): p is PageResponse & { id: number } => p.id != null),
       selectedPage?.id,
     ).map((p) => ({ value: String(p.id), label: `${p.nameEn} (${p.pageCode})` })),
+  ];
+
+  // Single-line ellipsis truncation with the full value in `title` — a fixed
+  // row height reads far better in a dense registry than the previous
+  // unconstrained wrapping, which made every row a different height.
+  const truncateStyle: React.CSSProperties = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
+
+  const pageColumns: TableColumn<PageResponse>[] = [
+    {
+      key: 'code',
+      header: t('code'),
+      width: '190px',
+      render: (s) => <Badge variant="neutral" size="sm">{s.pageCode}</Badge>,
+    },
+    {
+      key: 'name',
+      header: t('name'),
+      width: '260px',
+      render: (s) => {
+        const primary = lang === 'ar' ? s.nameAr : s.nameEn;
+        const secondary = lang === 'ar' ? s.nameEn : s.nameAr;
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+            <i className={s.icon || 'ti ti-file'} style={{ color: 'var(--brand-primary, #2466D8)', flexShrink: 0 }} />
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)', fontSize: '14px', ...truncateStyle }} title={primary}>
+                {primary}
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #647488)', ...truncateStyle }} title={secondary}>
+                {secondary}
+              </div>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'module',
+      header: t('colModule'),
+      width: '120px',
+      render: (s) => <Badge variant="primary" size="sm">{s.module}</Badge>,
+    },
+    {
+      key: 'route',
+      header: t('colRouteUrl'),
+      width: '220px',
+      render: (s) => (
+        <span
+          style={{ display: 'block', fontFamily: 'var(--font-mono, monospace)', fontSize: '13px', color: 'var(--text-body, #354456)', ...truncateStyle }}
+          title={s.route}
+        >
+          {s.route}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: t('status'),
+      width: '100px',
+      render: (s) => (
+        <Badge variant={s.active ? 'success' : 'danger'} size="sm">
+          {s.active ? t('active') : t('inactive')}
+        </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('actions'),
+      align: 'end',
+      width: '150px',
+      render: (s) => (
+        <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
+          <IconButton icon="ti ti-edit" label={t('edit')} variant="ghost" size="sm" onClick={() => handleOpenEdit(s)} />
+          {s.id != null &&
+            (s.active ? (
+              <Button variant="secondary" size="sm" onClick={() => setConfirmToggle({ page: s, activate: false })}>
+                {t('deactivate')}
+              </Button>
+            ) : (
+              <Button variant="primary" size="sm" onClick={() => setConfirmToggle({ page: s, activate: true })}>
+                {t('reactivate')}
+              </Button>
+            ))}
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -182,26 +293,7 @@ export const PagesRegistryPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalRecords')}
-          value={kpiCounts.total}
-          icon={<i className="ti ti-layout-grid" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('activeRecords')}
-          value={kpiCounts.active}
-          icon={<i className="ti ti-circle-check" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('inactiveRecords')}
-          value={kpiCounts.inactive}
-          icon={<i className="ti ti-circle-x" style={{ color: 'var(--red-500, #CB3A2D)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. Filter Bar */}
+      {/* 2. Filter Bar */}
       <Card variant="flat" padding="md">
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 280px', minWidth: '220px' }}>
@@ -255,110 +347,26 @@ export const PagesRegistryPage: React.FC = () => {
 
       {errorMessage && <Alert variant="danger" message={errorMessage} />}
 
-      {/* 4. Data Grid (FLAT list — no tree view per OQ-013) */}
+      {/* 3. Data Grid (FLAT list — no tree view per OQ-013) */}
       <Card variant="flat" padding="none">
-        {pageList.length === 0 ? (
-          <EmptyState
-            icon="ti ti-layout-off"
-            title={t('noRecordsFound')}
-            description={t('noRecordsDesc')}
-            action={{ label: t('new'), onClick: handleOpenCreate }}
-          />
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'start' }}>
-              <thead>
-                <tr style={{ background: 'var(--surface-page, #F8FAFC)', borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('code')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('name')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    Module
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    Route URL
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('status')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'end' }}>
-                    {t('actions')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {pageList.map((s) => (
-                  <tr
-                    key={s.id}
-                    style={{
-                      borderBottom: '1px solid var(--border-subtle, #E6ECF3)',
-                      transition: 'background 120ms ease',
-                    }}
-                  >
-                    <td style={{ padding: '14px 18px' }}>
-                      <Badge variant="neutral" size="sm">
-                        {s.pageCode}
-                      </Badge>
-                    </td>
-                    <td style={{ padding: '14px 18px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <i className={s.icon || 'ti ti-file'} style={{ color: 'var(--brand-primary, #2466D8)' }} />
-                        <div>
-                          <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)', fontSize: '14px' }}>
-                            {lang === 'ar' ? s.nameAr : s.nameEn}
-                          </div>
-                          <div style={{ fontSize: '11px', color: 'var(--text-muted, #647488)' }}>
-                            {lang === 'ar' ? s.nameEn : s.nameAr}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '14px 18px' }}>
-                      <Badge variant="primary" size="sm">
-                        {s.module}
-                      </Badge>
-                    </td>
-                    <td style={{ padding: '14px 18px', fontFamily: 'var(--font-mono, monospace)', fontSize: '13px', color: 'var(--text-body, #354456)' }}>
-                      {s.route}
-                    </td>
-                    <td style={{ padding: '14px 18px' }}>
-                      <Badge variant={s.active ? 'success' : 'danger'} size="sm">
-                        {s.active ? t('active') : t('inactive')}
-                      </Badge>
-                    </td>
-                    <td style={{ padding: '14px 18px', textAlign: 'end' }}>
-                      <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
-                        <IconButton
-                          icon="ti ti-edit"
-                          label={t('edit')}
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenEdit(s)}
-                        />
-                        {s.id != null &&
-                          (s.active ? (
-                            <Button variant="secondary" size="sm" onClick={() => handleDeactivate(s.id!)}>
-                              {t('deactivate')}
-                            </Button>
-                          ) : (
-                            <Button variant="primary" size="sm" onClick={() => handleReactivate(s.id!)}>
-                              {t('reactivate')}
-                            </Button>
-                          ))}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <Table<PageResponse>
+          columns={pageColumns}
+          rows={pageList}
+          getRowKey={(s) => s.id!}
+          isLoading={isListLoading}
+          loadError={loadError}
+          onRetry={retry}
+          emptyIcon="ti ti-layout-off"
+          emptyTitle={t('noRecordsFound')}
+          emptyDescription={t('noRecordsDesc')}
+          emptyAction={{ label: t('new'), onClick: handleOpenCreate }}
+        />
+        {!loadError && (
+          <Pagination page={pageNum} size={size} totalElements={totalElements} onPageChange={setPage} />
         )}
       </Card>
 
-      {/* 5. Drawer for Screen Details */}
+      {/* 4. Drawer for Screen Details */}
       <Drawer
         isOpen={isPageDrawerOpen}
         onClose={() => setIsPageDrawerOpen(false)}
@@ -388,7 +396,7 @@ export const PagesRegistryPage: React.FC = () => {
               required
             />
             <Select
-              label="Module *"
+              label={`${t('colModule')} *`}
               options={MODULE_OPTIONS}
               value={module}
               onChange={(e) => setModule(e.target.value)}
@@ -412,7 +420,7 @@ export const PagesRegistryPage: React.FC = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '14px' }}>
             <Input
-              label="Route Path *"
+              label={`${t('colRouteUrl')} *`}
               value={route}
               onChange={(e) => setRoute(e.target.value)}
               placeholder="/security/roles"
@@ -460,6 +468,18 @@ export const PagesRegistryPage: React.FC = () => {
           )}
         </div>
       </Drawer>
+
+      {/* 5. Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={confirmToggle != null}
+        onClose={() => setConfirmToggle(null)}
+        onConfirm={handleConfirmToggle}
+        title={t('confirmActionTitle')}
+        message={`${confirmToggle?.activate ? t('confirmReactivatePagePrefix') : t('confirmDeactivatePagePrefix')} "${confirmToggle?.page.nameEn}"?`}
+        confirmLabel={t('confirm')}
+        cancelLabel={t('cancel')}
+        tone={confirmToggle?.activate ? 'primary' : 'danger'}
+      />
     </div>
   );
 };

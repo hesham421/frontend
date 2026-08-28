@@ -7,6 +7,7 @@ import {
   type PermissionSearchContractRequest,
 } from './permissionsApi';
 import { useActivePages } from '../pageRegistry/hooks';
+import { DEFAULT_PAGE_SIZE } from '../data/searchContract';
 
 // F2-QUERY blocks API-SEC-027..029 (F2/SCR-SEC-004).
 
@@ -42,7 +43,7 @@ export interface PermissionSearchFilters extends PermissionSearchContractRequest
   size: number;
 }
 
-const DEFAULT_FILTERS: PermissionSearchFilters = { filters: [], sorts: [], page: 0, size: 20 };
+const DEFAULT_FILTERS: PermissionSearchFilters = { filters: [], sorts: [], page: 0, size: DEFAULT_PAGE_SIZE };
 
 /**
  * F2-FACADE-HOOK — SCR-SEC-004. Components call this facade only; it
@@ -69,16 +70,25 @@ export function usePermissionRegistryFacade() {
   const refetchCurrentPage = () => search.mutate(searchFilters);
 
   const isLoading = [search, createMutation, updateMutation].some((m) => m.isPending);
+  const permissionList = search.data?.content ?? [];
+  const totalElements = search.data?.totalElements ?? permissionList.length;
 
   return {
-    permissionList: search.data?.content ?? [],
+    permissionList,
     selectedPerm,
     isLoading,
+    isListLoading: search.isPending,
+    loadError: search.isError ? search.error : null,
     searchFilters,
+    page: searchFilters.page,
+    size: searchFilters.size,
+    totalElements,
     pageOptions: pageOptions.data ?? [],
 
     selectPermission: (perm: PermissionDto | null) => setSelectedPerm(perm),
     setSearchFilters: (next: Partial<PermissionSearchFilters>) => setSearchFiltersState((prev) => ({ ...prev, ...next })),
+    setPage: (page: number) => setSearchFiltersState((prev) => ({ ...prev, page })),
+    retry: refetchCurrentPage,
 
     createPermission: async (data: CreatePermissionRequest) => {
       const dto = await createMutation.mutateAsync(data);

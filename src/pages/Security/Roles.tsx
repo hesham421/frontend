@@ -4,26 +4,38 @@ import { useRoleManagementFacade } from '../../roles/hooks';
 import { createRoleSchema, excludeSelfFromCopySources } from '../../roles/roles.schema';
 import type { RoleDto } from '../../roles/rolesApi';
 import { useActivePages } from '../../pageRegistry/hooks';
-import { ApiError } from '../../lib/errors/ApiError';
-import { Breadcrumb, Dialog, EmptyState, Alert } from '../../components/ui/OverlaysAndFeedback';
+import { mapApiError } from '../../lib/errors/mapApiError';
+import { Breadcrumb, Dialog, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
-import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
+import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select, Switch } from '../../components/ui/FormControls';
+import { Table, type TableColumn } from '../../components/ui/Table';
+import { Pagination } from '../../components/ui/Pagination';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 import { DataScopeDrawer } from '../../components/features/DataScopeDrawer';
 
 type CrudPermission = 'CREATE' | 'UPDATE' | 'DELETE';
 
 export const RolesPage: React.FC = () => {
   const { t } = useLanguage();
+  const { showToast } = useToast();
   const {
     roleList,
     selectedRole,
     pageMatrix,
     isLoading,
+    isListLoading,
+    loadError,
+    page,
+    size,
+    totalElements,
     statusFilter,
     selectRole,
     setSearchFilters,
+    setPage,
     setStatusFilter,
+    retry,
     createRole,
     updateRole,
     deleteRole,
@@ -90,6 +102,7 @@ export const RolesPage: React.FC = () => {
     try {
       if (selectedRole?.id != null) {
         await updateRole(selectedRole.id, { roleName, description, active: isActive });
+        showToast(t('roleSavedSuccess'), 'success');
       } else {
         const parsed = createRoleSchema.safeParse({ roleCode, roleName, description, active: isActive });
         if (!parsed.success) {
@@ -97,20 +110,26 @@ export const RolesPage: React.FC = () => {
           return;
         }
         await createRole(parsed.data);
+        showToast(t('roleCreatedSuccess'), 'success');
       }
       setIsRoleDialogOpen(false);
     } catch (err) {
-      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+      setErrorMessage(mapApiError(err, t));
     }
   };
 
   const handleConfirmToggle = async () => {
     if (!confirmToggle?.role.id) return;
     try {
-      if (confirmToggle.activate) await activateRole(confirmToggle.role.id);
-      else await deactivateRole(confirmToggle.role.id);
+      if (confirmToggle.activate) {
+        await activateRole(confirmToggle.role.id);
+        showToast(t('roleActivatedSuccess'), 'success');
+      } else {
+        await deactivateRole(confirmToggle.role.id);
+        showToast(t('roleDeactivatedSuccess'), 'success');
+      }
     } catch (err) {
-      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+      setErrorMessage(mapApiError(err, t));
     }
     setConfirmToggle(null);
   };
@@ -134,7 +153,7 @@ export const RolesPage: React.FC = () => {
         Object.entries(matrixDraft).map(([pageCode, perms]) => ({ pageCode, permissions: [...perms] })),
       );
     } catch (err) {
-      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+      setErrorMessage(mapApiError(err, t));
     }
   };
 
@@ -143,7 +162,7 @@ export const RolesPage: React.FC = () => {
     try {
       await removePageFromRole(selectedRole.id, pageCode);
     } catch (err) {
-      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+      setErrorMessage(mapApiError(err, t));
     }
   };
 
@@ -153,13 +172,9 @@ export const RolesPage: React.FC = () => {
       await copyFromRole(selectedRole.id, Number(copySourceRoleId));
       setCopySourceRoleId('');
     } catch (err) {
-      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+      setErrorMessage(mapApiError(err, t));
     }
   };
-
-  const totalRoles = roleList.length;
-  const activeRoles = roleList.filter((r) => r.active).length;
-  const inactiveRoles = totalRoles - activeRoles;
 
   const statusOptions = [
     { value: 'ALL', label: t('all') },
@@ -171,6 +186,52 @@ export const RolesPage: React.FC = () => {
     roleList.filter((r): r is RoleDto & { id: number } => r.id != null),
     selectedRole?.id ?? -1,
   ).map((r) => ({ value: String(r.id), label: `${r.roleName} (${r.roleCode})` }));
+
+  const roleColumns: TableColumn<RoleDto>[] = [
+    { key: 'code', header: t('code'), render: (r) => <Badge variant="neutral" size="sm">{r.roleCode}</Badge> },
+    {
+      key: 'name',
+      header: t('name'),
+      render: (r) => (
+        <span style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)', fontSize: '14px' }}>{r.roleName}</span>
+      ),
+    },
+    {
+      key: 'description',
+      header: t('description'),
+      render: (r) => (
+        <span style={{ fontSize: '13px', color: 'var(--text-muted, #647488)' }}>{r.description}</span>
+      ),
+    },
+    {
+      key: 'status',
+      header: t('status'),
+      render: (r) => (
+        <Badge variant={r.active ? 'success' : 'danger'} size="sm">
+          {r.active ? t('active') : t('inactive')}
+        </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('actions'),
+      align: 'end',
+      render: (r) => (
+        <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
+          <IconButton icon="ti ti-edit" label={t('edit')} variant="ghost" size="sm" onClick={() => handleOpenEdit(r)} />
+          {r.active ? (
+            <Button variant="secondary" size="sm" onClick={() => setConfirmToggle({ role: r, activate: false })}>
+              {t('deactivate')}
+            </Button>
+          ) : (
+            <Button variant="primary" size="sm" onClick={() => setConfirmToggle({ role: r, activate: true })}>
+              {t('reactivate')}
+            </Button>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -201,27 +262,7 @@ export const RolesPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalRoles')}
-          value={totalRoles}
-          icon={<i className="ti ti-shield-lock" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('activeRecords')}
-          value={activeRoles}
-          trend={{ value: `${Math.round((activeRoles / (totalRoles || 1)) * 100)}%`, isPositive: true }}
-          icon={<i className="ti ti-shield-check" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('inactiveRecords')}
-          value={inactiveRoles}
-          icon={<i className="ti ti-shield-x" style={{ color: 'var(--red-500, #CB3A2D)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. Filter Bar */}
+      {/* 2. Filter Bar */}
       <Card variant="flat" padding="md">
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 280px', minWidth: '220px' }}>
@@ -261,91 +302,26 @@ export const RolesPage: React.FC = () => {
 
       {errorMessage && <Alert variant="danger" message={errorMessage} />}
 
-      {/* 4. Data Grid */}
+      {/* 3. Data Grid */}
       <Card variant="flat" padding="none">
-        {roleList.length === 0 ? (
-          <EmptyState
-            icon="ti ti-shield-x"
-            title={t('noRecordsFound')}
-            description={t('noRecordsDesc')}
-            action={{ label: t('new'), onClick: handleOpenCreate }}
-          />
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'start' }}>
-              <thead>
-                <tr style={{ background: 'var(--surface-page, #F8FAFC)', borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('code')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('name')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('description')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('status')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'end' }}>
-                    {t('actions')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {roleList.map((r) => (
-                  <tr
-                    key={r.id}
-                    style={{
-                      borderBottom: '1px solid var(--border-subtle, #E6ECF3)',
-                      transition: 'background 120ms ease',
-                    }}
-                  >
-                    <td style={{ padding: '14px 18px' }}>
-                      <Badge variant="neutral" size="sm">
-                        {r.roleCode}
-                      </Badge>
-                    </td>
-                    <td style={{ padding: '14px 18px', fontWeight: 600, color: 'var(--text-strong, #14222F)', fontSize: '14px' }}>
-                      {r.roleName}
-                    </td>
-                    <td style={{ padding: '14px 18px', fontSize: '13px', color: 'var(--text-muted, #647488)', maxWidth: '300px' }}>
-                      {r.description}
-                    </td>
-                    <td style={{ padding: '14px 18px' }}>
-                      <Badge variant={r.active ? 'success' : 'danger'} size="sm">
-                        {r.active ? t('active') : t('inactive')}
-                      </Badge>
-                    </td>
-                    <td style={{ padding: '14px 18px', textAlign: 'end' }}>
-                      <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
-                        <IconButton
-                          icon="ti ti-edit"
-                          label={t('edit')}
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenEdit(r)}
-                        />
-                        {r.active ? (
-                          <Button variant="secondary" size="sm" onClick={() => setConfirmToggle({ role: r, activate: false })}>
-                            {t('deactivate')}
-                          </Button>
-                        ) : (
-                          <Button variant="primary" size="sm" onClick={() => setConfirmToggle({ role: r, activate: true })}>
-                            {t('reactivate')}
-                          </Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <Table<RoleDto>
+          columns={roleColumns}
+          rows={roleList}
+          getRowKey={(r) => r.id!}
+          isLoading={isListLoading}
+          loadError={loadError}
+          onRetry={retry}
+          emptyIcon="ti ti-shield-x"
+          emptyTitle={t('noRecordsFound')}
+          emptyDescription={t('noRecordsDesc')}
+          emptyAction={{ label: t('new'), onClick: handleOpenCreate }}
+        />
+        {!loadError && (
+          <Pagination page={page} size={size} totalElements={totalElements} onPageChange={setPage} />
         )}
       </Card>
 
-      {/* 5. Role & Permission Matrix Dialog */}
+      {/* 4. Role & Permission Matrix Dialog */}
       <Dialog
         isOpen={isRoleDialogOpen}
         onClose={() => setIsRoleDialogOpen(false)}
@@ -450,7 +426,7 @@ export const RolesPage: React.FC = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'start' }}>
                   <thead>
                     <tr style={{ background: 'var(--surface-page, #F8FAFC)', borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
-                      <th style={{ padding: '8px 12px', textAlign: 'start' }}>Screen / Page</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'start' }}>{t('colScreenPage')}</th>
                       <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('canView')}</th>
                       <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('canCreate')}</th>
                       <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('canUpdate')}</th>
@@ -459,15 +435,15 @@ export const RolesPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {(activePages.data ?? []).map((page) => {
-                      if (!page.pageCode) return null;
-                      const perms = matrixDraft[page.pageCode];
+                    {(activePages.data ?? []).map((pg) => {
+                      if (!pg.pageCode) return null;
+                      const perms = matrixDraft[pg.pageCode];
                       const isAssigned = perms !== undefined;
                       return (
-                        <tr key={page.pageCode} style={{ borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
+                        <tr key={pg.pageCode} style={{ borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
                           <td style={{ padding: '8px 12px' }}>
-                            <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)' }}>{page.nameEn}</div>
-                            <div style={{ fontSize: '11px', color: 'var(--text-muted, #647488)' }}>{page.pageCode}</div>
+                            <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)' }}>{pg.nameEn}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted, #647488)' }}>{pg.pageCode}</div>
                           </td>
                           <td style={{ padding: '8px 12px', textAlign: 'center' }}>
                             {/* RULE-SEC-042 — VIEW is never independently togglable; it's implied by the page being assigned. */}
@@ -478,7 +454,7 @@ export const RolesPage: React.FC = () => {
                               <input
                                 type="checkbox"
                                 checked={perms?.has(type) ?? false}
-                                onChange={(e) => togglePermission(page.pageCode!, type, e.target.checked)}
+                                onChange={(e) => togglePermission(pg.pageCode!, type, e.target.checked)}
                               />
                             </td>
                           ))}
@@ -489,7 +465,7 @@ export const RolesPage: React.FC = () => {
                                 label={t('delete')}
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => handleRemovePage(page.pageCode!)}
+                                onClick={() => handleRemovePage(pg.pageCode!)}
                               />
                             )}
                           </td>
@@ -504,7 +480,7 @@ export const RolesPage: React.FC = () => {
         </div>
       </Dialog>
 
-      {/* 6. Data Scope Drawer */}
+      {/* 5. Data Scope Drawer */}
       <DataScopeDrawer
         isOpen={isDataScopeDrawerOpen}
         onClose={() => setIsDataScopeDrawerOpen(false)}
@@ -512,26 +488,17 @@ export const RolesPage: React.FC = () => {
         roleId={selectedRole?.id}
       />
 
-      {/* 7. Confirm Dialog */}
-      <Dialog
+      {/* 6. Confirm Dialog */}
+      <ConfirmDialog
         isOpen={confirmToggle != null}
         onClose={() => setConfirmToggle(null)}
+        onConfirm={handleConfirmToggle}
         title={t('confirmActionTitle')}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={() => setConfirmToggle(null)}>
-              {t('cancel')}
-            </Button>
-            <Button variant="primary" onClick={handleConfirmToggle}>
-              {t('confirm')}
-            </Button>
-          </div>
-        }
-      >
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-body, #354456)' }}>
-          {confirmToggle?.activate ? t('confirmReactivate') : t('confirmDeactivate')}
-        </p>
-      </Dialog>
+        message={`${confirmToggle?.activate ? t('confirmReactivateRolePrefix') : t('confirmDeactivateRolePrefix')} "${confirmToggle?.role.roleName}"?`}
+        confirmLabel={t('confirm')}
+        cancelLabel={t('cancel')}
+        tone={confirmToggle?.activate ? 'primary' : 'danger'}
+      />
     </div>
   );
 };

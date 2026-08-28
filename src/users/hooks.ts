@@ -8,6 +8,7 @@ import {
   type UserSearchContractRequest,
 } from './usersApi';
 import { useRolesOptions } from '../roles/hooks';
+import { DEFAULT_PAGE_SIZE } from '../data/searchContract';
 
 // F2-QUERY blocks API-SEC-009..015 (F2/SCR-SEC-002).
 
@@ -38,6 +39,17 @@ export function useUserRoles(userId: number | undefined) {
     enabled: userId != null,
     staleTime: STALE,
     gcTime: GC,
+  });
+}
+
+/** Lightweight total-count read for the Dashboard KPI tile — avoids fetching a full page of rows just to show a number. */
+export function useUsersCount() {
+  return useQuery({
+    queryKey: [...userKeys.all, 'count'],
+    queryFn: ({ signal }) => usersApi.search({ filters: [], sorts: [], page: 0, size: 1 }, signal),
+    staleTime: STALE,
+    gcTime: GC,
+    select: (page) => page.totalElements,
   });
 }
 
@@ -92,7 +104,7 @@ export interface UserSearchFilters extends UserSearchContractRequest {
   size: number;
 }
 
-const DEFAULT_FILTERS: UserSearchFilters = { filters: [], sorts: [], page: 0, size: 20 };
+const DEFAULT_FILTERS: UserSearchFilters = { filters: [], sorts: [], page: 0, size: DEFAULT_PAGE_SIZE };
 
 /**
  * F2-FACADE-HOOK — SCR-SEC-002. Components call this facade only; it composes
@@ -126,11 +138,7 @@ export function useUserManagementFacade() {
   const refetchCurrentPage = () => search.mutate(searchFilters);
 
   const userList = search.data?.content ?? [];
-  const kpiCounts = {
-    total: search.data?.totalElements ?? userList.length,
-    active: userList.filter((u) => u.enabled).length,
-    inactive: userList.filter((u) => !u.enabled).length,
-  };
+  const totalElements = search.data?.totalElements ?? userList.length;
 
   const isLoading = [search, createMutation, updateMutation, deleteMutation, assignRolesMutation].some(
     (m) => m.isPending,
@@ -140,12 +148,21 @@ export function useUserManagementFacade() {
     userList,
     selectedUser,
     isLoading,
+    // List-load state only (excludes Save/Delete mutations) so the table can
+    // show a loading/error state without flickering every time an unrelated
+    // dialog action is in flight.
+    isListLoading: search.isPending,
+    loadError: search.isError ? search.error : null,
     searchFilters,
+    page: searchFilters.page,
+    size: searchFilters.size,
+    totalElements,
     roleOptions: roleOptions.data ?? [],
-    kpiCounts,
 
     selectUser: (user: UserDto | null) => setSelectedUser(user),
     setSearchFilters: (next: Partial<UserSearchFilters>) => setSearchFiltersState((prev) => ({ ...prev, ...next })),
+    setPage: (page: number) => setSearchFiltersState((prev) => ({ ...prev, page })),
+    retry: refetchCurrentPage,
 
     // Composed 2-step per API-SEC-014's Flow Implication note: POST /api/users,
     // then (if roles were selected) PUT .../roles — exposed as ONE operation.

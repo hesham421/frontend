@@ -87,21 +87,27 @@ export interface EmptyStateProps {
   message?: React.ReactNode;
   description?: React.ReactNode;
   action?: { label: string; onClick: () => void } | React.ReactNode;
+  /** 'empty' = genuinely no data (default). 'error' = the load failed — visually distinct so it's never mistaken for "there is no data." */
+  tone?: 'empty' | 'error';
   style?: React.CSSProperties;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
-  icon = 'ti ti-database-off',
+  icon,
   title,
   message,
   description,
   action = null,
+  tone = 'empty',
   style = {},
 }) => {
   const displayDesc = description || message;
+  const isError = tone === 'error';
+  const effectiveIcon = icon ?? (isError ? 'ti ti-alert-triangle' : 'ti ti-database-off');
 
   return (
     <div
+      role={isError ? 'alert' : undefined}
       style={{
         display: 'flex',
         flexDirection: 'column',
@@ -122,13 +128,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           width: '56px',
           height: '56px',
           borderRadius: '12px',
-          background: 'var(--surface-sunken, #F1F5F9)',
-          color: 'var(--text-subtle, #8C9AAC)',
+          background: isError ? 'var(--red-50, #FBE9E7)' : 'var(--surface-sunken, #F1F5F9)',
+          color: isError ? 'var(--red-600, #A92E23)' : 'var(--text-subtle, #8C9AAC)',
           fontSize: '26px',
           marginBottom: '16px',
         }}
       >
-        {typeof icon === 'string' ? <i className={icon} /> : icon}
+        {typeof effectiveIcon === 'string' ? <i className={effectiveIcon} /> : effectiveIcon}
       </span>
       {title && (
         <div
@@ -332,47 +338,15 @@ export const Dialog: React.FC<DialogProps> = ({
   if (!isVisible) return null;
 
   const effectiveSize = size || width || 'md';
-  const widthMap = {
-    sm: '420px',
-    md: '540px',
-    lg: '760px',
-  };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: 'var(--font-sans)',
-      }}
-    >
+    <div role="dialog" aria-modal="true" className={`avl-dialog avl-dialog--${effectiveSize}`} style={{ fontFamily: 'var(--font-sans)' }}>
+      <div className="avl-dialog__scrim" onClick={closeOnScrim ? onClose : undefined} />
       <div
-        onClick={closeOnScrim ? onClose : undefined}
+        className="avl-dialog__panel"
         style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(10, 22, 40, 0.55)',
-          backdropFilter: 'blur(2px)',
-        }}
-      />
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 1001,
-          width: '90vw',
-          maxWidth: widthMap[effectiveSize],
-          maxHeight: '88vh',
           background: 'var(--surface-card, #ffffff)',
-          borderRadius: 'var(--radius-lg, 10px)',
           boxShadow: 'var(--shadow-lg, 0 10px 30px rgba(10,22,40,0.18))',
-          display: 'flex',
-          flexDirection: 'column',
           overflow: 'hidden',
           boxSizing: 'border-box',
           ...style,
@@ -414,7 +388,7 @@ export const Dialog: React.FC<DialogProps> = ({
           </div>
         )}
 
-        <div style={{ padding: '20px', overflowY: 'auto', flex: 1 }}>{children}</div>
+        <div className="avl-dialog__body" style={{ padding: '20px', flex: 1 }}>{children}</div>
 
         {footer && (
           <div
@@ -467,45 +441,15 @@ export const Drawer: React.FC<DrawerProps> = ({
   if (!isVisible) return null;
 
   const effectiveSize = size || width || 'md';
-  const widthMap = {
-    sm: '380px',
-    md: '480px',
-    lg: '680px',
-  };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1000,
-        display: 'flex',
-        justifyContent: 'flex-end',
-        fontFamily: 'var(--font-sans)',
-      }}
-    >
+    <div role="dialog" aria-modal="true" className={`avl-drawer avl-drawer--${effectiveSize}`} style={{ fontFamily: 'var(--font-sans)' }}>
+      <div className="avl-drawer__scrim" onClick={closeOnScrim ? onClose : undefined} />
       <div
-        onClick={closeOnScrim ? onClose : undefined}
+        className="avl-drawer__panel"
         style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(10, 22, 40, 0.55)',
-          backdropFilter: 'blur(2px)',
-        }}
-      />
-      <div
-        style={{
-          position: 'relative',
-          zIndex: 1001,
-          width: '100%',
-          maxWidth: widthMap[effectiveSize],
-          height: '100%',
           background: 'var(--surface-card, #ffffff)',
           boxShadow: 'var(--shadow-lg, 0 10px 30px rgba(10,22,40,0.18))',
-          display: 'flex',
-          flexDirection: 'column',
           overflow: 'hidden',
           boxSizing: 'border-box',
           ...style,
@@ -547,7 +491,7 @@ export const Drawer: React.FC<DrawerProps> = ({
           </div>
         )}
 
-        <div style={{ padding: '20px', overflowY: 'auto', flex: 1 }}>{children}</div>
+        <div className="avl-drawer__body" style={{ padding: '20px' }}>{children}</div>
 
         {footer && (
           <div

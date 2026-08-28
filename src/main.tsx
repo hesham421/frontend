@@ -4,13 +4,16 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { App } from './App';
 import { LanguageProvider } from './context/LanguageContext';
 import { queryClient } from './app/queryClient';
+import { ToastProvider } from './components/ui/Toast';
 import './styles/styles.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-        <App />
+        <ToastProvider>
+          <App />
+        </ToastProvider>
       </LanguageProvider>
     </QueryClientProvider>
   </React.StrictMode>

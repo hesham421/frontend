@@ -3,11 +3,15 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useUserManagementFacade } from '../../users/hooks';
 import type { UserDto } from '../../users/usersApi';
 import { createUserSchema } from '../../users/users.schema';
-import { ApiError } from '../../lib/errors/ApiError';
-import { Breadcrumb, Dialog, EmptyState, Alert } from '../../components/ui/OverlaysAndFeedback';
+import { mapApiError } from '../../lib/errors/mapApiError';
+import { Breadcrumb, Dialog, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
-import { Card, Stat, Badge, Avatar } from '../../components/ui/DataDisplay';
+import { Card, Badge, Avatar } from '../../components/ui/DataDisplay';
 import { Input, Select, Switch } from '../../components/ui/FormControls';
+import { Table, type TableColumn } from '../../components/ui/Table';
+import { Pagination } from '../../components/ui/Pagination';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 import { UserProfileDrawer } from '../../components/features/UserProfileDrawer';
 import { DataScopeDrawer } from '../../components/features/DataScopeDrawer';
 
@@ -15,14 +19,21 @@ type StatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
 
 export const UsersPage: React.FC = () => {
   const { t } = useLanguage();
+  const { showToast } = useToast();
   const {
     userList,
     selectedUser,
     isLoading,
+    isListLoading,
+    loadError,
+    page,
+    size,
+    totalElements,
     roleOptions,
-    kpiCounts,
     selectUser,
     setSearchFilters,
+    setPage,
+    retry,
     createUser,
     updateUser,
     deleteUser,
@@ -90,19 +101,18 @@ export const UsersPage: React.FC = () => {
         }
         const { roleAssignmentError } = await createUser({ username, password, roleNames: selectedRoleNames });
         if (roleAssignmentError) {
-          // User was created; only role assignment failed — surface it without retrying the create.
-          setErrorMessage(
-            roleAssignmentError instanceof ApiError
-              ? roleAssignmentError.message
-              : 'User created, but role assignment failed. Edit the user to assign roles.',
-          );
+          // User was created; only role assignment failed — surface the specific
+          // context plus a safe, mapped reason (never the raw backend message).
+          setErrorMessage(`${t('userCreatedRoleAssignFailed')} ${mapApiError(roleAssignmentError, t)}`);
           setIsUserDialogOpen(false);
           return;
         }
+        showToast(t('userCreatedSuccess'), 'success');
       }
+      if (selectedUser?.id != null) showToast(t('userSavedSuccess'), 'success');
       setIsUserDialogOpen(false);
     } catch (err) {
-      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+      setErrorMessage(mapApiError(err, t));
     }
   };
 
@@ -110,9 +120,10 @@ export const UsersPage: React.FC = () => {
     if (confirmDeleteUser?.id == null) return;
     try {
       await deleteUser(confirmDeleteUser.id);
+      showToast(t('userDeletedSuccess'), 'success');
       setConfirmDeleteUser(null);
     } catch (err) {
-      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+      setErrorMessage(mapApiError(err, t));
       setConfirmDeleteUser(null);
     }
   };
@@ -126,6 +137,52 @@ export const UsersPage: React.FC = () => {
     { value: 'ALL', label: t('all') },
     { value: 'ACTIVE', label: t('active') },
     { value: 'INACTIVE', label: t('inactive') },
+  ];
+
+  const userColumns: TableColumn<UserDto>[] = [
+    {
+      key: 'username',
+      header: t('username'),
+      render: (u) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Avatar name={u.username} size="sm" />
+          <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-strong, #14222F)' }}>{u.username}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'roles',
+      header: t('userRoles'),
+      render: (u) => (
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {(u.roles || []).map((roleName) => (
+            <Badge key={roleName} variant="primary" size="sm">
+              {roleName}
+            </Badge>
+          ))}
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      header: t('status'),
+      render: (u) => (
+        <Badge variant={u.enabled ? 'success' : 'neutral'} size="sm">
+          {u.enabled ? t('active') : t('inactive')}
+        </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('actions'),
+      align: 'end',
+      render: (u) => (
+        <div style={{ display: 'inline-flex', gap: '6px' }}>
+          <IconButton icon="ti ti-edit" label={t('edit')} variant="ghost" size="sm" onClick={() => handleOpenEdit(u)} />
+          <IconButton icon="ti ti-trash" label={t('delete')} variant="ghost" size="sm" onClick={() => setConfirmDeleteUser(u)} />
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -157,27 +214,7 @@ export const UsersPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalUsers')}
-          value={kpiCounts.total}
-          icon={<i className="ti ti-users" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('activeUsers')}
-          value={kpiCounts.active}
-          trend={{ value: `${Math.round((kpiCounts.active / (userList.length || 1)) * 100)}%`, isPositive: true }}
-          icon={<i className="ti ti-user-check" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('inactiveRecords')}
-          value={kpiCounts.inactive}
-          icon={<i className="ti ti-user-x" style={{ color: 'var(--red-500, #CB3A2D)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. Filter Bar */}
+      {/* 2. Filter Bar */}
       <Card variant="flat" padding="md">
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 280px', minWidth: '220px' }}>
@@ -220,92 +257,26 @@ export const UsersPage: React.FC = () => {
 
       {errorMessage && <Alert variant="danger" message={errorMessage} />}
 
-      {/* 4. Data Grid */}
+      {/* 3. Data Grid */}
       <Card variant="flat" padding="none">
-        {userList.length === 0 ? (
-          <EmptyState
-            icon="ti ti-users-minus"
-            title={t('noRecordsFound')}
-            description={t('noRecordsDesc')}
-            action={{ label: t('new'), onClick: handleOpenCreate }}
-          />
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'start' }}>
-              <thead>
-                <tr style={{ background: 'var(--surface-page, #F8FAFC)', borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('username')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('userRoles')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('status')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'end' }}>
-                    {t('actions')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {userList.map((u) => (
-                  <tr
-                    key={u.id}
-                    style={{
-                      borderBottom: '1px solid var(--border-subtle, #E6ECF3)',
-                      transition: 'background 120ms ease',
-                    }}
-                  >
-                    <td style={{ padding: '14px 18px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <Avatar name={u.username} size="sm" />
-                        <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-strong, #14222F)' }}>
-                          {u.username}
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '14px 18px' }}>
-                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        {(u.roles || []).map((roleName) => (
-                          <Badge key={roleName} variant="primary" size="sm">
-                            {roleName}
-                          </Badge>
-                        ))}
-                      </div>
-                    </td>
-                    <td style={{ padding: '14px 18px' }}>
-                      <Badge variant={u.enabled ? 'success' : 'neutral'} size="sm">
-                        {u.enabled ? t('active') : t('inactive')}
-                      </Badge>
-                    </td>
-                    <td style={{ padding: '14px 18px', textAlign: 'end' }}>
-                      <div style={{ display: 'inline-flex', gap: '6px' }}>
-                        <IconButton
-                          icon="ti ti-edit"
-                          label={t('edit')}
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenEdit(u)}
-                        />
-                        <IconButton
-                          icon="ti ti-trash"
-                          label={t('delete')}
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setConfirmDeleteUser(u)}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <Table<UserDto>
+          columns={userColumns}
+          rows={userList}
+          getRowKey={(u) => u.id!}
+          isLoading={isListLoading}
+          loadError={loadError}
+          onRetry={retry}
+          emptyIcon="ti ti-users-minus"
+          emptyTitle={t('noRecordsFound')}
+          emptyDescription={t('noRecordsDesc')}
+          emptyAction={{ label: t('new'), onClick: handleOpenCreate }}
+        />
+        {!loadError && (
+          <Pagination page={page} size={size} totalElements={totalElements} onPageChange={setPage} />
         )}
       </Card>
 
-      {/* 5. Create / Edit Dialog */}
+      {/* 4. Create / Edit Dialog */}
       <Dialog
         isOpen={isUserDialogOpen}
         onClose={() => setIsUserDialogOpen(false)}
@@ -403,7 +374,7 @@ export const UsersPage: React.FC = () => {
         </div>
       </Dialog>
 
-      {/* 6. Profile & DataScope Drawers */}
+      {/* 5. Profile & DataScope Drawers */}
       <UserProfileDrawer
         isOpen={isProfileDrawerOpen}
         onClose={() => setIsProfileDrawerOpen(false)}
@@ -416,26 +387,17 @@ export const UsersPage: React.FC = () => {
         roleId={dataScopeRoleId}
       />
 
-      {/* 7. Confirmation Dialog */}
-      <Dialog
+      {/* 6. Confirmation Dialog */}
+      <ConfirmDialog
         isOpen={confirmDeleteUser != null}
         onClose={() => setConfirmDeleteUser(null)}
+        onConfirm={handleDelete}
         title={t('confirmActionTitle')}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={() => setConfirmDeleteUser(null)}>
-              {t('cancel')}
-            </Button>
-            <Button variant="danger" onClick={handleDelete}>
-              {t('delete')}
-            </Button>
-          </div>
-        }
-      >
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-body, #354456)' }}>
-          {t('confirmDeleteUser')}
-        </p>
-      </Dialog>
+        message={`${t('confirmDeleteUserPrefix')} "${confirmDeleteUser?.username}"? ${t('confirmDeleteUser')}`}
+        confirmLabel={t('delete')}
+        cancelLabel={t('cancel')}
+        tone="danger"
+      />
     </div>
   );
 };

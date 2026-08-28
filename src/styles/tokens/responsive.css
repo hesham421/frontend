@@ -1,7 +1,7 @@
 /* ============================================================
    AVELYNQ — Responsive Layout System
-   Production utilities for the Angular ERP shell. These classes
-   govern LAYOUT + RESPONSIVENESS only — no colors, no visual
+   Production utilities for the AVELYNQ ERP shell (React). These
+   classes govern LAYOUT + RESPONSIVENESS only — no colors, no visual
    redesign. They are logical-property aware (LTR/RTL) and need
    no JavaScript except toggling `.is-open` on the sidebar.
 
@@ -284,4 +284,21 @@
 @media (prefers-reduced-motion: reduce) {
   .avl-sidebar { transition: none; }
   .avl-scrim.is-open { animation: none; }
+}
+
+/* ---------- Shared component animations ------------------------ */
+/* Button.tsx's loading Spinner references this keyframe; it was
+   previously undefined, so every "Save" button's spinner was a
+   static, non-spinning circle. */
+@keyframes avl-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Table.tsx's loading-skeleton rows. */
+@keyframes avl-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avl-skeleton-bar { animation: none !important; }
 }

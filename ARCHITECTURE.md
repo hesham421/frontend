@@ -30,7 +30,7 @@
 ### Organization Convention: **Hybrid Layout & Tokenized Layered Architecture**
 The codebase follows a hybrid pattern:
 1. **Design System & Tokens (`src/styles/tokens/`)**: Separates design variables (colors, typography, spacing, elevation, responsiveness) from component logic.
-2. **UI Primitive Library (`src/components/ui/`)**: Groups foundational atomic components by visual category (`Button`, `FormControls`, `DataDisplay`, `OverlaysAndFeedback`).
+2. **UI Primitive Library (`src/components/ui/`)**: Groups foundational atomic components by visual category (`Button`, `FormControls`, `DataDisplay`, `OverlaysAndFeedback`, `Table`, `Pagination`, `ConfirmDialog`, `Toast`).
 3. **Layout Layer (`src/layout/`)**: Encapsulates structural shells (`AppShell`, `Sidebar`, `Topbar`).
 4. **View Layer (`src/pages/`)**: Contains full page views corresponding to application screens.
 5. **Context & State (`src/context/`)**: Encapsulates global application concerns like localization (`LanguageContext`).
@@ -61,7 +61,11 @@ dashboard_workspace/
     │       ├── Button.tsx               # Button & IconButton primitives with variants & loading state
     │       ├── DataDisplay.tsx          # Card, Stat, Badge, Avatar presentation primitives
     │       ├── FormControls.tsx         # Input, Select, Checkbox, Switch input primitives
-    │       └── OverlaysAndFeedback.tsx  # Alert, EmptyState, Tabs, Breadcrumb, Dialog, Drawer
+    │       ├── OverlaysAndFeedback.tsx  # Alert, EmptyState, Tabs, Breadcrumb, Dialog, Drawer
+    │       ├── Table.tsx                # Shared data table: loading skeleton, error vs. empty state, column-driven rows
+    │       ├── Pagination.tsx           # Shared page/size/totalElements pager for search-API-backed lists
+    │       ├── ConfirmDialog.tsx        # Shared Cancel/Confirm prompt built on Dialog
+    │       └── Toast.tsx                # ToastProvider/useToast — app-wide success/error notifications
     ├── context/                         # Global React Context providers
     │   └── LanguageContext.tsx          # Bimodal English/Arabic i18n & RTL document state manager
     ├── data/                            # Application domain data & types
@@ -157,7 +161,7 @@ Use this skill when designing, building, or refactoring high-density React enter
 
 ### 1. Folder Structure Rules
 * **`src/styles/tokens/`**: Store all visual design tokens (colors, typography, spacing, elevation, breakpoints, responsive) as raw CSS variables here. Never hardcode hex values or pixel sizes in components.
-* **`src/components/ui/`**: Keep primitive UI components atomic and domain-agnostic. Group them strictly by capability (`Button.tsx`, `FormControls.tsx`, `DataDisplay.tsx`, `OverlaysAndFeedback.tsx`).
+* **`src/components/ui/`**: Keep primitive UI components atomic and domain-agnostic. Group them strictly by capability (`Button.tsx`, `FormControls.tsx`, `DataDisplay.tsx`, `OverlaysAndFeedback.tsx`, `Table.tsx`, `Pagination.tsx`, `ConfirmDialog.tsx`, `Toast.tsx`). Before adding a new one, confirm the behavior is a repeated pattern across 2+ screens — not a one-off — per `skills/ui-ux/SKILL.md`.
 * **`src/layout/`**: Keep app scaffolding (`AppShell`, `Sidebar`, `Topbar`) cleanly decoupled from business pages.
 * **`src/pages/`**: Compose full screen views here by stitching together UI primitives and layout containers.
 * **`src/context/`**: Place cross-cutting app providers here (e.g. `LanguageContext.tsx`).

@@ -2,8 +2,8 @@
    AVELYNQ — Breakpoints
    Enterprise responsive scale. CSS custom properties cannot be
    used inside @media conditions, so these are the canonical
-   reference values — mirror them verbatim in Angular SCSS
-   ($bp-md: 768px, …) and in @media rules across the system.
+   reference values — mirror them verbatim in every @media
+   rule across the system.
 
      xs   < 480px   mobile portrait
      sm  ≥ 480px    mobile landscape / large phone

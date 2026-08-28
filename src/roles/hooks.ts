@@ -9,6 +9,7 @@ import {
   type RoleSearchContractRequest,
   type UpdateRoleRequest,
 } from './rolesApi';
+import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../data/searchContract';
 
 // F2-QUERY blocks API-SEC-016..026, API-SEC-050 (F2/SCR-SEC-003).
 
@@ -33,7 +34,13 @@ export function useRolesOptions() {
   return useQuery({
     queryKey: roleKeys.options(),
     queryFn: ({ signal }) =>
-      rolesApi.search({ sorts: [{ field: 'roleName', direction: 'ASC' }], page: 0, size: 200 }, signal),
+      // MAX_PAGE_SIZE (100) is the backend's hard cap — requesting more (this
+      // was 200) fails the whole query with SEARCH_ERROR "Page size must not
+      // exceed 100", emptying every role picker across the app, not just this
+      // one. Past 100 roles, this list is necessarily a first-100-alphabetical
+      // slice, not the full catalog — a real, disclosed limit, not a bug to
+      // paper over with a bigger number the backend will just reject again.
+      rolesApi.search({ sorts: [{ field: 'roleName', direction: 'ASC' }], page: 0, size: MAX_PAGE_SIZE }, signal),
     staleTime: STALE,
     gcTime: GC,
     select: (page) => page.content,
@@ -59,6 +66,17 @@ export function useRolePagesMatrix(roleId: number | undefined) {
     enabled: roleId != null,
     staleTime: STALE,
     gcTime: GC,
+  });
+}
+
+/** Lightweight total-count read for the Dashboard KPI tile — avoids fetching a full page of rows just to show a number. */
+export function useRolesCount() {
+  return useQuery({
+    queryKey: [...roleKeys.all, 'count'],
+    queryFn: ({ signal }) => rolesApi.search({ filters: [], sorts: [], page: 0, size: 1 }, signal),
+    staleTime: STALE,
+    gcTime: GC,
+    select: (page) => page.totalElements,
   });
 }
 
@@ -164,7 +182,7 @@ export interface RoleSearchFilters extends RoleSearchContractRequest {
   size: number;
 }
 
-const DEFAULT_FILTERS: RoleSearchFilters = { filters: [], sorts: [], page: 0, size: 20 };
+const DEFAULT_FILTERS: RoleSearchFilters = { filters: [], sorts: [], page: 0, size: DEFAULT_PAGE_SIZE };
 
 export type RoleStatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
 
@@ -212,6 +230,7 @@ export function useRoleManagementFacade() {
     if (statusFilter === 'ALL') return true;
     return statusFilter === 'ACTIVE' ? !!r.active : !r.active;
   });
+  const totalElements = search.data?.totalElements ?? loadedRoles.length;
 
   const isLoading = [
     search,
@@ -231,13 +250,20 @@ export function useRoleManagementFacade() {
     selectedRole,
     pageMatrix: pagesMatrix.data ?? null,
     isLoading,
+    isListLoading: search.isPending,
+    loadError: search.isError ? search.error : null,
     searchFilters,
     statusFilter,
+    page: searchFilters.page,
+    size: searchFilters.size,
+    totalElements,
 
     selectRole: (role: RoleDto | null) => setSelectedRole(role),
     setSearchFilters: (next: Partial<RoleSearchFilters>) => setSearchFiltersState((prev) => ({ ...prev, ...next })),
+    setPage: (page: number) => setSearchFiltersState((prev) => ({ ...prev, page })),
     setStatusFilter,
     search: refetchCurrentPage,
+    retry: refetchCurrentPage,
 
     createRole: async (data: CreateRoleRequest) => {
       const dto = await createMutation.mutateAsync(data);

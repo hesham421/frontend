@@ -2,10 +2,7 @@ import { http } from '../lib/http/client';
 import type { PagedResponse, SearchContractRequest } from '../data/searchContract';
 
 // Real API DTOs (user-management.md) — F2/SCR-SEC-002. Field names/optionality
-// mirror the backend response exactly (R.1.7); kept local to this module
-// rather than imported from stores/useSecurityStore.ts, which is
-// prototype-only zustand state slated for replacement (AD-4/AD-7, same
-// pattern as src/auth/authApi.ts).
+// mirror the backend response exactly (R.1.7).
 export interface UserDto {
   id?: number;
   username?: string;

@@ -7,16 +7,16 @@ import type { CreatePageRequest, UpdatePageRequest } from './pageRegistryApi';
 // pageCode to uppercase — client mirrors it for display only.
 const pageCodeSchema = z
   .string()
-  .min(2)
-  .max(50)
-  .regex(/^[A-Z0-9_]+$/);
+  .min(2, 'Page code must be at least 2 characters.')
+  .max(50, 'Page code must be 50 characters or fewer.')
+  .regex(/^[A-Z0-9_]+$/, 'Page code must contain only uppercase letters, numbers, and underscores.');
 
 const routeSchema = z
   .string()
-  .max(200)
-  .regex(/^\/[a-zA-Z0-9/_-]+$/);
+  .max(200, 'Route path must be 200 characters or fewer.')
+  .regex(/^\/[a-zA-Z0-9/_-]+$/, 'Route path must start with "/" and contain only letters, numbers, "-", "_", and "/".');
 
-const nameSchema = z.string().min(1);
+const nameSchema = z.string().min(1, 'This field is required.');
 
 export const createPageSchema = z.object({
   pageCode: pageCodeSchema,

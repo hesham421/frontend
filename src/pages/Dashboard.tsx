@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigationStore, ScreenType } from '../stores/useNavigationStore';
-import { useSecurityStore } from '../stores/useSecurityStore';
+import { useUsersCount } from '../users/hooks';
+import { useRolesCount } from '../roles/hooks';
 import { useOrganizationStore } from '../stores/useOrganizationStore';
 import { useNotificationsStore } from '../stores/useNotificationsStore';
 import { Stat, Card, Badge } from '../components/ui/DataDisplay';
@@ -18,8 +19,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const storeNavigate = useNavigationStore((state) => state.setCurrentScreen);
   const handleNavigate = onNavigate ?? storeNavigate;
 
-  const usersCount = useSecurityStore((state) => state.users.length);
-  const rolesCount = useSecurityStore((state) => state.roles.length);
+  // Real Security API counts — previously read from a mock store the
+  // Security screens themselves no longer use, so this KPI could show a
+  // number unrelated to what User Management / Roles & Permissions displayed.
+  const usersCount = useUsersCount().data ?? 0;
+  const rolesCount = useRolesCount().data ?? 0;
   const entitiesCount = useOrganizationStore((state) => state.legalEntities.length);
   const branchesCount = useOrganizationStore((state) => state.branches.length);
   const unreadCount = useNotificationsStore((state) => state.getUnreadCount());

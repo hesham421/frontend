@@ -5,17 +5,20 @@ import type { CreateUserRequest, UpdateUserRequest } from './usersApi';
 // delete-protection/default-role notes are server round-trip only (no
 // client pre-check endpoint) — surfaced via ERR-SEC-049-USERNAME /
 // ERR-SEC-049-DELETE (lib/errors/secErrors.ts) on mutation failure.
-const usernameSchema = z.string().min(3).max(80);
+const usernameSchema = z
+  .string()
+  .min(3, 'Username must be at least 3 characters.')
+  .max(80, 'Username must be 80 characters or fewer.');
 
 export const createUserSchema = z.object({
   username: usernameSchema,
-  password: z.string().min(1),
+  password: z.string().min(1, 'Password is required.'),
 }) satisfies z.ZodType<CreateUserRequest>;
 export type CreateUserFormValues = z.infer<typeof createUserSchema>;
 
 export const updateUserSchema = z.object({
   username: usernameSchema.optional(),
-  password: z.string().min(1).optional(),
+  password: z.string().min(1, 'Password is required.').optional(),
   enabled: z.boolean().optional(),
   roleNames: z.array(z.string()).optional(),
 }) satisfies z.ZodType<UpdateUserRequest>;

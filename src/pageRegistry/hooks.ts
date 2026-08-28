@@ -7,6 +7,7 @@ import {
   type PageSearchContractRequest,
   type UpdatePageRequest,
 } from './pageRegistryApi';
+import { DEFAULT_PAGE_SIZE } from '../data/searchContract';
 
 // F2-QUERY blocks API-SEC-030..036 (F2/SCR-SEC-005).
 
@@ -102,7 +103,7 @@ export interface PageSearchFilters extends PageSearchContractRequest {
   size: number;
 }
 
-const DEFAULT_FILTERS: PageSearchFilters = { filters: [], sorts: [], page: 0, size: 20 };
+const DEFAULT_FILTERS: PageSearchFilters = { filters: [], sorts: [], page: 0, size: DEFAULT_PAGE_SIZE };
 
 /**
  * F2-FACADE-HOOK — SCR-SEC-005. Components call this facade only; it
@@ -131,11 +132,7 @@ export function usePageRegistryFacade() {
   const refetchCurrentPage = () => search.mutate(searchFilters);
 
   const pageList = search.data?.content ?? [];
-  const kpiCounts = {
-    total: pageList.length,
-    active: pageList.filter((p) => p.active).length,
-    inactive: pageList.filter((p) => !p.active).length,
-  };
+  const totalElements = search.data?.totalElements ?? pageList.length;
 
   const isLoading = [search, createMutation, updateMutation, deactivateMutation, reactivateMutation].some(
     (m) => m.isPending,
@@ -145,12 +142,18 @@ export function usePageRegistryFacade() {
     pageList,
     selectedPage,
     isLoading,
+    isListLoading: search.isPending,
+    loadError: search.isError ? search.error : null,
     searchFilters,
-    kpiCounts,
+    page: searchFilters.page,
+    size: searchFilters.size,
+    totalElements,
     activePages: activePages.data ?? [],
 
     selectPage: (page: PageResponse | null) => setSelectedPage(page),
     setSearchFilters: (next: Partial<PageSearchFilters>) => setSearchFiltersState((prev) => ({ ...prev, ...next })),
+    setPage: (p: number) => setSearchFiltersState((prev) => ({ ...prev, page: p })),
+    retry: refetchCurrentPage,
 
     createPage: async (data: CreatePageRequest) => {
       const dto = await createMutation.mutateAsync(data);
