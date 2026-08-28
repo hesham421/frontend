@@ -14,6 +14,7 @@ import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
 import { UserProfileDrawer } from '../../components/features/UserProfileDrawer';
 import { DataScopeDrawer } from '../../components/features/DataScopeDrawer';
+import { RoleAssignmentDrawer } from '../../components/features/RoleAssignmentDrawer';
 
 type StatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
 
@@ -47,6 +48,7 @@ export const UsersPage: React.FC = () => {
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
   const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
   const [isDataScopeDrawerOpen, setIsDataScopeDrawerOpen] = useState(false);
+  const [isRoleDrawerOpen, setIsRoleDrawerOpen] = useState(false);
   const [confirmDeleteUser, setConfirmDeleteUser] = useState<UserDto | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -342,28 +344,45 @@ export const UsersPage: React.FC = () => {
           )}
 
           <div>
-            <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '6px', color: 'var(--text-strong, #14222F)', textAlign: 'start' }}>
-              {t('userRoles')}
-            </label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', padding: '10px', background: 'var(--surface-page, #F8FAFC)', borderRadius: 'var(--radius-md, 7px)' }}>
-              {roleOptions.map((r) => (
-                <label key={r.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                  <input
-                    type="checkbox"
-                    checked={!!r.roleName && selectedRoleNames.includes(r.roleName)}
-                    onChange={(e) => {
-                      if (!r.roleName) return;
-                      if (e.target.checked) {
-                        setSelectedRoleNames([...selectedRoleNames, r.roleName]);
-                      } else {
-                        setSelectedRoleNames(selectedRoleNames.filter((name) => name !== r.roleName));
-                      }
-                    }}
-                  />
-                  <span>{r.roleName} ({r.roleCode})</span>
-                </label>
-              ))}
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-strong, #14222F)', textAlign: 'start' }}>
+                {t('userRoles')}
+              </label>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted, #647488)' }}>
+                {selectedRoleNames.length} {t('selected')}
+              </span>
             </div>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '6px',
+                alignItems: 'center',
+                minHeight: '38px',
+                padding: '8px 10px',
+                background: 'var(--surface-page, #F8FAFC)',
+                borderRadius: 'var(--radius-md, 7px)',
+              }}
+            >
+              {selectedRoleNames.length === 0 ? (
+                <span style={{ fontSize: '13px', color: 'var(--text-muted, #647488)' }}>{t('noRolesAssigned')}</span>
+              ) : (
+                selectedRoleNames.map((name) => (
+                  <Badge key={name} variant="primary" size="sm">
+                    {name}
+                  </Badge>
+                ))
+              )}
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setIsRoleDrawerOpen(true)}
+              iconLeft={<i className="ti ti-shield-plus" />}
+              style={{ marginTop: '8px' }}
+            >
+              {t('assignRoles')} →
+            </Button>
           </div>
 
           <Switch
@@ -374,7 +393,7 @@ export const UsersPage: React.FC = () => {
         </div>
       </Dialog>
 
-      {/* 5. Profile & DataScope Drawers */}
+      {/* 5. Profile, DataScope & Role Assignment Drawers */}
       <UserProfileDrawer
         isOpen={isProfileDrawerOpen}
         onClose={() => setIsProfileDrawerOpen(false)}
@@ -385,6 +404,13 @@ export const UsersPage: React.FC = () => {
         onClose={() => setIsDataScopeDrawerOpen(false)}
         scope={null}
         roleId={dataScopeRoleId}
+      />
+      <RoleAssignmentDrawer
+        isOpen={isRoleDrawerOpen}
+        onClose={() => setIsRoleDrawerOpen(false)}
+        roleOptions={roleOptions}
+        selectedRoleNames={selectedRoleNames}
+        onChange={setSelectedRoleNames}
       />
 
       {/* 6. Confirmation Dialog */}

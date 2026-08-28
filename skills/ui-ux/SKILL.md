@@ -198,6 +198,31 @@ screens, which were not re-reviewed and were deliberately left alone)
   exactly the CSS-vs-component disconnect that left the mobile/RTL behavior dormant for
   however long it was built and unused before this pass. Inline `style` on `Dialog`/`Drawer`
   should carry color/surface concerns only (`background`, `boxShadow`) — never layout.
+- **A record-picker or matrix embedded inline in a create/edit `Dialog` belongs in its own
+  side `Drawer` once it can grow past a handful of rows** — not bounded with a small
+  `maxHeight`/`overflowY` scroll box inside the dialog, and not left to grow the dialog itself
+  without limit. Confirmed twice, same fix both times: `Users.tsx`'s Add/Edit dialog embedded
+  a ~100-row role checklist with no bound at all (the dialog grew to fill and exceed the
+  viewport, pushing Save/Cancel out of view); `Roles.tsx`'s Edit dialog embedded a
+  ~150-row permission matrix. Both moved to their own `Drawer`
+  (`components/features/RoleAssignmentDrawer.tsx`, `components/features/
+  PermissionMatrixDrawer.tsx`) launched from a button, leaving the main dialog holding only
+  the record's own small fields (name, code, description, active toggle — the things that fit
+  in a glance). The trigger placement follows what's already true of the picker: if it's only
+  meaningful once the record exists server-side (permissions on a role, data scope on a role —
+  both need a real id), put the launcher in the dialog *footer* next to the existing
+  edit-only actions (`Data Scope →` was already there — matched its exact style rather than
+  inventing a new button shape); if it's needed during create too (roles on a brand-new user),
+  put it in the dialog *body* as a compact summary (selected-item badges or a muted "none yet"
+  line) plus a button, since footer-gating on `selectedX &&` isn't available yet. Either way the
+  drawer receives the parent's already-fetched data and handlers as props (`roleOptions`/
+  `onChange`, `matrixDraft`/`onTogglePermission`/`onSyncAll`/...) rather than re-fetching or
+  re-deriving anything — it's a presentational relocation, not a new data-owning component.
+  Give the picker drawer its own search filter (reusing the `Input` + lowercase `.includes()`
+  pattern, `searchPlaceholder`, and the shared `noItemsMatchFilter` empty-state key — don't
+  write a second "no X match your search" string per entity type) the moment the list is long
+  enough that scrolling-and-reading beats typing a few letters; both confirmed instances needed
+  one immediately.
 
 ## Message / feedback standards
 

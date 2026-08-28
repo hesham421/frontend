@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useRoleManagementFacade } from '../../roles/hooks';
-import { createRoleSchema, excludeSelfFromCopySources } from '../../roles/roles.schema';
+import { createRoleSchema, excludeSelfFromCopySources, type CrudPermission } from '../../roles/roles.schema';
 import type { RoleDto } from '../../roles/rolesApi';
 import { useActivePages } from '../../pageRegistry/hooks';
 import { mapApiError } from '../../lib/errors/mapApiError';
@@ -14,8 +14,7 @@ import { Pagination } from '../../components/ui/Pagination';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
 import { DataScopeDrawer } from '../../components/features/DataScopeDrawer';
-
-type CrudPermission = 'CREATE' | 'UPDATE' | 'DELETE';
+import { PermissionMatrixDrawer } from '../../components/features/PermissionMatrixDrawer';
 
 export const RolesPage: React.FC = () => {
   const { t } = useLanguage();
@@ -50,6 +49,7 @@ export const RolesPage: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [isDataScopeDrawerOpen, setIsDataScopeDrawerOpen] = useState(false);
+  const [isMatrixDrawerOpen, setIsMatrixDrawerOpen] = useState(false);
   const [confirmToggle, setConfirmToggle] = useState<{ role: RoleDto; activate: boolean } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -328,18 +328,28 @@ export const RolesPage: React.FC = () => {
         title={selectedRole ? `${t('edit')}: ${selectedRole.roleName}` : t('new')}
         footer={
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-            <div>
+            <div style={{ display: 'flex', gap: '8px' }}>
               {selectedRole && (
                 // TODO(SEC-FE/SCR-SEC-007): gate on ROLE_UPDATE once SEC-FE's
                 // permission hooks exist (confirmed literal, securitydatascoperolebranches.md).
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setIsDataScopeDrawerOpen(true)}
-                  iconLeft={<i className="ti ti-building" />}
-                >
-                  {t('dataScope')} →
-                </Button>
+                <>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setIsMatrixDrawerOpen(true)}
+                    iconLeft={<i className="ti ti-shield-lock" />}
+                  >
+                    {t('permissionMatrix')} →
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setIsDataScopeDrawerOpen(true)}
+                    iconLeft={<i className="ti ti-building" />}
+                  >
+                    {t('dataScope')} →
+                  </Button>
+                </>
               )}
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
@@ -353,7 +363,7 @@ export const RolesPage: React.FC = () => {
           </div>
         }
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '70vh', overflowY: 'auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <Input
             label={`${t('code')} *`}
             value={roleCode}
@@ -379,113 +389,29 @@ export const RolesPage: React.FC = () => {
             checked={isActive}
             onChange={(checked) => setIsActive(checked)}
           />
-
-          {/* Embedded Permission Matrix */}
-          {selectedRole && (
-            <div style={{ borderTop: '1px solid var(--border-subtle, #E6ECF3)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-strong, #14222F)' }}>
-                  {t('permissionMatrix')}
-                </div>
-                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                  <Button variant="secondary" size="sm" onClick={handleSyncAll}>
-                    {t('syncAll')}
-                  </Button>
-                  {otherRolesOptions.length > 0 && (
-                    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                      <select
-                        style={{
-                          height: '32px',
-                          fontSize: '12px',
-                          borderRadius: 'var(--radius-sm, 4px)',
-                          border: '1px solid var(--border-default, #B7C3D1)',
-                          padding: '0 8px',
-                          background: '#fff',
-                        }}
-                        value={copySourceRoleId}
-                        onChange={(e) => setCopySourceRoleId(e.target.value)}
-                      >
-                        <option value="">-- {t('copyFrom')} --</option>
-                        {otherRolesOptions.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
-                      {copySourceRoleId && (
-                        <Button variant="secondary" size="sm" onClick={handleCopyFrom}>
-                          {t('confirm')}
-                        </Button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ border: '1px solid var(--border-subtle, #E6ECF3)', borderRadius: 'var(--radius-md, 7px)', overflow: 'hidden' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', textAlign: 'start' }}>
-                  <thead>
-                    <tr style={{ background: 'var(--surface-page, #F8FAFC)', borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
-                      <th style={{ padding: '8px 12px', textAlign: 'start' }}>{t('colScreenPage')}</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('canView')}</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('canCreate')}</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('canUpdate')}</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('canDelete')}</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'center' }} />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(activePages.data ?? []).map((pg) => {
-                      if (!pg.pageCode) return null;
-                      const perms = matrixDraft[pg.pageCode];
-                      const isAssigned = perms !== undefined;
-                      return (
-                        <tr key={pg.pageCode} style={{ borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
-                          <td style={{ padding: '8px 12px' }}>
-                            <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)' }}>{pg.nameEn}</div>
-                            <div style={{ fontSize: '11px', color: 'var(--text-muted, #647488)' }}>{pg.pageCode}</div>
-                          </td>
-                          <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                            {/* RULE-SEC-042 — VIEW is never independently togglable; it's implied by the page being assigned. */}
-                            <input type="checkbox" checked={isAssigned} disabled />
-                          </td>
-                          {(['CREATE', 'UPDATE', 'DELETE'] as const).map((type) => (
-                            <td key={type} style={{ padding: '8px 12px', textAlign: 'center' }}>
-                              <input
-                                type="checkbox"
-                                checked={perms?.has(type) ?? false}
-                                onChange={(e) => togglePermission(pg.pageCode!, type, e.target.checked)}
-                              />
-                            </td>
-                          ))}
-                          <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                            {isAssigned && (
-                              <IconButton
-                                icon="ti ti-x"
-                                label={t('delete')}
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleRemovePage(pg.pageCode!)}
-                              />
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
         </div>
       </Dialog>
 
-      {/* 5. Data Scope Drawer */}
+      {/* 5. Data Scope & Permission Matrix Drawers */}
       <DataScopeDrawer
         isOpen={isDataScopeDrawerOpen}
         onClose={() => setIsDataScopeDrawerOpen(false)}
         scope={null}
         roleId={selectedRole?.id}
+      />
+      <PermissionMatrixDrawer
+        isOpen={isMatrixDrawerOpen}
+        onClose={() => setIsMatrixDrawerOpen(false)}
+        role={selectedRole}
+        pages={activePages.data ?? []}
+        matrixDraft={matrixDraft}
+        onTogglePermission={togglePermission}
+        onSyncAll={handleSyncAll}
+        onRemovePage={handleRemovePage}
+        copySourceRoleId={copySourceRoleId}
+        onCopySourceChange={setCopySourceRoleId}
+        copySourceOptions={otherRolesOptions}
+        onCopyFrom={handleCopyFrom}
       />
 
       {/* 6. Confirm Dialog */}

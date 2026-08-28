@@ -279,6 +279,9 @@ const translations: Record<Language, Record<string, string>> = {
     dataScopeSavedSuccess: 'Data scope saved successfully.',
     dataScopeDeletedSuccess: 'Data scope removed successfully.',
     userProfileSavedSuccess: 'Profile saved successfully.',
+    noItemsMatchFilter: 'No items match your search.',
+    noRolesAssigned: 'No roles assigned yet.',
+    assignRoles: 'Assign Roles',
 
     // Pagination
     prevPage: 'Previous',
@@ -574,6 +577,9 @@ const translations: Record<Language, Record<string, string>> = {
     dataScopeSavedSuccess: 'تم حفظ نطاق البيانات بنجاح.',
     dataScopeDeletedSuccess: 'تم إزالة نطاق البيانات بنجاح.',
     userProfileSavedSuccess: 'تم حفظ الملف الشخصي بنجاح.',
+    noItemsMatchFilter: 'لا توجد عناصر مطابقة لبحثك.',
+    noRolesAssigned: 'لم يتم تعيين أي أدوار بعد.',
+    assignRoles: 'تعيين الأدوار',
 
     // Pagination
     prevPage: 'السابق',

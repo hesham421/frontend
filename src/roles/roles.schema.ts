@@ -32,6 +32,7 @@ export type UpdateRoleFormValues = z.infer<typeof updateRoleSchema>;
 // structurally never toggleable in this enum). ON_SUBMIT defense-in-depth on
 // top of the UI's own structural enforcement.
 export const rolePagePermissionSchema = z.enum(['CREATE', 'UPDATE', 'DELETE']);
+export type CrudPermission = z.infer<typeof rolePagePermissionSchema>;
 
 export const pageAssignmentSchema = z.object({
   pageCode: z.string().min(1),
