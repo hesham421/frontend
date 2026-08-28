@@ -1,13 +1,16 @@
 import React from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useNotificationTemplatesStore } from '../../stores/useNotificationTemplatesStore';
-import { Breadcrumb, Dialog, Alert } from '../../components/ui/OverlaysAndFeedback';
+import { Breadcrumb, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button } from '../../components/ui/Button';
-import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
+import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Switch } from '../../components/ui/FormControls';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 
 export const NotificationChannelsPage: React.FC = () => {
   const { t } = useLanguage();
+  const { showToast } = useToast();
   const {
     channels,
     editingChannelId,
@@ -22,16 +25,19 @@ export const NotificationChannelsPage: React.FC = () => {
     executeConfirmAction,
   } = useNotificationTemplatesStore();
 
-  const handleToggleClick = (id: string, currentEnabled: boolean) => {
-    if (currentEnabled) {
-      // Prompt warning dialog before turning off
-      openConfirmDialog('TOGGLE_CHANNEL', id);
-    } else {
-      openConfirmDialog('TOGGLE_CHANNEL', id);
-    }
+  const handleToggleClick = (id: string) => {
+    openConfirmDialog('TOGGLE_CHANNEL', id);
   };
 
-  const enabledCount = channels.filter((c) => c.isEnabled).length;
+  const handleConfirmToggle = () => {
+    executeConfirmAction();
+    showToast(t('notificationChannelUpdatedSuccess'), 'success');
+  };
+
+  const handleSaveChannelConfig = (id: string) => {
+    saveChannelConfig(id, editingChannelJson);
+    showToast(t('notificationChannelUpdatedSuccess'), 'success');
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -59,27 +65,7 @@ export const NotificationChannelsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalRecords')}
-          value={channels.length}
-          icon={<i className="ti ti-adjustments-horizontal" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('activeChannels')}
-          value={enabledCount}
-          trend={{ value: `${enabledCount}/5 active`, isPositive: true }}
-          icon={<i className="ti ti-check" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('inactiveRecords')}
-          value={channels.length - enabledCount}
-          icon={<i className="ti ti-x" style={{ color: 'var(--red-500, #CB3A2D)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. 5 Fixed Rows Channel Config Grid */}
+      {/* 2. 5 Fixed Rows Channel Config Grid */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {channels.map((channel) => {
           const isEditing = editingChannelId === channel.id;
@@ -142,7 +128,7 @@ export const NotificationChannelsPage: React.FC = () => {
                   <Switch
                     label={channel.isEnabled ? t('enabled') : t('disabled')}
                     checked={channel.isEnabled}
-                    onChange={() => handleToggleClick(channel.id, channel.isEnabled)}
+                    onChange={() => handleToggleClick(channel.id)}
                   />
                 </div>
               </div>
@@ -167,7 +153,7 @@ export const NotificationChannelsPage: React.FC = () => {
                       <Button
                         variant="primary"
                         size="sm"
-                        onClick={() => saveChannelConfig(channel.id, editingChannelJson)}
+                        onClick={() => handleSaveChannelConfig(channel.id)}
                       >
                         {t('save')}
                       </Button>
@@ -199,25 +185,16 @@ export const NotificationChannelsPage: React.FC = () => {
       </div>
 
       {/* Confirmation Dialog */}
-      <Dialog
+      <ConfirmDialog
         isOpen={isConfirmDialogOpen && confirmActionType === 'TOGGLE_CHANNEL'}
         onClose={closeConfirmDialog}
+        onConfirm={handleConfirmToggle}
         title={t('confirmActionTitle')}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={closeConfirmDialog}>
-              {t('cancel')}
-            </Button>
-            <Button variant="primary" onClick={executeConfirmAction}>
-              {t('confirm')}
-            </Button>
-          </div>
-        }
-      >
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-body, #354456)' }}>
-          {t('confirmToggleChannel')}
-        </p>
-      </Dialog>
+        message={t('confirmToggleChannel')}
+        confirmLabel={t('confirm')}
+        cancelLabel={t('cancel')}
+        tone="primary"
+      />
     </div>
   );
 };

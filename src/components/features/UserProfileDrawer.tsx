@@ -21,7 +21,9 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
   const { t } = useLanguage();
   const { showToast } = useToast();
   const branches = useOrganizationStore((state) => state.branches);
-  const { profile, isLoading, saveProfile } = useUserProfileFacade(user?.id);
+  const { profile, canCreate, canEdit, isLoading, saveProfile } = useUserProfileFacade(user?.id);
+  // Update needs USER_PROFILE_UPDATE; the create branch (no profile yet) needs USER_PROFILE_CREATE.
+  const canSaveProfile = profile ? canEdit : canCreate;
 
   const [fullNameEn, setFullNameEn] = useState('');
   const [fullNameAr, setFullNameAr] = useState('');
@@ -85,9 +87,11 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
           <Button variant="secondary" onClick={onClose}>
             {t('cancel')}
           </Button>
-          <Button variant="primary" onClick={handleSave} loading={isLoading}>
-            {t('save')}
-          </Button>
+          {canSaveProfile && (
+            <Button variant="primary" onClick={handleSave} loading={isLoading}>
+              {t('save')}
+            </Button>
+          )}
         </div>
       }
     >
@@ -97,12 +101,14 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
           label={`${t('fullNameEn')} *`}
           value={fullNameEn}
           onChange={(e) => setFullNameEn(e.target.value)}
+          disabled={!canSaveProfile}
           required
         />
         <Input
           label={`${t('fullNameAr')} *`}
           value={fullNameAr}
           onChange={(e) => setFullNameAr(e.target.value)}
+          disabled={!canSaveProfile}
           required
         />
         <Select
@@ -110,12 +116,14 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
           options={activeBranches}
           value={branchId != null ? String(branchId) : ''}
           onChange={(e) => setBranchId(Number(e.target.value))}
+          disabled={!canSaveProfile}
         />
         <Select
           label={t('preferredLang')}
           options={langOptions}
           value={preferredLang}
           onChange={(e) => setPreferredLang(e.target.value as 'ar' | 'en')}
+          disabled={!canSaveProfile}
         />
         <Input
           label={t('employeeId')}
@@ -123,6 +131,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
           value={employeeId}
           onChange={(e) => setEmployeeId(e.target.value)}
           placeholder="1001"
+          disabled={!canSaveProfile}
         />
         {profile && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

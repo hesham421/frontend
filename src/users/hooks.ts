@@ -8,6 +8,7 @@ import {
   type UserSearchContractRequest,
 } from './usersApi';
 import { useRolesOptions } from '../roles/hooks';
+import { usePermission } from '../auth/permissions';
 import { DEFAULT_PAGE_SIZE } from '../data/searchContract';
 
 // F2-QUERY blocks API-SEC-009..015 (F2/SCR-SEC-002).
@@ -112,14 +113,21 @@ const DEFAULT_FILTERS: UserSearchFilters = { filters: [], sorts: [], page: 0, si
  * plus the cross-screen useRolesOptions read (SCR-SEC-003). No toasts,
  * dialogs, or navigation here (R.3.11) — callers own the reaction.
  *
- * Permission flags (canView/canCreate/canEdit/canDelete) are SEC-FE/SCR-SEC-
- * 002's own phase — not added here, since no session/permission Context
- * exists in the app yet (AD-5). SEC-IMPL-RULE-2 expects them read from this
- * Facade once that phase runs; they are not fabricated ahead of it.
+ * SEC-IMPL-RULE-2: canView/canCreate/canEdit/canDelete are all PERM_USER_*
+ * (pageCode "USER" is the one confirmed literal example in
+ * permissionmanagement.md — RULE-SEC-047's auto-generated CRUD set),
+ * computed once here and read from this Facade — never re-derived ad hoc
+ * inside a component.
  */
 export function useUserManagementFacade() {
   const [searchFilters, setSearchFiltersState] = useState<UserSearchFilters>(DEFAULT_FILTERS);
   const [selectedUser, setSelectedUser] = useState<UserDto | null>(null);
+
+  const { can } = usePermission();
+  const canView = can('PERM_USER_VIEW');
+  const canCreate = can('PERM_USER_CREATE');
+  const canEdit = can('PERM_USER_UPDATE');
+  const canDelete = can('PERM_USER_DELETE');
 
   const search = useSearchUsers();
   const createMutation = useCreateUser();
@@ -147,6 +155,10 @@ export function useUserManagementFacade() {
   return {
     userList,
     selectedUser,
+    canView,
+    canCreate,
+    canEdit,
+    canDelete,
     isLoading,
     // List-load state only (excludes Save/Delete mutations) so the table can
     // show a loading/error state without flickering every time an unrelated

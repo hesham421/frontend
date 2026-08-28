@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
-import { Breadcrumb, Dialog, Alert } from '../../components/ui/OverlaysAndFeedback';
+import { Breadcrumb, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
-import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
+import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select } from '../../components/ui/FormControls';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 import { CostCenterNode } from '../../data/mockData';
 
 export const CostCentersPage: React.FC = () => {
   const { t, lang } = useLanguage();
+  const { showToast } = useToast();
   const {
     costCenters,
     branches,
@@ -88,8 +91,9 @@ export const CostCentersPage: React.FC = () => {
 
   const handleSaveForm = (e: React.FormEvent) => {
     e.preventDefault();
+    const isEdit = !isCreatingChild && !isCreatingRoot;
     saveCostCenter({
-      id: isCreatingChild || isCreatingRoot ? undefined : selectedCostCenter?.id,
+      id: isEdit ? selectedCostCenter?.id : undefined,
       nameEn,
       nameAr,
       branchFk: costCenterBranchFilter,
@@ -100,6 +104,12 @@ export const CostCentersPage: React.FC = () => {
     });
     setIsCreatingChild(false);
     setIsCreatingRoot(false);
+    showToast(t(isEdit ? 'costCenterSavedSuccess' : 'costCenterCreatedSuccess'), 'success');
+  };
+
+  const handleConfirmDeactivate = () => {
+    executeConfirmAction();
+    showToast(t('costCenterDeactivatedSuccess'), 'success');
   };
 
   const branchOptions = [
@@ -243,26 +253,7 @@ export const CostCentersPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalCostCenters')}
-          value={costCenters.length}
-          icon={<i className="ti ti-calculator" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label="Direct Centers"
-          value={costCenters.filter((c) => c.costCenterTypeId === 'DIRECT').length}
-          icon={<i className="ti ti-chart-pie" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label="Shared Overhead"
-          value={costCenters.filter((c) => c.costCenterTypeId === 'SHARED').length}
-          icon={<i className="ti ti-layers-intersect" style={{ color: 'var(--amber-500, #DF8B17)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. Branch Filter Requirement */}
+      {/* 2. Branch Filter Requirement */}
       <Card variant="flat" padding="md">
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ width: '280px' }}>
@@ -413,25 +404,16 @@ export const CostCentersPage: React.FC = () => {
       )}
 
       {/* Confirmation Dialog */}
-      <Dialog
+      <ConfirmDialog
         isOpen={isConfirmDialogOpen && confirmActionType === 'DEACTIVATE_COST_CENTER'}
         onClose={closeConfirmDialog}
+        onConfirm={handleConfirmDeactivate}
         title={t('confirmActionTitle')}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={closeConfirmDialog}>
-              {t('cancel')}
-            </Button>
-            <Button variant="danger" onClick={executeConfirmAction}>
-              {t('deactivate')}
-            </Button>
-          </div>
-        }
-      >
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-body, #354456)' }}>
-          {t('confirmDeactivate')}
-        </p>
-      </Dialog>
+        message={t('confirmDeactivate')}
+        confirmLabel={t('deactivate')}
+        cancelLabel={t('cancel')}
+        tone="danger"
+      />
     </div>
   );
 };

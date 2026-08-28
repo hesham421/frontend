@@ -3,11 +3,13 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useNotificationsStore } from '../../stores/useNotificationsStore';
 import { Breadcrumb, EmptyState } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
-import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
+import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select } from '../../components/ui/FormControls';
+import { useToast } from '../../components/ui/Toast';
 
 export const NotificationInboxPage: React.FC = () => {
   const { t, lang } = useLanguage();
+  const { showToast } = useToast();
   const {
     notifications,
     searchQuery,
@@ -39,8 +41,6 @@ export const NotificationInboxPage: React.FC = () => {
   });
 
   const unreadCount = getUnreadCount();
-  const totalCount = notifications.length;
-  const warningCount = notifications.filter((n) => n.type === 'WARNING' || n.type === 'ALERT').length;
 
   const typeOptions = [
     { value: 'ALL', label: t('all') },
@@ -82,33 +82,20 @@ export const NotificationInboxPage: React.FC = () => {
           </h1>
         </div>
         {unreadCount > 0 && (
-          <Button variant="secondary" iconLeft={<i className="ti ti-checks" />} onClick={markAllAsRead}>
+          <Button
+            variant="secondary"
+            iconLeft={<i className="ti ti-checks" />}
+            onClick={() => {
+              markAllAsRead();
+              showToast(t('allReadSuccess'), 'success');
+            }}
+          >
             {t('markAllAsRead')}
           </Button>
         )}
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalRecords')}
-          value={totalCount}
-          icon={<i className="ti ti-bell" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('unreadNotifications')}
-          value={unreadCount}
-          trend={{ value: `${unreadCount} new`, isPositive: false }}
-          icon={<i className="ti ti-bell-ringing" style={{ color: 'var(--red-500, #CB3A2D)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label="Security & Alerts"
-          value={warningCount}
-          icon={<i className="ti ti-alert-triangle" style={{ color: 'var(--amber-500, #DF8B17)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. Filter Bar */}
+      {/* 2. Filter Bar */}
       <Card variant="flat" padding="md">
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 280px', minWidth: '220px' }}>
@@ -166,13 +153,13 @@ export const NotificationInboxPage: React.FC = () => {
                     {t('type')}
                   </th>
                   <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    Subject & Message
+                    {t('colSubjectMessage')}
                   </th>
                   <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    Module
+                    {t('colModule')}
                   </th>
                   <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    Date & Time
+                    {t('colDateTime')}
                   </th>
                   <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
                     {t('status')}
@@ -226,7 +213,7 @@ export const NotificationInboxPage: React.FC = () => {
                       </td>
                       <td style={{ padding: '14px 18px' }}>
                         <Badge variant={isUnread ? 'primary' : 'neutral'} size="sm">
-                          {isUnread ? 'Unread' : 'Read'}
+                          {isUnread ? t('unread') : t('read')}
                         </Badge>
                       </td>
                       <td style={{ padding: '14px 18px', textAlign: 'end' }}>
@@ -242,7 +229,7 @@ export const NotificationInboxPage: React.FC = () => {
                           )}
                           <IconButton
                             icon="ti ti-archive"
-                            label="Archive"
+                            label={t('archive')}
                             variant="ghost"
                             size="sm"
                             onClick={() => archiveNotification(n.id)}

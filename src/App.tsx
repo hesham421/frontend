@@ -2,10 +2,12 @@ import React from 'react';
 import { useLanguage } from './context/LanguageContext';
 import { useAuthStore } from './stores/useAuthStore';
 import { useNavigationStore } from './stores/useNavigationStore';
-import { useLogoutMutation } from './auth/hooks';
+import { useLogoutMutation, useSessionBootstrap } from './auth/hooks';
+import { usePermission } from './auth/permissions';
 import { AppShell } from './layout/AppShell';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
+import { Unauthorized } from './pages/Unauthorized';
 
 // Module 1: Security Pages
 import { UsersPage } from './pages/Security/Users';
@@ -28,6 +30,7 @@ import { NotificationTemplatesPage } from './pages/Notifications/NotificationTem
 import { NotificationChannelsPage } from './pages/Notifications/NotificationChannels';
 
 export const App: React.FC = () => {
+  const sessionReady = useSessionBootstrap();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const login = useAuthStore((state) => state.login);
   const storeLogout = useAuthStore((state) => state.logout);
@@ -37,14 +40,48 @@ export const App: React.FC = () => {
   const setCurrentScreen = useNavigationStore((state) => state.setCurrentScreen);
 
   const { t } = useLanguage();
+  const { can } = usePermission();
 
   const logout = async () => {
     try {
       await logoutMutation.mutateAsync();
     } finally {
       storeLogout();
+      // A later login (possibly a different user, same tab) must not
+      // resume on whatever screen this session was last on.
+      setCurrentScreen('dashboard');
     }
   };
+
+  // Holds the very first paint until the silent session-restore attempt
+  // (useSessionBootstrap) resolves, so a hard refresh with a valid session
+  // never flashes the Login screen before isAuthenticated catches up.
+  if (!sessionReady) {
+    return (
+      <div
+        style={{
+          width: '100vw',
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--surface-page, #F8FAFC)',
+        }}
+      >
+        <span
+          style={{
+            width: '28px',
+            height: '28px',
+            borderRadius: '50%',
+            border: '3px solid var(--border-default, #D8DEE6)',
+            borderTopColor: 'var(--brand-primary, #2466D8)',
+            display: 'inline-block',
+            animation: 'avl-spin 0.7s linear infinite',
+          }}
+        />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Login onLogin={login} />;
@@ -57,21 +94,22 @@ export const App: React.FC = () => {
         return <Dashboard onNavigate={setCurrentScreen} />;
 
       // Module 1: Security
-      // Guards below are flagged additions (F4/CONTRACT-12): the only guard
-      // AS-IS is the global isAuthenticated check above. Real per-screen
-      // gating is SEC-FE's own phase — its permission hook doesn't exist
-      // yet, so nothing is fabricated here ahead of it (see src/users/hooks.ts
-      // useUserManagementFacade's own note on this same boundary).
-      // TODO(SEC-FE/SCR-SEC-002): if (!canView) return <Unauthorized />; — PERM_USER_VIEW is a CONFIRMED real literal.
+      // SEC-FE/SCR-SEC-002: PERM_USER_VIEW is a CONFIRMED real literal
+      // (permissionmanagement.md response example: pageCode "USER").
       case 'sec-users':
-        return <UsersPage />;
-      // TODO(SEC-FE/SCR-SEC-003): if (!canView) return <Unauthorized />; — PERM_ROLE_* pageCode unconfirmed, OQ-SEC-FE-003.
+        return can('PERM_USER_VIEW') ? <UsersPage /> : <Unauthorized />;
+      // BLOCKED (OQ-SEC-FE-003): Roles' own pageCode is unconfirmed, so the
+      // PERM_ROLE_* frontend-gating literal cannot be constructed — do not
+      // invent it. Screen stays open pending resolution; server-side ROLE_*
+      // checks on every mutation are the real enforcement in the meantime.
       case 'sec-roles':
         return <RolesPage />;
-      // TODO(SEC-FE/SCR-SEC-004): if (!canView) return <Unauthorized />; — PERM_PERMISSION_* pageCode unconfirmed, OQ-SEC-FE-003.
+      // BLOCKED (OQ-SEC-FE-003): Permissions' own pageCode is unconfirmed.
       case 'sec-permissions':
         return <PermissionsPage />;
-      // TODO(SEC-FE/SCR-SEC-005): if (!canView) return <Unauthorized />; — PERM_PAGE_* pageCode unconfirmed, OQ-SEC-FE-003.
+      // BLOCKED (OQ-SEC-FE-003): Pages Registry's own pageCode is unconfirmed
+      // (distinct from the confirmed PAGE_VIEW/CREATE/UPDATE/DELETE literals
+      // that gate this screen's own CRUD actions — see PagesRegistryPage).
       case 'sec-pages':
         return <PagesRegistryPage />;
 

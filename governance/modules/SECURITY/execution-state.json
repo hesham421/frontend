@@ -2,7 +2,7 @@
   "module": "SECURITY",
   "generated_at": "2026-08-28",
   "ui_shell_complete_confirmed": true,
-  "current_phase": "SEC-FE",
+  "current_phase": "ALIGN-FE",
   "current_sub": null,
   "api_docs_path": "governance/modules/SECURITY/api-docs/",
   "phases": [
@@ -59,15 +59,15 @@
     },
     {
       "id": "SEC-FE",
-      "status": "PENDING",
+      "status": "COMPLETE",
       "subs": [
-        { "id": "SCR-SEC-001", "status": "PENDING" },
-        { "id": "SCR-SEC-002", "status": "PENDING" },
-        { "id": "SCR-SEC-003", "status": "PENDING" },
-        { "id": "SCR-SEC-004", "status": "PENDING" },
-        { "id": "SCR-SEC-005", "status": "PENDING" },
-        { "id": "SCR-SEC-006", "status": "PENDING" },
-        { "id": "SCR-SEC-007", "status": "PENDING" }
+        { "id": "SCR-SEC-001", "status": "COMPLETE" },
+        { "id": "SCR-SEC-002", "status": "COMPLETE" },
+        { "id": "SCR-SEC-003", "status": "COMPLETE" },
+        { "id": "SCR-SEC-004", "status": "COMPLETE" },
+        { "id": "SCR-SEC-005", "status": "COMPLETE" },
+        { "id": "SCR-SEC-006", "status": "COMPLETE" },
+        { "id": "SCR-SEC-007", "status": "COMPLETE" }
       ]
     },
     {
@@ -86,6 +86,14 @@
     "mandatory_file": null,
     "subs": []
   },
-  "blocked": [],
+  "blocked": [
+    {
+      "id": "OQ-SEC-FE-003",
+      "phase": "SEC-FE",
+      "subs": ["SCR-SEC-003", "SCR-SEC-004", "SCR-SEC-005"],
+      "item": "App.tsx switch-case screen guards for 'sec-roles', 'sec-permissions', 'sec-pages'",
+      "resolution": "blocked pending confirmation of each screen's real Page Registry pageCode — cannot construct the PERM_<PAGE_CODE>_VIEW frontend-gating literal without inventing it (only 'USER' was confirmed by literal example, permissionmanagement.md). See governance/project-artifacts/SECURITY-SEC-FE-session-report.md."
+    }
+  ],
   "api_doc_gaps": []
 }

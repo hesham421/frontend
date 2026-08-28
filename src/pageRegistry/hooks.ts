@@ -7,6 +7,7 @@ import {
   type PageSearchContractRequest,
   type UpdatePageRequest,
 } from './pageRegistryApi';
+import { usePermission } from '../auth/permissions';
 import { DEFAULT_PAGE_SIZE } from '../data/searchContract';
 
 // F2-QUERY blocks API-SEC-030..036 (F2/SCR-SEC-005).
@@ -109,11 +110,22 @@ const DEFAULT_FILTERS: PageSearchFilters = { filters: [], sorts: [], page: 0, si
  * F2-FACADE-HOOK — SCR-SEC-005. Components call this facade only; it
  * composes useSearchPages, useCreatePage, useUpdatePage, useDeactivatePage,
  * useReactivatePage, useActivePages. No toasts/dialogs/navigation here
- * (R.3.11). Permission flags are SEC-FE/SCR-SEC-005's own phase (see note in
- * useUserManagementFacade, src/users/hooks.ts).
+ * (R.3.11).
+ *
+ * SEC-IMPL-RULE-2/3: canCreate/canEdit/canDelete use the real, confirmed
+ * PAGE_CREATE/PAGE_UPDATE/PAGE_DELETE authorities (pagemanagement.md).
+ * canEdit also covers reactivate (PAGE_UPDATE); canDelete specifically
+ * covers deactivate (PAGE_DELETE — distinct from update, confirmed literal).
+ * canView is NOT exposed here — that's the still-unconfirmed PERM_PAGE_*
+ * frontend screen-gating literal (OQ-SEC-FE-003), a different concept from
+ * the real PAGE_VIEW authority that guards the read/search endpoints.
  */
 export function usePageRegistryFacade() {
   const [searchFilters, setSearchFiltersState] = useState<PageSearchFilters>(DEFAULT_FILTERS);
+  const { can } = usePermission();
+  const canCreate = can('PAGE_CREATE');
+  const canEdit = can('PAGE_UPDATE');
+  const canDelete = can('PAGE_DELETE');
   const [selectedPage, setSelectedPage] = useState<PageResponse | null>(null);
 
   const search = useSearchPages();
@@ -141,6 +153,9 @@ export function usePageRegistryFacade() {
   return {
     pageList,
     selectedPage,
+    canCreate,
+    canEdit,
+    canDelete,
     isLoading,
     isListLoading: search.isPending,
     loadError: search.isError ? search.error : null,

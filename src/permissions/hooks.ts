@@ -51,6 +51,13 @@ const DEFAULT_FILTERS: PermissionSearchFilters = { filters: [], sorts: [], page:
  * the LOV-SEC-001 constant (static import — see permissionType.ts, not a
  * hook), and useActivePages (cross-screen read from SCR-SEC-005, for the
  * "associated screen" picker). No toasts/dialogs/navigation here (R.3.11).
+ *
+ * SEC-FE/SCR-SEC-004: no permission flags are exposed here. Confirmed real
+ * asymmetry (permissionmanagement.md) — POST/PUT (create/update) carry no
+ * permission annotation at all server-side, so gating them on the client
+ * would imply protection that doesn't exist (AD-6). Only search carries one
+ * (PERMISSION_VIEW), and that's a 403-on-load concern already covered by
+ * the generic mapApiError path, not a control to hide.
  */
 export function usePermissionRegistryFacade() {
   const [searchFilters, setSearchFiltersState] = useState<PermissionSearchFilters>(DEFAULT_FILTERS);

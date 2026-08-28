@@ -6,6 +6,7 @@ import {
 } from './roleDataScopeApi';
 import { DATA_ACCESS_LEVELS, type DataAccessLevel } from './dataAccessLevel';
 import { ApiError } from '../lib/errors/ApiError';
+import { usePermission } from '../auth/permissions';
 
 // F2-QUERY blocks API-SEC-042..047 (F2/SCR-SEC-007).
 
@@ -93,17 +94,31 @@ export function useDataAccessLevelOptions(): readonly DataAccessLevel[] {
  *
  * OQ-015 CARRYOVER: this Facade does not filter or restrict anything by
  * allowedBranches[] — nothing to consume.
+ *
+ * SEC-IMPL-RULE-2: canView/canCreate/canEdit/canDelete are the real,
+ * confirmed ROLE_VIEW/CREATE/UPDATE/DELETE authorities, reused from the
+ * Role entity's own permission family (security-datascope-role-branches.md
+ * — this screen has no PERM_DATASCOPE_* family of its own, per F4).
  */
 export function useRoleDataScopeFacade(roleId: number | undefined, branchId: number | undefined) {
   const scopeQuery = useRoleBranch(roleId, branchId);
   const createMutation = useCreateRoleBranch();
   const updateMutation = useUpdateRoleBranch();
   const deleteMutation = useDeleteRoleBranch();
+  const { can } = usePermission();
+  const canView = can('ROLE_VIEW');
+  const canCreate = can('ROLE_CREATE');
+  const canEdit = can('ROLE_UPDATE');
+  const canDelete = can('ROLE_DELETE');
 
   const isLoading = scopeQuery.isLoading || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
 
   return {
     scope: scopeQuery.data ?? null,
+    canView,
+    canCreate,
+    canEdit,
+    canDelete,
     isLoading,
     saveScope: async (dataAccessLevel: DataAccessLevel) => {
       if (roleId == null || branchId == null) throw new Error('saveScope requires roleId and branchId');

@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
 import { useNavigationStore } from '../../stores/useNavigationStore';
-import { Breadcrumb, Drawer, Dialog, EmptyState, Alert } from '../../components/ui/OverlaysAndFeedback';
+import { Breadcrumb, Drawer, EmptyState, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
-import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
+import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select } from '../../components/ui/FormControls';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 import { Branch } from '../../data/mockData';
 
 export const BranchesPage: React.FC = () => {
   const { t, lang } = useLanguage();
+  const { showToast } = useToast();
   const setCurrentScreen = useNavigationStore((state) => state.setCurrentScreen);
 
   const {
@@ -64,6 +67,7 @@ export const BranchesPage: React.FC = () => {
   };
 
   const handleSave = () => {
+    const isEdit = !!selectedBranch;
     saveBranch({
       id: selectedBranch?.id,
       nameEn,
@@ -72,6 +76,12 @@ export const BranchesPage: React.FC = () => {
       branchTypeId,
       notes,
     });
+    showToast(t(isEdit ? 'branchSavedSuccess' : 'branchCreatedSuccess'), 'success');
+  };
+
+  const handleConfirmDeactivate = () => {
+    executeConfirmAction();
+    showToast(t('branchDeactivatedSuccess'), 'success');
   };
 
   const handleDeactivate = (branch: Branch) => {
@@ -112,10 +122,6 @@ export const BranchesPage: React.FC = () => {
 
     return matchesSearch && matchesEntity && matchesType && matchesStatus;
   });
-
-  const total = branches.length;
-  const active = branches.filter((b) => b.isActive).length;
-  const inactive = total - active;
 
   const entityOptions = [
     { value: 'ALL', label: t('all') },
@@ -165,27 +171,7 @@ export const BranchesPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalBranches')}
-          value={total}
-          icon={<i className="ti ti-git-branch" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('activeRecords')}
-          value={active}
-          trend={{ value: `${Math.round((active / (total || 1)) * 100)}%`, isPositive: true }}
-          icon={<i className="ti ti-check" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('inactiveRecords')}
-          value={inactive}
-          icon={<i className="ti ti-x" style={{ color: 'var(--red-500, #CB3A2D)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. Filter Bar */}
+      {/* 2. Filter Bar */}
       <Card variant="flat" padding="md">
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 240px', minWidth: '200px' }}>
@@ -414,30 +400,21 @@ export const BranchesPage: React.FC = () => {
       </Drawer>
 
       {/* 6. Cascade Dialog */}
-      <Dialog
+      <ConfirmDialog
         isOpen={isConfirmDialogOpen && confirmActionType === 'DEACTIVATE_BRANCH'}
         onClose={closeConfirmDialog}
+        onConfirm={handleConfirmDeactivate}
         title={t('confirmActionTitle')}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={closeConfirmDialog}>
-              {t('cancel')}
-            </Button>
-            <Button variant="danger" onClick={executeConfirmAction}>
-              {t('deactivate')}
-            </Button>
+        message={
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {cascadeWarningMessage && <Alert variant="warning" message={cascadeWarningMessage} />}
+            {t('confirmDeactivate')}
           </div>
         }
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {cascadeWarningMessage && (
-            <Alert variant="warning" message={cascadeWarningMessage} />
-          )}
-          <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-body, #354456)' }}>
-            {t('confirmDeactivate')}
-          </p>
-        </div>
-      </Dialog>
+        confirmLabel={t('deactivate')}
+        cancelLabel={t('cancel')}
+        tone="danger"
+      />
     </div>
   );
 };

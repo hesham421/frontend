@@ -31,6 +31,9 @@ export const PagesRegistryPage: React.FC = () => {
   const {
     pageList,
     selectedPage,
+    canCreate,
+    canEdit,
+    canDelete,
     isLoading,
     isListLoading,
     loadError,
@@ -47,6 +50,8 @@ export const PagesRegistryPage: React.FC = () => {
     deactivatePage,
     reactivatePage,
   } = usePageRegistryFacade();
+  // Editing an existing page needs UPDATE; the create-drawer branch needs CREATE.
+  const canSavePageDialog = selectedPage ? canEdit : canCreate;
 
   const [searchText, setSearchText] = useState('');
   const [moduleFilter, setModuleFilter] = useState('ALL');
@@ -187,20 +192,26 @@ export const PagesRegistryPage: React.FC = () => {
     {
       key: 'code',
       header: t('code'),
-      width: '190px',
-      render: (s) => <Badge variant="neutral" size="sm">{s.pageCode}</Badge>,
+      render: (s) => (
+        <Badge
+          variant="neutral"
+          size="sm"
+          style={{ display: 'inline-block', maxWidth: '140px', ...truncateStyle }}
+        >
+          <span title={s.pageCode}>{s.pageCode}</span>
+        </Badge>
+      ),
     },
     {
       key: 'name',
       header: t('name'),
-      width: '260px',
       render: (s) => {
         const primary = lang === 'ar' ? s.nameAr : s.nameEn;
         const secondary = lang === 'ar' ? s.nameEn : s.nameAr;
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
             <i className={s.icon || 'ti ti-file'} style={{ color: 'var(--brand-primary, #2466D8)', flexShrink: 0 }} />
-            <div style={{ minWidth: 0 }}>
+            <div style={{ minWidth: 0, maxWidth: '260px' }}>
               <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)', fontSize: '14px', ...truncateStyle }} title={primary}>
                 {primary}
               </div>
@@ -215,16 +226,21 @@ export const PagesRegistryPage: React.FC = () => {
     {
       key: 'module',
       header: t('colModule'),
-      width: '120px',
       render: (s) => <Badge variant="primary" size="sm">{s.module}</Badge>,
     },
     {
       key: 'route',
       header: t('colRouteUrl'),
-      width: '220px',
       render: (s) => (
         <span
-          style={{ display: 'block', fontFamily: 'var(--font-mono, monospace)', fontSize: '13px', color: 'var(--text-body, #354456)', ...truncateStyle }}
+          style={{
+            display: 'block',
+            maxWidth: '210px',
+            fontFamily: 'var(--font-mono, monospace)',
+            fontSize: '13px',
+            color: 'var(--text-body, #354456)',
+            ...truncateStyle,
+          }}
           title={s.route}
         >
           {s.route}
@@ -234,7 +250,6 @@ export const PagesRegistryPage: React.FC = () => {
     {
       key: 'status',
       header: t('status'),
-      width: '100px',
       render: (s) => (
         <Badge variant={s.active ? 'success' : 'danger'} size="sm">
           {s.active ? t('active') : t('inactive')}
@@ -245,20 +260,22 @@ export const PagesRegistryPage: React.FC = () => {
       key: 'actions',
       header: t('actions'),
       align: 'end',
-      width: '150px',
       render: (s) => (
         <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
           <IconButton icon="ti ti-edit" label={t('edit')} variant="ghost" size="sm" onClick={() => handleOpenEdit(s)} />
+          {/* SEC-FE/SCR-SEC-005 — deactivate requires PAGE_DELETE, reactivate requires PAGE_UPDATE (confirmed, distinct literals). */}
           {s.id != null &&
-            (s.active ? (
-              <Button variant="secondary" size="sm" onClick={() => setConfirmToggle({ page: s, activate: false })}>
-                {t('deactivate')}
-              </Button>
-            ) : (
-              <Button variant="primary" size="sm" onClick={() => setConfirmToggle({ page: s, activate: true })}>
-                {t('reactivate')}
-              </Button>
-            ))}
+            (s.active
+              ? canDelete && (
+                  <Button variant="secondary" size="sm" onClick={() => setConfirmToggle({ page: s, activate: false })}>
+                    {t('deactivate')}
+                  </Button>
+                )
+              : canEdit && (
+                  <Button variant="primary" size="sm" onClick={() => setConfirmToggle({ page: s, activate: true })}>
+                    {t('reactivate')}
+                  </Button>
+                ))}
         </div>
       ),
     },
@@ -288,9 +305,11 @@ export const PagesRegistryPage: React.FC = () => {
             {t('secPagesTitle')}
           </h1>
         </div>
-        <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
-          {t('new')}
-        </Button>
+        {canCreate && (
+          <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+            {t('new')}
+          </Button>
+        )}
       </div>
 
       {/* 2. Filter Bar */}
@@ -359,7 +378,7 @@ export const PagesRegistryPage: React.FC = () => {
           emptyIcon="ti ti-layout-off"
           emptyTitle={t('noRecordsFound')}
           emptyDescription={t('noRecordsDesc')}
-          emptyAction={{ label: t('new'), onClick: handleOpenCreate }}
+          emptyAction={canCreate ? { label: t('new'), onClick: handleOpenCreate } : undefined}
         />
         {!loadError && (
           <Pagination page={pageNum} size={size} totalElements={totalElements} onPageChange={setPage} />
@@ -377,9 +396,11 @@ export const PagesRegistryPage: React.FC = () => {
             <Button variant="secondary" onClick={() => setIsPageDrawerOpen(false)}>
               {t('cancel')}
             </Button>
-            <Button variant="primary" onClick={handleSave} loading={isLoading}>
-              {t('save')}
-            </Button>
+            {canSavePageDialog && (
+              <Button variant="primary" onClick={handleSave} loading={isLoading}>
+                {t('save')}
+              </Button>
+            )}
           </div>
         }
       >
@@ -391,7 +412,7 @@ export const PagesRegistryPage: React.FC = () => {
               label={`${t('code')} *`}
               value={pageCode}
               onChange={(e) => setPageCode(e.target.value.toUpperCase())}
-              disabled={!!selectedPage}
+              disabled={!!selectedPage || !canSavePageDialog}
               helperText={selectedPage ? t('readOnlyCodeHint') : 'e.g. SCR_FIN_LEDGER'}
               required
             />
@@ -400,6 +421,7 @@ export const PagesRegistryPage: React.FC = () => {
               options={MODULE_OPTIONS}
               value={module}
               onChange={(e) => setModule(e.target.value)}
+              disabled={!canSavePageDialog}
             />
           </div>
 
@@ -408,12 +430,14 @@ export const PagesRegistryPage: React.FC = () => {
               label={`${t('nameEn')} *`}
               value={nameEn}
               onChange={(e) => setNameEn(e.target.value)}
+              disabled={!canSavePageDialog}
               required
             />
             <Input
               label={`${t('nameAr')} *`}
               value={nameAr}
               onChange={(e) => setNameAr(e.target.value)}
+              disabled={!canSavePageDialog}
               required
             />
           </div>
@@ -424,6 +448,7 @@ export const PagesRegistryPage: React.FC = () => {
               value={route}
               onChange={(e) => setRoute(e.target.value)}
               placeholder="/security/roles"
+              disabled={!canSavePageDialog}
               required
             />
             <Input
@@ -431,6 +456,7 @@ export const PagesRegistryPage: React.FC = () => {
               value={icon}
               onChange={(e) => setIcon(e.target.value)}
               placeholder="ti ti-shield"
+              disabled={!canSavePageDialog}
             />
           </div>
 
@@ -440,12 +466,14 @@ export const PagesRegistryPage: React.FC = () => {
               options={parentOptions}
               value={parentId}
               onChange={(e) => setParentId(e.target.value)}
+              disabled={!canSavePageDialog}
             />
             <Input
               label="Display Order"
               type="number"
               value={displayOrder}
               onChange={(e) => setDisplayOrder(e.target.value)}
+              disabled={!canSavePageDialog}
             />
           </div>
 
@@ -453,13 +481,14 @@ export const PagesRegistryPage: React.FC = () => {
             label={t('description')}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            disabled={!canSavePageDialog}
           />
 
           <Switch
             label={t('active')}
             checked={isActive}
             onChange={(checked) => setIsActive(checked)}
-            disabled={!!selectedPage}
+            disabled={!!selectedPage || !canSavePageDialog}
           />
           {selectedPage && (
             <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted, #647488)' }}>

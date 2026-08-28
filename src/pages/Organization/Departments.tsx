@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
-import { Breadcrumb, Dialog, Alert } from '../../components/ui/OverlaysAndFeedback';
+import { Breadcrumb, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
-import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
+import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select } from '../../components/ui/FormControls';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 import { DepartmentNode } from '../../data/mockData';
 
 export const DepartmentsPage: React.FC = () => {
   const { t, lang } = useLanguage();
+  const { showToast } = useToast();
   const {
     departments,
     branches,
@@ -85,8 +88,9 @@ export const DepartmentsPage: React.FC = () => {
 
   const handleSaveForm = (e: React.FormEvent) => {
     e.preventDefault();
+    const isEdit = !isCreatingChild && !isCreatingRoot;
     saveDepartment({
-      id: isCreatingChild || isCreatingRoot ? undefined : selectedDepartment?.id,
+      id: isEdit ? selectedDepartment?.id : undefined,
       nameEn,
       nameAr,
       branchFk: deptBranchFilter,
@@ -96,6 +100,12 @@ export const DepartmentsPage: React.FC = () => {
     });
     setIsCreatingChild(false);
     setIsCreatingRoot(false);
+    showToast(t(isEdit ? 'departmentSavedSuccess' : 'departmentCreatedSuccess'), 'success');
+  };
+
+  const handleConfirmDeactivate = () => {
+    executeConfirmAction();
+    showToast(t('departmentDeactivatedSuccess'), 'success');
   };
 
   // Branch options
@@ -106,26 +116,6 @@ export const DepartmentsPage: React.FC = () => {
 
   // Filter department tree by selected branch
   const branchDepts = departments.filter((d) => d.branchFk === deptBranchFilter);
-
-  // Helper to count nodes
-  const countNodes = (nodes: DepartmentNode[]): { total: number; summary: number; detail: number } => {
-    let total = 0;
-    let summary = 0;
-    let detail = 0;
-
-    const traverse = (list: DepartmentNode[]) => {
-      for (const n of list) {
-        total++;
-        if (n.nodeTypeId === 'SUMMARY') summary++;
-        else detail++;
-        if (n.children) traverse(n.children);
-      }
-    };
-    traverse(nodes);
-    return { total, summary, detail };
-  };
-
-  const stats = countNodes(branchDepts);
 
   // Recursive Tree Node Renderer
   const renderTreeNode = (node: DepartmentNode, level: number = 0) => {
@@ -252,26 +242,7 @@ export const DepartmentsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalDepartments')}
-          value={stats.total}
-          icon={<i className="ti ti-sitemap" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label="Summary Units"
-          value={stats.summary}
-          icon={<i className="ti ti-folder" style={{ color: 'var(--amber-500, #DF8B17)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label="Posting / Detail Units"
-          value={stats.detail}
-          icon={<i className="ti ti-file-text" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. Branch Filter Requirement */}
+      {/* 2. Branch Filter Requirement */}
       <Card variant="flat" padding="md">
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ width: '280px' }}>
@@ -416,25 +387,16 @@ export const DepartmentsPage: React.FC = () => {
       )}
 
       {/* Confirmation Dialog */}
-      <Dialog
+      <ConfirmDialog
         isOpen={isConfirmDialogOpen && confirmActionType === 'DEACTIVATE_DEPT'}
         onClose={closeConfirmDialog}
+        onConfirm={handleConfirmDeactivate}
         title={t('confirmActionTitle')}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={closeConfirmDialog}>
-              {t('cancel')}
-            </Button>
-            <Button variant="danger" onClick={executeConfirmAction}>
-              {t('deactivate')}
-            </Button>
-          </div>
-        }
-      >
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-body, #354456)' }}>
-          {t('confirmDeactivate')}
-        </p>
-      </Dialog>
+        message={t('confirmDeactivate')}
+        confirmLabel={t('deactivate')}
+        cancelLabel={t('cancel')}
+        tone="danger"
+      />
     </div>
   );
 };

@@ -1,10 +1,13 @@
 import { tokenStore } from '../../auth/tokenStore';
 import { authApi } from '../../auth/authApi';
+import { useAuthStore } from '../../stores/useAuthStore';
+import { useNavigationStore } from '../../stores/useNavigationStore';
 
 // Single-flight refresh (R.9.5, R.9.6): every concurrent 401 awaits the same
 // promise instead of starting its own; a failed refresh clears the token
-// rather than retrying (hard logout — session teardown/redirect is wired at
-// the app-shell level once F4 integrates this screen).
+// AND the auth store — an expired/invalid session must drop the user back
+// to Login, not leave the shell stuck in a stale isAuthenticated:true state
+// with every subsequent request now failing.
 let inFlight: Promise<void> | null = null;
 
 export function refreshOnce(): Promise<void> {
@@ -15,6 +18,8 @@ export function refreshOnce(): Promise<void> {
     })
     .catch((e) => {
       tokenStore.clear();
+      useAuthStore.getState().logout();
+      useNavigationStore.getState().setCurrentScreen('dashboard');
       throw e;
     })
     .finally(() => {

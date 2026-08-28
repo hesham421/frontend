@@ -5,6 +5,10 @@ import { ApiError, type ApiErrorKind } from './ApiError';
 // only for a code actually observed from the backend — never invent one.
 const CODE_KEYS: Partial<Record<string, string>> = {
   PERMISSION_ALREADY_EXISTS: 'errPermissionAlreadyExists',
+  INVALID_CREDENTIALS: 'errInvalidCredentials',
+  SIGNUP_USERNAME_ALREADY_EXISTS: 'errUsernameAlreadyExists',
+  ACTIVATION_TOKEN_INVALID_OR_EXPIRED: 'errActivationTokenInvalid',
+  RESET_TOKEN_INVALID_OR_EXPIRED: 'errResetTokenInvalid',
 };
 
 // One fallback message per kind (lib/errors/ApiError.ts's closed taxonomy).

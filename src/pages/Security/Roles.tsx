@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useRoleManagementFacade } from '../../roles/hooks';
+import { usePermission } from '../../auth/permissions';
 import { createRoleSchema, excludeSelfFromCopySources, type CrudPermission } from '../../roles/roles.schema';
 import type { RoleDto } from '../../roles/rolesApi';
 import { useActivePages } from '../../pageRegistry/hooks';
@@ -23,6 +24,8 @@ export const RolesPage: React.FC = () => {
     roleList,
     selectedRole,
     pageMatrix,
+    canCreate,
+    canEdit,
     isLoading,
     isListLoading,
     loadError,
@@ -45,6 +48,10 @@ export const RolesPage: React.FC = () => {
     copyFromRole,
   } = useRoleManagementFacade();
   const activePages = useActivePages();
+  const { can } = usePermission();
+  const canOpenDataScope = can('ROLE_VIEW');
+  // Editing an existing role needs UPDATE; the create-dialog branch needs CREATE.
+  const canSaveRoleDialog = selectedRole ? canEdit : canCreate;
 
   const [searchText, setSearchText] = useState('');
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
@@ -257,9 +264,11 @@ export const RolesPage: React.FC = () => {
             {t('secRolesTitle')}
           </h1>
         </div>
-        <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
-          {t('new')}
-        </Button>
+        {canCreate && (
+          <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+            {t('new')}
+          </Button>
+        )}
       </div>
 
       {/* 2. Filter Bar */}
@@ -314,7 +323,7 @@ export const RolesPage: React.FC = () => {
           emptyIcon="ti ti-shield-x"
           emptyTitle={t('noRecordsFound')}
           emptyDescription={t('noRecordsDesc')}
-          emptyAction={{ label: t('new'), onClick: handleOpenCreate }}
+          emptyAction={canCreate ? { label: t('new'), onClick: handleOpenCreate } : undefined}
         />
         {!loadError && (
           <Pagination page={page} size={size} totalElements={totalElements} onPageChange={setPage} />
@@ -330,8 +339,11 @@ export const RolesPage: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '8px' }}>
               {selectedRole && (
-                // TODO(SEC-FE/SCR-SEC-007): gate on ROLE_UPDATE once SEC-FE's
-                // permission hooks exist (confirmed literal, securitydatascoperolebranches.md).
+                // SEC-FE/SCR-SEC-007 — Data Scope launch gate uses the
+                // drawer's own confirmed real literal (ROLE_VIEW), not this
+                // screen's own canEdit. Permission Matrix stays visible for
+                // viewing; its interactive controls are gated on canEdit
+                // inside PermissionMatrixDrawer itself.
                 <>
                   <Button
                     variant="secondary"
@@ -341,14 +353,16 @@ export const RolesPage: React.FC = () => {
                   >
                     {t('permissionMatrix')} →
                   </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setIsDataScopeDrawerOpen(true)}
-                    iconLeft={<i className="ti ti-building" />}
-                  >
-                    {t('dataScope')} →
-                  </Button>
+                  {canOpenDataScope && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setIsDataScopeDrawerOpen(true)}
+                      iconLeft={<i className="ti ti-building" />}
+                    >
+                      {t('dataScope')} →
+                    </Button>
+                  )}
                 </>
               )}
             </div>
@@ -356,9 +370,11 @@ export const RolesPage: React.FC = () => {
               <Button variant="secondary" onClick={() => setIsRoleDialogOpen(false)}>
                 {t('cancel')}
               </Button>
-              <Button variant="primary" onClick={handleSave} loading={isLoading}>
-                {t('save')}
-              </Button>
+              {canSaveRoleDialog && (
+                <Button variant="primary" onClick={handleSave} loading={isLoading}>
+                  {t('save')}
+                </Button>
+              )}
             </div>
           </div>
         }
@@ -368,7 +384,7 @@ export const RolesPage: React.FC = () => {
             label={`${t('code')} *`}
             value={roleCode}
             onChange={(e) => setRoleCode(e.target.value.toUpperCase())}
-            disabled={!!selectedRole}
+            disabled={!!selectedRole || !canSaveRoleDialog}
             helperText={selectedRole ? t('readOnlyCodeHint') : 'e.g. ROLE_OPERATIONS_LEAD'}
             required
           />
@@ -376,11 +392,13 @@ export const RolesPage: React.FC = () => {
             label={`${t('name')} *`}
             value={roleName}
             onChange={(e) => setRoleName(e.target.value)}
+            disabled={!canSaveRoleDialog}
             required
           />
           <Input
             label={t('description')}
             value={description}
+            disabled={!canSaveRoleDialog}
             onChange={(e) => setDescription(e.target.value)}
           />
 
@@ -388,6 +406,7 @@ export const RolesPage: React.FC = () => {
             label={t('active')}
             checked={isActive}
             onChange={(checked) => setIsActive(checked)}
+            disabled={!canSaveRoleDialog}
           />
         </div>
       </Dialog>
@@ -405,6 +424,7 @@ export const RolesPage: React.FC = () => {
         role={selectedRole}
         pages={activePages.data ?? []}
         matrixDraft={matrixDraft}
+        canEdit={canEdit}
         onTogglePermission={togglePermission}
         onSyncAll={handleSyncAll}
         onRemovePage={handleRemovePage}

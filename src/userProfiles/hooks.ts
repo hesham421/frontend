@@ -5,6 +5,7 @@ import {
   type UpdateSecUserProfileRequest,
   type UserProfileSearchContractRequest,
 } from './userProfilesApi';
+import { usePermission } from '../auth/permissions';
 
 // F2-QUERY blocks API-SEC-037..041 (F2/SCR-SEC-006).
 
@@ -67,16 +68,30 @@ export function useUpdateUserProfile() {
  * if no profile exists yet, else update (API-SEC-038) — exposed as ONE
  * operation, since a profile is a separate creatable resource, not
  * auto-created alongside a User (governance note under API-SEC-040).
+ *
+ * SEC-IMPL-RULE-2: canView/canCreate/canEdit are the three distinct, real,
+ * confirmed literals (USER_PROFILE_VIEW/CREATE/UPDATE — security-datascope-
+ * user-profiles.md) — create and update are genuinely separate endpoints
+ * with separate permissions, so callers must branch on `profile ? canEdit
+ * : canCreate`, matching saveProfile's own hasProfile branch, never a
+ * single canEdit flag for both.
  */
 export function useUserProfileFacade(userId: number | undefined) {
   const profileQuery = useUserProfile(userId);
   const createMutation = useCreateUserProfile();
   const updateMutation = useUpdateUserProfile();
+  const { can } = usePermission();
+  const canView = can('USER_PROFILE_VIEW');
+  const canCreate = can('USER_PROFILE_CREATE');
+  const canEdit = can('USER_PROFILE_UPDATE');
 
   const isLoading = profileQuery.isLoading || createMutation.isPending || updateMutation.isPending;
 
   return {
     profile: profileQuery.data ?? null,
+    canView,
+    canCreate,
+    canEdit,
     isLoading,
     saveProfile: async (data: UpdateSecUserProfileRequest) => {
       if (userId == null) throw new Error('saveProfile requires a userId');

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 export type ScreenType =
   | 'dashboard'
@@ -30,23 +31,35 @@ export interface NavigationState {
   toggleGroup: (groupId: string) => void;
 }
 
-export const useNavigationStore = create<NavigationState>((set) => ({
-  currentScreen: 'dashboard',
-  sidebarOpen: false,
-  openGroups: {
-    general: true,
-    security: true,
-    organization: true,
-    notifications: true,
-  },
-  setCurrentScreen: (screen: ScreenType) => set({ currentScreen: screen, sidebarOpen: false }),
-  setSidebarOpen: (open: boolean) => set({ sidebarOpen: open }),
-  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-  toggleGroup: (groupId: string) =>
-    set((state) => ({
+export const useNavigationStore = create<NavigationState>()(
+  persist(
+    (set) => ({
+      currentScreen: 'dashboard',
+      sidebarOpen: false,
       openGroups: {
-        ...state.openGroups,
-        [groupId]: !state.openGroups[groupId],
+        general: true,
+        security: true,
+        organization: true,
+        notifications: true,
       },
-    })),
-}));
+      setCurrentScreen: (screen: ScreenType) => set({ currentScreen: screen, sidebarOpen: false }),
+      setSidebarOpen: (open: boolean) => set({ sidebarOpen: open }),
+      toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+      toggleGroup: (groupId: string) =>
+        set((state) => ({
+          openGroups: {
+            ...state.openGroups,
+            [groupId]: !state.openGroups[groupId],
+          },
+        })),
+    }),
+    {
+      // Session-scoped, not permanent (matches tokenStore's "dies with the
+      // tab" model) — a refresh should restore the current screen, but a
+      // fresh tab/login should not inherit a stale screen from last time.
+      name: 'avelynq-navigation',
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({ currentScreen: state.currentScreen }),
+    },
+  ),
+);

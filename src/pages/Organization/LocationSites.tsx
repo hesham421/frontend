@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
-import { Breadcrumb, Drawer, Dialog, EmptyState } from '../../components/ui/OverlaysAndFeedback';
+import { Breadcrumb, Drawer, EmptyState } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
-import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
+import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select } from '../../components/ui/FormControls';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 import { LocationSite } from '../../data/mockData';
 
 export const LocationSitesPage: React.FC = () => {
   const { t, lang } = useLanguage();
+  const { showToast } = useToast();
   const {
     locationSites,
     branches,
@@ -57,6 +60,7 @@ export const LocationSitesPage: React.FC = () => {
   };
 
   const handleSave = () => {
+    const isEdit = !!selectedLocationSite;
     saveLocationSite({
       id: selectedLocationSite?.id,
       nameEn,
@@ -65,6 +69,12 @@ export const LocationSitesPage: React.FC = () => {
       siteTypeId,
       notes,
     });
+    showToast(t(isEdit ? 'locationSiteSavedSuccess' : 'locationSiteCreatedSuccess'), 'success');
+  };
+
+  const handleConfirmDeactivate = () => {
+    executeConfirmAction();
+    showToast(t('locationSiteDeactivatedSuccess'), 'success');
   };
 
   const filteredLocations = locationSites.filter((l) => {
@@ -82,10 +92,6 @@ export const LocationSitesPage: React.FC = () => {
 
     return matchesSearch && matchesBranch && matchesType && matchesStatus;
   });
-
-  const total = locationSites.length;
-  const active = locationSites.filter((l) => l.isActive).length;
-  const inactive = total - active;
 
   const branchOptions = [
     { value: 'ALL', label: t('all') },
@@ -136,27 +142,7 @@ export const LocationSitesPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalRecords')}
-          value={total}
-          icon={<i className="ti ti-building-warehouse" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('activeRecords')}
-          value={active}
-          trend={{ value: `${Math.round((active / (total || 1)) * 100)}%`, isPositive: true }}
-          icon={<i className="ti ti-check" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('inactiveRecords')}
-          value={inactive}
-          icon={<i className="ti ti-x" style={{ color: 'var(--red-500, #CB3A2D)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. Filter Bar */}
+      {/* 2. Filter Bar */}
       <Card variant="flat" padding="md">
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 240px', minWidth: '200px' }}>
@@ -364,25 +350,16 @@ export const LocationSitesPage: React.FC = () => {
       </Drawer>
 
       {/* 6. Deactivation Dialog */}
-      <Dialog
+      <ConfirmDialog
         isOpen={isConfirmDialogOpen && confirmActionType === 'DEACTIVATE_LOCATION'}
         onClose={closeConfirmDialog}
+        onConfirm={handleConfirmDeactivate}
         title={t('confirmActionTitle')}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={closeConfirmDialog}>
-              {t('cancel')}
-            </Button>
-            <Button variant="danger" onClick={executeConfirmAction}>
-              {t('deactivate')}
-            </Button>
-          </div>
-        }
-      >
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-body, #354456)' }}>
-          {t('confirmDeactivate')}
-        </p>
-      </Dialog>
+        message={t('confirmDeactivate')}
+        confirmLabel={t('deactivate')}
+        cancelLabel={t('cancel')}
+        tone="danger"
+      />
     </div>
   );
 };

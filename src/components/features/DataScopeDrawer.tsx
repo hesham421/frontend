@@ -30,7 +30,12 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
   const [dataAccessLevel, setDataAccessLevel] = useState<DataAccessLevel>(initialScope?.dataAccessLevel ?? 'BRANCH_ONLY');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { scope, isLoading, saveScope, deleteScope } = useRoleDataScopeFacade(selectedRoleId, selectedBranchId);
+  const { scope, canCreate, canEdit, canDelete, isLoading, saveScope, deleteScope } = useRoleDataScopeFacade(
+    selectedRoleId,
+    selectedBranchId,
+  );
+  // Update needs ROLE_UPDATE; the create branch (no scope yet) needs ROLE_CREATE.
+  const canSaveScope = scope ? canEdit : canCreate;
 
   useEffect(() => {
     setSelectedRoleId(roleId ?? initialScope?.roleIdFk);
@@ -83,7 +88,7 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
       footer={
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           <div>
-            {scope && (
+            {scope && canDelete && (
               <Button variant="danger" onClick={handleDelete} iconLeft={<i className="ti ti-trash" />}>
                 {t('delete')}
               </Button>
@@ -93,9 +98,11 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
             <Button variant="secondary" onClick={onClose}>
               {t('cancel')}
             </Button>
-            <Button variant="primary" onClick={handleSave} loading={isLoading}>
-              {t('save')}
-            </Button>
+            {canSaveScope && (
+              <Button variant="primary" onClick={handleSave} loading={isLoading}>
+                {t('save')}
+              </Button>
+            )}
           </div>
         </div>
       }
@@ -120,6 +127,7 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
           options={accessLevelOptions}
           value={dataAccessLevel}
           onChange={(e) => setDataAccessLevel(e.target.value as DataAccessLevel)}
+          disabled={!canSaveScope}
         />
         {scope && (
           <Alert

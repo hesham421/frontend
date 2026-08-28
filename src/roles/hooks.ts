@@ -9,6 +9,7 @@ import {
   type RoleSearchContractRequest,
   type UpdateRoleRequest,
 } from './rolesApi';
+import { usePermission } from '../auth/permissions';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '../data/searchContract';
 
 // F2-QUERY blocks API-SEC-016..026, API-SEC-050 (F2/SCR-SEC-003).
@@ -193,11 +194,19 @@ export type RoleStatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
  * selected), useSyncRolePages, useAddPageToRole, useRemovePageFromRole,
  * useCopyFromRole. No toasts, dialogs, or navigation here (R.3.11).
  *
- * Permission flags are SEC-FE/SCR-SEC-003's own phase, not added here — see
- * the same note in useUserManagementFacade (src/users/hooks.ts).
+ * SEC-IMPL-RULE-2: canCreate/canEdit/canDelete use the real, confirmed
+ * ROLE_CREATE/ROLE_UPDATE/ROLE_DELETE authorities (roleaccesscontrol.md).
+ * canView is NOT exposed — Roles' own pageCode is unconfirmed
+ * (OQ-SEC-FE-003), so the PERM_ROLE_* screen-gating literal cannot be
+ * constructed without inventing it; the App.tsx switch-case guard for
+ * 'sec-roles' stays open pending that resolution.
  */
 export function useRoleManagementFacade() {
   const [searchFilters, setSearchFiltersState] = useState<RoleSearchFilters>(DEFAULT_FILTERS);
+  const { can } = usePermission();
+  const canCreate = can('ROLE_CREATE');
+  const canEdit = can('ROLE_UPDATE');
+  const canDelete = can('ROLE_DELETE');
   // GAP (API-SEC-026): allowed server filter fields are roleName only — no
   // `active` filter exists server-side. Applied CLIENT-SIDE on the loaded
   // page only, per the documented limitation (not a true full-dataset filter).
@@ -249,6 +258,9 @@ export function useRoleManagementFacade() {
     roleList,
     selectedRole,
     pageMatrix: pagesMatrix.data ?? null,
+    canCreate,
+    canEdit,
+    canDelete,
     isLoading,
     isListLoading: search.isPending,
     loadError: search.isError ? search.error : null,

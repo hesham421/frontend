@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
-import { Breadcrumb, Drawer, Dialog, EmptyState } from '../../components/ui/OverlaysAndFeedback';
+import { Breadcrumb, Drawer, EmptyState } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
-import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
+import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select } from '../../components/ui/FormControls';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 import { Region } from '../../data/mockData';
 
 export const RegionsPage: React.FC = () => {
   const { t, lang } = useLanguage();
+  const { showToast } = useToast();
   const {
     regions,
     legalEntities,
@@ -57,6 +60,7 @@ export const RegionsPage: React.FC = () => {
   };
 
   const handleSave = () => {
+    const isEdit = !!selectedRegion;
     saveRegion({
       id: selectedRegion?.id,
       nameEn,
@@ -65,6 +69,12 @@ export const RegionsPage: React.FC = () => {
       regionTypeIdFk,
       notes,
     });
+    showToast(t(isEdit ? 'regionSavedSuccess' : 'regionCreatedSuccess'), 'success');
+  };
+
+  const handleConfirmDeactivate = () => {
+    executeConfirmAction();
+    showToast(t('regionDeactivatedSuccess'), 'success');
   };
 
   const filteredRegions = regions.filter((r) => {
@@ -82,10 +92,6 @@ export const RegionsPage: React.FC = () => {
 
     return matchesSearch && matchesEntity && matchesType && matchesStatus;
   });
-
-  const total = regions.length;
-  const active = regions.filter((r) => r.isActive).length;
-  const inactive = total - active;
 
   const entityOptions = [
     { value: 'ALL', label: t('all') },
@@ -136,27 +142,7 @@ export const RegionsPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalRecords')}
-          value={total}
-          icon={<i className="ti ti-map-pin" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('activeRecords')}
-          value={active}
-          trend={{ value: `${Math.round((active / (total || 1)) * 100)}%`, isPositive: true }}
-          icon={<i className="ti ti-map-pin-check" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('inactiveRecords')}
-          value={inactive}
-          icon={<i className="ti ti-map-pin-off" style={{ color: 'var(--red-500, #CB3A2D)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. Filter Bar */}
+      {/* 2. Filter Bar */}
       <Card variant="flat" padding="md">
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 240px', minWidth: '200px' }}>
@@ -364,25 +350,16 @@ export const RegionsPage: React.FC = () => {
       </Drawer>
 
       {/* 6. Deactivation Dialog */}
-      <Dialog
+      <ConfirmDialog
         isOpen={isConfirmDialogOpen && confirmActionType === 'DEACTIVATE_REGION'}
         onClose={closeConfirmDialog}
+        onConfirm={handleConfirmDeactivate}
         title={t('confirmActionTitle')}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={closeConfirmDialog}>
-              {t('cancel')}
-            </Button>
-            <Button variant="danger" onClick={executeConfirmAction}>
-              {t('deactivate')}
-            </Button>
-          </div>
-        }
-      >
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-body, #354456)' }}>
-          {t('confirmDeactivate')}
-        </p>
-      </Dialog>
+        message={t('confirmDeactivate')}
+        confirmLabel={t('deactivate')}
+        cancelLabel={t('cancel')}
+        tone="danger"
+      />
     </div>
   );
 };

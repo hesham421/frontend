@@ -62,11 +62,18 @@ const readCookie = (name: string) =>
 const csrf = () => readCookie('csrf') ?? '';
 
 export const authApi = {
-  signup: (body: SignupRequest) => http.post<SignupResponse>(`${AUTH}/signup`, body),
+  // None of these pre-authentication calls carry an access token, so a 401
+  // from any of them (bad credentials, unknown username, etc.) must surface
+  // as-is — skipAuthRefresh keeps the client from treating it as an
+  // expired-token signal and masking the real error behind a doomed
+  // refresh-and-retry (there is no session yet to refresh).
+  signup: (body: SignupRequest) => http.post<SignupResponse>(`${AUTH}/signup`, body, { skipAuthRefresh: true }),
 
-  activate: (body: ActivateAccountRequest) => http.post<void>(`${AUTH}/signup/activate`, body),
+  activate: (body: ActivateAccountRequest) =>
+    http.post<void>(`${AUTH}/signup/activate`, body, { skipAuthRefresh: true }),
 
-  resetPassword: (body: ResetPasswordRequest) => http.post<void>(`${AUTH}/reset-password`, body),
+  resetPassword: (body: ResetPasswordRequest) =>
+    http.post<void>(`${AUTH}/reset-password`, body, { skipAuthRefresh: true }),
 
   // the httpOnly refresh cookie is scoped to /auth, so only these two carry it
   refresh: () =>
@@ -83,9 +90,12 @@ export const authApi = {
       skipAuthRefresh: true,
     }),
 
-  login: (body: AuthRequest) => http.post<AuthResponse>(`${AUTH}/login`, body, { credentials: 'include' }),
+  login: (body: AuthRequest) =>
+    http.post<AuthResponse>(`${AUTH}/login`, body, { credentials: 'include', skipAuthRefresh: true }),
 
-  loginWithToken: (body: AuthRequest) => http.post<UserInfo>(`${AUTH}/login-token`, body, { credentials: 'include' }),
+  loginWithToken: (body: AuthRequest) =>
+    http.post<UserInfo>(`${AUTH}/login-token`, body, { credentials: 'include', skipAuthRefresh: true }),
 
-  forgotPassword: (body: ForgotPasswordRequest) => http.post<void>(`${AUTH}/forgot-password`, body),
+  forgotPassword: (body: ForgotPasswordRequest) =>
+    http.post<void>(`${AUTH}/forgot-password`, body, { skipAuthRefresh: true }),
 };

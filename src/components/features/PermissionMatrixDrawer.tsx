@@ -13,6 +13,8 @@ export interface PermissionMatrixDrawerProps {
   role: RoleDto | null;
   pages: PageResponse[];
   matrixDraft: Record<string, Set<CrudPermission>>;
+  /** SEC-FE/SCR-SEC-003 — ROLE_UPDATE; false makes every control below read-only. */
+  canEdit: boolean;
   onTogglePermission: (pageCode: string, type: CrudPermission, checked: boolean) => void;
   onSyncAll: () => void;
   onRemovePage: (pageCode: string) => void;
@@ -38,6 +40,7 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
   role,
   pages,
   matrixDraft,
+  canEdit,
   onTogglePermission,
   onSyncAll,
   onRemovePage,
@@ -81,10 +84,12 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
               iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
-          <Button variant="secondary" size="sm" onClick={onSyncAll}>
-            {t('syncAll')}
-          </Button>
-          {copySourceOptions.length > 0 && (
+          {canEdit && (
+            <Button variant="secondary" size="sm" onClick={onSyncAll}>
+              {t('syncAll')}
+            </Button>
+          )}
+          {canEdit && copySourceOptions.length > 0 && (
             <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               <select
                 style={{
@@ -146,12 +151,13 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
                         <input
                           type="checkbox"
                           checked={perms?.has(type) ?? false}
+                          disabled={!canEdit}
                           onChange={(e) => onTogglePermission(pg.pageCode!, type, e.target.checked)}
                         />
                       </td>
                     ))}
                     <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                      {isAssigned && (
+                      {isAssigned && canEdit && (
                         <IconButton
                           icon="ti ti-x"
                           label={t('delete')}

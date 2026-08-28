@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useNotificationTemplatesStore } from '../../stores/useNotificationTemplatesStore';
-import { Breadcrumb, Drawer, Dialog, EmptyState, Tabs, Alert } from '../../components/ui/OverlaysAndFeedback';
+import { Breadcrumb, Drawer, EmptyState, Tabs, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
-import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
+import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select, Switch } from '../../components/ui/FormControls';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 import { NotificationTemplate } from '../../data/mockData';
 
 export const NotificationTemplatesPage: React.FC = () => {
   const { t, lang } = useLanguage();
+  const { showToast } = useToast();
   const {
     templates,
     templateSearch,
@@ -68,6 +71,7 @@ export const NotificationTemplatesPage: React.FC = () => {
   };
 
   const handleSave = () => {
+    const isEdit = !!selectedTemplate;
     saveTemplate({
       id: selectedTemplate?.id,
       templateCode,
@@ -79,6 +83,12 @@ export const NotificationTemplatesPage: React.FC = () => {
       templateBodyAr,
       isActive,
     });
+    showToast(t(isEdit ? 'notificationTemplateSavedSuccess' : 'notificationTemplateCreatedSuccess'), 'success');
+  };
+
+  const handleConfirmDeactivate = () => {
+    executeConfirmAction();
+    showToast(t('notificationTemplateDeactivatedSuccess'), 'success');
   };
 
   const filteredTemplates = templates.filter((tmpl) => {
@@ -96,10 +106,6 @@ export const NotificationTemplatesPage: React.FC = () => {
 
     return matchesSearch && matchesChannel && matchesModule && matchesStatus;
   });
-
-  const total = templates.length;
-  const active = templates.filter((t) => t.isActive).length;
-  const inactive = total - active;
 
   const channelOptions = [
     { value: 'ALL', label: t('all') },
@@ -155,27 +161,7 @@ export const NotificationTemplatesPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalRecords')}
-          value={total}
-          icon={<i className="ti ti-template" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('activeTemplates')}
-          value={active}
-          trend={{ value: `${Math.round((active / (total || 1)) * 100)}%`, isPositive: true }}
-          icon={<i className="ti ti-circle-check" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('inactiveRecords')}
-          value={inactive}
-          icon={<i className="ti ti-circle-x" style={{ color: 'var(--red-500, #CB3A2D)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. Filter Bar */}
+      {/* 2. Filter Bar */}
       <Card variant="flat" padding="md">
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 240px', minWidth: '200px' }}>
@@ -458,25 +444,16 @@ export const NotificationTemplatesPage: React.FC = () => {
       </Drawer>
 
       {/* 6. Deactivate Confirmation Dialog */}
-      <Dialog
+      <ConfirmDialog
         isOpen={isConfirmDialogOpen && confirmActionType === 'DEACTIVATE_TEMPLATE'}
         onClose={closeConfirmDialog}
+        onConfirm={handleConfirmDeactivate}
         title={t('confirmActionTitle')}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={closeConfirmDialog}>
-              {t('cancel')}
-            </Button>
-            <Button variant="danger" onClick={executeConfirmAction}>
-              {t('deactivate')}
-            </Button>
-          </div>
-        }
-      >
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-body, #354456)' }}>
-          {t('confirmDeactivate')}
-        </p>
-      </Dialog>
+        message={t('confirmDeactivate')}
+        confirmLabel={t('deactivate')}
+        cancelLabel={t('cancel')}
+        tone="danger"
+      />
     </div>
   );
 };

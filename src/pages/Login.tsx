@@ -4,7 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useAuthStore, type UserInfo } from '../stores/useAuthStore';
 import { useAuthFacade } from '../auth/hooks';
 import { loginSchema, signupSchema, activateSchema, forgotPasswordSchema, resetPasswordSchema } from '../auth/auth.schema';
-import { ApiError } from '../lib/errors/ApiError';
+import { mapApiError } from '../lib/errors/mapApiError';
 import { secErrorMessage } from '../lib/errors/secErrors';
 import { Button } from '../components/ui/Button';
 import { Input, Checkbox } from '../components/ui/FormControls';
@@ -64,12 +64,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
     setActiveTab(tab);
   };
 
-  const errorText = (err: unknown): string =>
-    err instanceof ApiError
-      ? err.message
-      : lang === 'ar'
-        ? 'حدث خطأ غير متوقع. حاول مرة أخرى.'
-        : 'An unexpected error occurred. Please try again.';
+  const errorText = (err: unknown): string => mapApiError(err, t);
 
   const onFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

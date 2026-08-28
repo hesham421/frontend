@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
-import { Breadcrumb, Drawer, Dialog, EmptyState } from '../../components/ui/OverlaysAndFeedback';
+import { Breadcrumb, Drawer, EmptyState } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
-import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
+import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select } from '../../components/ui/FormControls';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { useToast } from '../../components/ui/Toast';
 import { ProfitCenter } from '../../data/mockData';
 
 export const ProfitCentersPage: React.FC = () => {
   const { t, lang } = useLanguage();
+  const { showToast } = useToast();
   const {
     profitCenters,
     legalEntities,
@@ -52,6 +55,7 @@ export const ProfitCentersPage: React.FC = () => {
   };
 
   const handleSave = () => {
+    const isEdit = !!selectedProfitCenter;
     saveProfitCenter({
       id: selectedProfitCenter?.id,
       nameEn,
@@ -59,6 +63,12 @@ export const ProfitCentersPage: React.FC = () => {
       legalEntityFk,
       notes,
     });
+    showToast(t(isEdit ? 'profitCenterSavedSuccess' : 'profitCenterCreatedSuccess'), 'success');
+  };
+
+  const handleConfirmDeactivate = () => {
+    executeConfirmAction();
+    showToast(t('profitCenterDeactivatedSuccess'), 'success');
   };
 
   const filteredProfitCenters = profitCenters.filter((p) => {
@@ -75,10 +85,6 @@ export const ProfitCentersPage: React.FC = () => {
 
     return matchesSearch && matchesEntity && matchesStatus;
   });
-
-  const total = profitCenters.length;
-  const active = profitCenters.filter((p) => p.isActive).length;
-  const inactive = total - active;
 
   const entityOptions = [
     { value: 'ALL', label: t('all') },
@@ -120,27 +126,7 @@ export const ProfitCentersPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* 2. KPI Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
-        <Stat
-          label={t('totalRecords')}
-          value={total}
-          icon={<i className="ti ti-chart-arrows-vertical" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('activeRecords')}
-          value={active}
-          trend={{ value: `${Math.round((active / (total || 1)) * 100)}%`, isPositive: true }}
-          icon={<i className="ti ti-trending-up" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
-        />
-        <Stat
-          label={t('inactiveRecords')}
-          value={inactive}
-          icon={<i className="ti ti-circle-x" style={{ color: 'var(--red-500, #CB3A2D)', fontSize: '20px' }} />}
-        />
-      </div>
-
-      {/* 3. Filter Bar */}
+      {/* 2. Filter Bar */}
       <Card variant="flat" padding="md">
         <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 240px', minWidth: '200px' }}>
@@ -326,25 +312,16 @@ export const ProfitCentersPage: React.FC = () => {
       </Drawer>
 
       {/* 6. Deactivation Dialog */}
-      <Dialog
+      <ConfirmDialog
         isOpen={isConfirmDialogOpen && confirmActionType === 'DEACTIVATE_PROFIT'}
         onClose={closeConfirmDialog}
+        onConfirm={handleConfirmDeactivate}
         title={t('confirmActionTitle')}
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={closeConfirmDialog}>
-              {t('cancel')}
-            </Button>
-            <Button variant="danger" onClick={executeConfirmAction}>
-              {t('deactivate')}
-            </Button>
-          </div>
-        }
-      >
-        <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-body, #354456)' }}>
-          {t('confirmDeactivate')}
-        </p>
-      </Dialog>
+        message={t('confirmDeactivate')}
+        confirmLabel={t('deactivate')}
+        cancelLabel={t('cancel')}
+        tone="danger"
+      />
     </div>
   );
 };

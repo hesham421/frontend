@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useUserManagementFacade } from '../../users/hooks';
+import { usePermission } from '../../auth/permissions';
 import type { UserDto } from '../../users/usersApi';
 import { createUserSchema } from '../../users/users.schema';
 import { mapApiError } from '../../lib/errors/mapApiError';
@@ -24,6 +25,9 @@ export const UsersPage: React.FC = () => {
   const {
     userList,
     selectedUser,
+    canCreate,
+    canEdit,
+    canDelete,
     isLoading,
     isListLoading,
     loadError,
@@ -39,6 +43,11 @@ export const UsersPage: React.FC = () => {
     updateUser,
     deleteUser,
   } = useUserManagementFacade();
+  const { can } = usePermission();
+  const canOpenProfile = can('USER_PROFILE_VIEW');
+  const canOpenDataScope = can('ROLE_VIEW');
+  // Editing an existing user needs UPDATE; the create-dialog branch needs CREATE.
+  const canSaveUserDialog = selectedUser ? canEdit : canCreate;
 
   // API-SEC-015 allowed search fields: id, username, enabled, createdAt —
   // no email/name field exists server-side, so the search box only matches username.
@@ -181,7 +190,9 @@ export const UsersPage: React.FC = () => {
       render: (u) => (
         <div style={{ display: 'inline-flex', gap: '6px' }}>
           <IconButton icon="ti ti-edit" label={t('edit')} variant="ghost" size="sm" onClick={() => handleOpenEdit(u)} />
-          <IconButton icon="ti ti-trash" label={t('delete')} variant="ghost" size="sm" onClick={() => setConfirmDeleteUser(u)} />
+          {canDelete && (
+            <IconButton icon="ti ti-trash" label={t('delete')} variant="ghost" size="sm" onClick={() => setConfirmDeleteUser(u)} />
+          )}
         </div>
       ),
     },
@@ -211,9 +222,11 @@ export const UsersPage: React.FC = () => {
             {t('secUsersTitle')}
           </h1>
         </div>
-        <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
-          {t('new')}
-        </Button>
+        {canCreate && (
+          <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+            {t('new')}
+          </Button>
+        )}
       </div>
 
       {/* 2. Filter Bar */}
@@ -271,7 +284,7 @@ export const UsersPage: React.FC = () => {
           emptyIcon="ti ti-users-minus"
           emptyTitle={t('noRecordsFound')}
           emptyDescription={t('noRecordsDesc')}
-          emptyAction={{ label: t('new'), onClick: handleOpenCreate }}
+          emptyAction={canCreate ? { label: t('new'), onClick: handleOpenCreate } : undefined}
         />
         {!loadError && (
           <Pagination page={page} size={size} totalElements={totalElements} onPageChange={setPage} />
@@ -287,28 +300,31 @@ export const UsersPage: React.FC = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
             <div>
               {selectedUser && (
-                // TODO(SEC-FE/SCR-SEC-006, SCR-SEC-007): gate these two launch
-                // actions on PERM_USER_PROFILE_*/ROLE_UPDATE once SEC-FE's
-                // permission hooks exist (pageCode unconfirmed for the former,
-                // OQ-SEC-FE-003; ROLE_UPDATE is a confirmed literal).
+                // SEC-FE/SCR-SEC-006, SCR-SEC-007 — launch gates use each
+                // drawer's own confirmed real literal (USER_PROFILE_VIEW,
+                // ROLE_VIEW), not this screen's own canEdit/canDelete flags.
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setIsProfileDrawerOpen(true)}
-                    iconLeft={<i className="ti ti-id" />}
-                  >
-                    {t('userProfile')} →
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setIsDataScopeDrawerOpen(true)}
-                    iconLeft={<i className="ti ti-shield" />}
-                    disabled={dataScopeRoleId == null}
-                  >
-                    {t('dataScope')} →
-                  </Button>
+                  {canOpenProfile && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setIsProfileDrawerOpen(true)}
+                      iconLeft={<i className="ti ti-id" />}
+                    >
+                      {t('userProfile')} →
+                    </Button>
+                  )}
+                  {canOpenDataScope && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setIsDataScopeDrawerOpen(true)}
+                      iconLeft={<i className="ti ti-shield" />}
+                      disabled={dataScopeRoleId == null}
+                    >
+                      {t('dataScope')} →
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
@@ -316,9 +332,11 @@ export const UsersPage: React.FC = () => {
               <Button variant="secondary" onClick={() => setIsUserDialogOpen(false)}>
                 {t('cancel')}
               </Button>
-              <Button variant="primary" onClick={handleSave} loading={isLoading}>
-                {t('save')}
-              </Button>
+              {canSaveUserDialog && (
+                <Button variant="primary" onClick={handleSave} loading={isLoading}>
+                  {t('save')}
+                </Button>
+              )}
             </div>
           </div>
         }
@@ -328,7 +346,7 @@ export const UsersPage: React.FC = () => {
             label={`${t('username')} *`}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            disabled={!!selectedUser}
+            disabled={!!selectedUser || !canSaveUserDialog}
             helperText={selectedUser ? t('readOnlyCodeHint') : undefined}
             required
           />
@@ -339,6 +357,7 @@ export const UsersPage: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
+              disabled={!canSaveUserDialog}
               required
             />
           )}
@@ -374,21 +393,24 @@ export const UsersPage: React.FC = () => {
                 ))
               )}
             </div>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setIsRoleDrawerOpen(true)}
-              iconLeft={<i className="ti ti-shield-plus" />}
-              style={{ marginTop: '8px' }}
-            >
-              {t('assignRoles')} →
-            </Button>
+            {canSaveUserDialog && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsRoleDrawerOpen(true)}
+                iconLeft={<i className="ti ti-shield-plus" />}
+                style={{ marginTop: '8px' }}
+              >
+                {t('assignRoles')} →
+              </Button>
+            )}
           </div>
 
           <Switch
             label={t('active')}
             checked={enabled}
             onChange={(checked) => setEnabled(checked)}
+            disabled={!canSaveUserDialog}
           />
         </div>
       </Dialog>
