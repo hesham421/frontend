@@ -2,8 +2,6 @@
 
 Execute test scenarios for SECURITY — only for what's actually complete.
 
-> Read `TEST-EXECUTION-AGENT.md` first.
-
 ## Usage
 /SECURITY/execute-frontend-test
 
@@ -46,8 +44,8 @@ is a no-op until those are authored; do not invent their content.
 ### Per sub:
 1. Read `packages/frontend-test/[SUB].md` completely
 2. Identify all scenarios
-3. Generate: POM + spec file, per `TEST-EXECUTION-AGENT.md`'s
-   conventions (Page Object Model, `data-testid` first, no `waitForTimeout`)
+3. Generate: POM + spec file (Page Object Model, `data-testid` first,
+   no `waitForTimeout`)
 4. Run: `playwright-mcp`, per the shared MCP execution order
    (oracle-sql precondition → playwright-mcp execute → oracle-sql
    confirm → screenshot on failure)
@@ -59,7 +57,7 @@ is a no-op until those are authored; do not invent their content.
 ## STEP 2 — Session Report
 
 Write to `reports/TEST-REPORT-SECURITY-frontend-[YYYY-MM-DD].md`. Any
-`FAIL` → hand off to `AUTONOMOUS-FULLSTACK-FIXING-AGENT.md` — never fix here.
+`FAIL` → report only, never fix here.
 
 ---
 

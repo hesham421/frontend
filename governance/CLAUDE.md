@@ -44,9 +44,6 @@ backend's own `project-artifacts/`, no nested per-repo subfolder.
 
 ## Code Comments — No Banners, No Oversized Javadoc/JSDoc
 
-Mirrors `backend/governance/GOVERNANCE-RULES.md`'s equivalent rule so both
-repos hold the same line on comment noise:
-
 - NEVER write banner/section-divider comments (`// ==== Section ====`, a
   repeated-character line used to slice one file into visual sections). A
   file that feels like it needs dividers should be split into smaller

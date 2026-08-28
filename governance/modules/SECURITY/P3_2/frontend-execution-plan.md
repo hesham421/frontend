@@ -2,7 +2,7 @@
 <!-- frontend-execution-plan.md — SECURITY                       -->
 <!-- Governed by: PROJECT-3-FRONTEND-ENGINE.md (Project 3.2, PASS 2) -->
 <!-- Companion  : PROJECT-3-REGISTRY.md, SHARED-GOVERNANCE-CORE.md, -->
-<!--              SHARED-GOVERNANCE-RULES.md, SHARED-ARTIFACT-CONTRACTS.md -->
+<!--              SHARED-ARTIFACT-CONTRACTS.md -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 
 # frontend-execution-plan.md — SECURITY

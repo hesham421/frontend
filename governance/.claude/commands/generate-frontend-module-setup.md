@@ -25,10 +25,6 @@ back to the flat `.claude/commands/execute-frontend.md` (no module name,
 collides with every other module's setup, and silently overwrites whatever
 module was generated last).
 
-Both generated commands reference `TEST-EXECUTION-AGENT.md` for MCP
-boundaries and the failure taxonomy — shared across modules, not
-regenerated per module.
-
 **The one sanctioned cross-repo read** (nothing ever reaches into
 `backend/governance/` or backend source — this is a neutral, jointly-
 published contract file, not a path inside backend's own tree):
@@ -269,11 +265,10 @@ Proceed? [waits for confirmation]
    resolution `"blocked pending frontend API contract clarification"`
    and continue with remaining tasks (same pattern as an OQ-blocked
    item below). Never invent the missing contract.
-4. Map each task to the skill routing table in `GOVERNANCE-RULES.md`
-5. Read required skills from `.github/skills/frontend/`
-6. Execute all tasks in order
-7. Run the phase's validation skill after the last task
-8. Mark sub COMPLETE in `execution-state.json`
+4. Read required skills from `.github/skills/frontend/`
+5. Execute all tasks in order
+6. Run the phase's validation skill after the last task
+7. Mark sub COMPLETE in `execution-state.json`
 
 ### Blocked items — OQ
 OQ-blocked task → skip, add to `blocked[]`, mark:
@@ -324,8 +319,6 @@ Phase/sub completed, tasks executed, blocked items, any api_doc_gaps added.
 
 Execute test scenarios for [MODULE] — only for what's actually complete.
 
-> Read `TEST-EXECUTION-AGENT.md` first.
-
 ## Usage
 /[MODULE]/execute-frontend-test
 
@@ -358,8 +351,8 @@ STOP. Do not generate or run any test.
 ### Per sub:
 1. Read `packages/frontend-test/[SUB].md` completely
 2. Identify all scenarios
-3. Generate: POM + spec file, per `TEST-EXECUTION-AGENT.md`'s
-   conventions (Page Object Model, `data-testid` first, no `waitForTimeout`)
+3. Generate: POM + spec file (Page Object Model, `data-testid` first,
+   no `waitForTimeout`)
 4. Run: `playwright-mcp`, per the shared MCP execution order
    (oracle-sql precondition → playwright-mcp execute → oracle-sql
    confirm → screenshot on failure)
@@ -371,7 +364,7 @@ STOP. Do not generate or run any test.
 ## STEP 2 — Session Report
 
 Write to `reports/TEST-REPORT-[MODULE]-frontend-[YYYY-MM-DD].md`. Any
-`FAIL` → hand off to `AUTONOMOUS-FULLSTACK-FIXING-AGENT.md` — never fix here.
+`FAIL` → report only, never fix here.
 
 ---
 

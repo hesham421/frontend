@@ -50,11 +50,10 @@ Proceed? [waits for confirmation]
    resolution `"blocked pending frontend API contract clarification"`
    and continue with remaining tasks (same pattern as an OQ-blocked
    item below). Never invent the missing contract.
-4. Map each task to the skill routing table in `GOVERNANCE-RULES.md`
-5. Read required skills from `.github/skills/frontend/`
-6. Execute all tasks in order
-7. Run the phase's validation skill after the last task
-8. Mark sub COMPLETE in `execution-state.json`
+4. Read required skills from `.github/skills/frontend/`
+5. Execute all tasks in order
+6. Run the phase's validation skill after the last task
+7. Mark sub COMPLETE in `execution-state.json`
 
 ### Blocked items — OQ
 OQ-blocked task → skip, add to `blocked[]`, mark:
