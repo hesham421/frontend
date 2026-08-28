@@ -2,6 +2,7 @@ import React from 'react';
 import { useLanguage } from './context/LanguageContext';
 import { useAuthStore } from './stores/useAuthStore';
 import { useNavigationStore } from './stores/useNavigationStore';
+import { useLogoutMutation } from './auth/hooks';
 import { AppShell } from './layout/AppShell';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
@@ -29,12 +30,21 @@ import { NotificationChannelsPage } from './pages/Notifications/NotificationChan
 export const App: React.FC = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const login = useAuthStore((state) => state.login);
-  const logout = useAuthStore((state) => state.logout);
+  const storeLogout = useAuthStore((state) => state.logout);
+  const logoutMutation = useLogoutMutation();
 
   const currentScreen = useNavigationStore((state) => state.currentScreen);
   const setCurrentScreen = useNavigationStore((state) => state.setCurrentScreen);
 
   const { t } = useLanguage();
+
+  const logout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+    } finally {
+      storeLogout();
+    }
+  };
 
   if (!isAuthenticated) {
     return <Login onLogin={login} />;
@@ -47,12 +57,21 @@ export const App: React.FC = () => {
         return <Dashboard onNavigate={setCurrentScreen} />;
 
       // Module 1: Security
+      // Guards below are flagged additions (F4/CONTRACT-12): the only guard
+      // AS-IS is the global isAuthenticated check above. Real per-screen
+      // gating is SEC-FE's own phase — its permission hook doesn't exist
+      // yet, so nothing is fabricated here ahead of it (see src/users/hooks.ts
+      // useUserManagementFacade's own note on this same boundary).
+      // TODO(SEC-FE/SCR-SEC-002): if (!canView) return <Unauthorized />; — PERM_USER_VIEW is a CONFIRMED real literal.
       case 'sec-users':
         return <UsersPage />;
+      // TODO(SEC-FE/SCR-SEC-003): if (!canView) return <Unauthorized />; — PERM_ROLE_* pageCode unconfirmed, OQ-SEC-FE-003.
       case 'sec-roles':
         return <RolesPage />;
+      // TODO(SEC-FE/SCR-SEC-004): if (!canView) return <Unauthorized />; — PERM_PERMISSION_* pageCode unconfirmed, OQ-SEC-FE-003.
       case 'sec-permissions':
         return <PermissionsPage />;
+      // TODO(SEC-FE/SCR-SEC-005): if (!canView) return <Unauthorized />; — PERM_PAGE_* pageCode unconfirmed, OQ-SEC-FE-003.
       case 'sec-pages':
         return <PagesRegistryPage />;
 

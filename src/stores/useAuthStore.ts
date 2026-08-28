@@ -1,10 +1,60 @@
 import { create } from 'zustand';
 
+// Real API DTOs (authentication.md) — F1/SCR-SEC-001. Not wired yet (F2/F3).
+export interface AuthRequest {
+  username: string;
+  password: string;
+}
+
+export interface SignupRequest {
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface SignupResponse {
+  userId?: number;
+  username?: string;
+  enabled?: boolean;
+}
+
+export interface ActivateAccountRequest {
+  token: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+export interface AuthResponse {
+  accessToken?: string;
+  expiresIn?: number;
+  refreshToken?: string;
+  refreshExpiresIn?: number;
+}
+
+export interface UserInfo extends AuthResponse {
+  userId?: number;
+  username?: string;
+  enabled?: boolean;
+  roles?: string[];
+  permissions?: string[];
+}
+
+// Derived from the real login-token response (UserInfo) — the backend has
+// no localized display name or avatar, so nameEn/nameAr fall back to
+// username and roleTitle falls back to the joined roles list (F4).
 export interface UserProfile {
   username: string;
   nameEn: string;
   nameAr: string;
-  role: 'admin' | 'finance' | 'hr';
+  roles: string[];
+  permissions: string[];
   roleTitleEn: string;
   roleTitleAr: string;
   avatar: string;
@@ -13,35 +63,37 @@ export interface UserProfile {
 interface AuthState {
   isAuthenticated: boolean;
   user: UserProfile;
-  login: (role?: 'admin' | 'finance' | 'hr', username?: string) => void;
+  login: (info: UserInfo) => void;
   logout: () => void;
 }
 
-const DEFAULT_USER: UserProfile = {
-  username: 'admin',
-  nameEn: 'Administrator',
-  nameAr: 'المسؤول',
-  role: 'admin',
-  roleTitleEn: 'Global Systems Admin',
-  roleTitleAr: 'مدير الأنظمة الشاملة',
+const EMPTY_USER: UserProfile = {
+  username: '',
+  nameEn: '',
+  nameAr: '',
+  roles: [],
+  permissions: [],
+  roleTitleEn: '',
+  roleTitleAr: '',
   avatar: '',
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
-  user: DEFAULT_USER,
-  login: (role = 'admin', username = 'admin') =>
+  user: EMPTY_USER,
+  login: (info) =>
     set({
       isAuthenticated: true,
       user: {
-        ...DEFAULT_USER,
-        username,
-        nameEn: username === 'admin' ? 'Administrator' : username,
-        nameAr: username === 'admin' ? 'المسؤول' : username,
-        role,
-        roleTitleEn: role === 'admin' ? 'Global Systems Admin' : role === 'finance' ? 'Chief Financial Controller' : 'HR Operations Director',
-        roleTitleAr: role === 'admin' ? 'مدير الأنظمة الشاملة' : role === 'finance' ? 'المراقب المالي الرئيسي' : 'مدير عمليات الموارد البشرية',
+        ...EMPTY_USER,
+        username: info.username ?? '',
+        nameEn: info.username ?? '',
+        nameAr: info.username ?? '',
+        roles: info.roles ?? [],
+        permissions: info.permissions ?? [],
+        roleTitleEn: info.roles?.join(', ') ?? '',
+        roleTitleAr: info.roles?.join('، ') ?? '',
       },
     }),
-  logout: () => set({ isAuthenticated: false }),
+  logout: () => set({ isAuthenticated: false, user: EMPTY_USER }),
 }));

@@ -1,39 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { useSecurityStore } from '../../stores/useSecurityStore';
-import { Breadcrumb, Dialog, EmptyState } from '../../components/ui/OverlaysAndFeedback';
+import { useRoleManagementFacade } from '../../roles/hooks';
+import { createRoleSchema, excludeSelfFromCopySources } from '../../roles/roles.schema';
+import type { RoleDto } from '../../roles/rolesApi';
+import { useActivePages } from '../../pageRegistry/hooks';
+import { ApiError } from '../../lib/errors/ApiError';
+import { Breadcrumb, Dialog, EmptyState, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
 import { Card, Stat, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select, Switch } from '../../components/ui/FormControls';
 import { DataScopeDrawer } from '../../components/features/DataScopeDrawer';
-import { AppRole, RolePermission } from '../../data/mockData';
+
+type CrudPermission = 'CREATE' | 'UPDATE' | 'DELETE';
 
 export const RolesPage: React.FC = () => {
   const { t } = useLanguage();
   const {
-    roles,
-    screens,
-    roleSearch,
-    roleFilterActive,
+    roleList,
     selectedRole,
-    isRoleDialogOpen,
-    isDataScopeDrawerOpen,
-    isConfirmDialogOpen,
-    confirmActionType,
-    setRoleSearch,
-    setRoleFilterActive,
-    openRoleDialog,
-    closeRoleDialog,
-    saveRole,
-    updateRolePermission,
-    syncAllPermissions,
-    copyPermissionsFromRole,
-    openDataScopeDrawer,
-    closeDataScopeDrawer,
-    openConfirmDialog,
-    closeConfirmDialog,
-    executeConfirmAction,
-  } = useSecurityStore();
+    pageMatrix,
+    isLoading,
+    statusFilter,
+    selectRole,
+    setSearchFilters,
+    setStatusFilter,
+    createRole,
+    updateRole,
+    deleteRole,
+    activateRole,
+    deactivateRole,
+    syncRolePages,
+    removePageFromRole,
+    copyFromRole,
+  } = useRoleManagementFacade();
+  const activePages = useActivePages();
+
+  const [searchText, setSearchText] = useState('');
+  const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
+  const [isDataScopeDrawerOpen, setIsDataScopeDrawerOpen] = useState(false);
+  const [confirmToggle, setConfirmToggle] = useState<{ role: RoleDto; activate: boolean } | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [roleCode, setRoleCode] = useState('');
   const [roleName, setRoleName] = useState('');
@@ -41,48 +47,118 @@ export const RolesPage: React.FC = () => {
   const [isActive, setIsActive] = useState(true);
   const [copySourceRoleId, setCopySourceRoleId] = useState('');
 
+  // Local draft of the permission matrix — RULE-SEC-042/043: VIEW is
+  // implicit (never a togglable column), only CREATE/UPDATE/DELETE toggle
+  // here; "Sync All" pushes the whole draft via the real bulk-replace
+  // endpoint (no per-cell PATCH exists on the real API).
+  const [matrixDraft, setMatrixDraft] = useState<Record<string, Set<CrudPermission>>>({});
+
+  useEffect(() => {
+    const draft: Record<string, Set<CrudPermission>> = {};
+    for (const a of pageMatrix?.assignments ?? []) {
+      if (a.pageCode) draft[a.pageCode] = new Set((a.permissions ?? []) as CrudPermission[]);
+    }
+    setMatrixDraft(draft);
+  }, [pageMatrix]);
+
+  const applySearch = (text: string) => {
+    setSearchFilters({ filters: text ? [{ field: 'roleName', operator: 'LIKE', value: text }] : [], page: 0 });
+  };
+
   const handleOpenCreate = () => {
     setRoleCode('');
     setRoleName('');
     setDescription('');
     setIsActive(true);
-    openRoleDialog(null);
+    setErrorMessage(null);
+    selectRole(null);
+    setIsRoleDialogOpen(true);
   };
 
-  const handleOpenEdit = (role: AppRole) => {
-    setRoleCode(role.roleCode);
-    setRoleName(role.roleName);
-    setDescription(role.description);
-    setIsActive(role.isActive);
-    openRoleDialog(role);
+  const handleOpenEdit = (role: RoleDto) => {
+    setRoleCode(role.roleCode || '');
+    setRoleName(role.roleName || '');
+    setDescription(role.description || '');
+    setIsActive(role.active ?? true);
+    setErrorMessage(null);
+    selectRole(role);
+    setIsRoleDialogOpen(true);
   };
 
-  const handleSave = () => {
-    saveRole({
-      id: selectedRole?.id,
-      roleCode,
-      roleName,
-      description,
-      isActive,
+  const handleSave = async () => {
+    setErrorMessage(null);
+    try {
+      if (selectedRole?.id != null) {
+        await updateRole(selectedRole.id, { roleName, description, active: isActive });
+      } else {
+        const parsed = createRoleSchema.safeParse({ roleCode, roleName, description, active: isActive });
+        if (!parsed.success) {
+          setErrorMessage(parsed.error.issues[0]?.message ?? 'Invalid input');
+          return;
+        }
+        await createRole(parsed.data);
+      }
+      setIsRoleDialogOpen(false);
+    } catch (err) {
+      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+    }
+  };
+
+  const handleConfirmToggle = async () => {
+    if (!confirmToggle?.role.id) return;
+    try {
+      if (confirmToggle.activate) await activateRole(confirmToggle.role.id);
+      else await deactivateRole(confirmToggle.role.id);
+    } catch (err) {
+      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+    }
+    setConfirmToggle(null);
+  };
+
+  const togglePermission = (pageCode: string, type: CrudPermission, checked: boolean) => {
+    setMatrixDraft((prev) => {
+      const next = { ...prev };
+      const set = new Set(next[pageCode] ?? []);
+      if (checked) set.add(type);
+      else set.delete(type);
+      next[pageCode] = set;
+      return next;
     });
   };
 
-  const filteredRoles = roles.filter((r) => {
-    const matchesSearch =
-      r.roleName.toLowerCase().includes(roleSearch.toLowerCase()) ||
-      r.roleCode.toLowerCase().includes(roleSearch.toLowerCase()) ||
-      r.description.toLowerCase().includes(roleSearch.toLowerCase());
+  const handleSyncAll = async () => {
+    if (!selectedRole?.id) return;
+    try {
+      await syncRolePages(
+        selectedRole.id,
+        Object.entries(matrixDraft).map(([pageCode, perms]) => ({ pageCode, permissions: [...perms] })),
+      );
+    } catch (err) {
+      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+    }
+  };
 
-    const matchesStatus =
-      roleFilterActive === 'ALL' ||
-      (roleFilterActive === 'ACTIVE' && r.isActive) ||
-      (roleFilterActive === 'INACTIVE' && !r.isActive);
+  const handleRemovePage = async (pageCode: string) => {
+    if (!selectedRole?.id) return;
+    try {
+      await removePageFromRole(selectedRole.id, pageCode);
+    } catch (err) {
+      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+    }
+  };
 
-    return matchesSearch && matchesStatus;
-  });
+  const handleCopyFrom = async () => {
+    if (!selectedRole?.id || !copySourceRoleId) return;
+    try {
+      await copyFromRole(selectedRole.id, Number(copySourceRoleId));
+      setCopySourceRoleId('');
+    } catch (err) {
+      setErrorMessage(err instanceof ApiError ? err.message : 'An unexpected error occurred. Please try again.');
+    }
+  };
 
-  const totalRoles = roles.length;
-  const activeRoles = roles.filter((r) => r.isActive).length;
+  const totalRoles = roleList.length;
+  const activeRoles = roleList.filter((r) => r.active).length;
   const inactiveRoles = totalRoles - activeRoles;
 
   const statusOptions = [
@@ -91,9 +167,10 @@ export const RolesPage: React.FC = () => {
     { value: 'INACTIVE', label: t('inactive') },
   ];
 
-  const otherRolesOptions = roles
-    .filter((r) => r.id !== selectedRole?.id)
-    .map((r) => ({ value: r.id, label: `${r.roleName} (${r.roleCode})` }));
+  const otherRolesOptions = excludeSelfFromCopySources(
+    roleList.filter((r): r is RoleDto & { id: number } => r.id != null),
+    selectedRole?.id ?? -1,
+  ).map((r) => ({ value: String(r.id), label: `${r.roleName} (${r.roleCode})` }));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -150,25 +227,30 @@ export const RolesPage: React.FC = () => {
           <div style={{ flex: '1 1 280px', minWidth: '220px' }}>
             <Input
               placeholder={t('searchPlaceholder')}
-              value={roleSearch}
-              onChange={(e) => setRoleSearch(e.target.value)}
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                applySearch(e.target.value);
+              }}
               iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
           <div style={{ width: '180px' }}>
+            {/* GAP (API-SEC-026): no `active` server filter for roles — applied client-side on the loaded page only. */}
             <Select
               options={statusOptions}
-              value={roleFilterActive}
-              onChange={(e) => setRoleFilterActive(e.target.value)}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as 'ALL' | 'ACTIVE' | 'INACTIVE')}
             />
           </div>
-          {(roleSearch || roleFilterActive !== 'ALL') && (
+          {(searchText || statusFilter !== 'ALL') && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => {
-                setRoleSearch('');
-                setRoleFilterActive('ALL');
+                setSearchText('');
+                setStatusFilter('ALL');
+                applySearch('');
               }}
             >
               {t('clear')}
@@ -177,9 +259,11 @@ export const RolesPage: React.FC = () => {
         </div>
       </Card>
 
+      {errorMessage && <Alert variant="danger" message={errorMessage} />}
+
       {/* 4. Data Grid */}
       <Card variant="flat" padding="none">
-        {filteredRoles.length === 0 ? (
+        {roleList.length === 0 ? (
           <EmptyState
             icon="ti ti-shield-x"
             title={t('noRecordsFound')}
@@ -209,7 +293,7 @@ export const RolesPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredRoles.map((r) => (
+                {roleList.map((r) => (
                   <tr
                     key={r.id}
                     style={{
@@ -229,8 +313,8 @@ export const RolesPage: React.FC = () => {
                       {r.description}
                     </td>
                     <td style={{ padding: '14px 18px' }}>
-                      <Badge variant={r.isActive ? 'success' : 'danger'} size="sm">
-                        {r.isActive ? t('active') : t('inactive')}
+                      <Badge variant={r.active ? 'success' : 'danger'} size="sm">
+                        {r.active ? t('active') : t('inactive')}
                       </Badge>
                     </td>
                     <td style={{ padding: '14px 18px', textAlign: 'end' }}>
@@ -242,20 +326,12 @@ export const RolesPage: React.FC = () => {
                           size="sm"
                           onClick={() => handleOpenEdit(r)}
                         />
-                        {r.isActive ? (
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => openConfirmDialog('DEACTIVATE_ROLE', r.id)}
-                          >
+                        {r.active ? (
+                          <Button variant="secondary" size="sm" onClick={() => setConfirmToggle({ role: r, activate: false })}>
                             {t('deactivate')}
                           </Button>
                         ) : (
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={() => openConfirmDialog('ACTIVATE_ROLE', r.id)}
-                          >
+                          <Button variant="primary" size="sm" onClick={() => setConfirmToggle({ role: r, activate: true })}>
                             {t('reactivate')}
                           </Button>
                         )}
@@ -272,16 +348,18 @@ export const RolesPage: React.FC = () => {
       {/* 5. Role & Permission Matrix Dialog */}
       <Dialog
         isOpen={isRoleDialogOpen}
-        onClose={closeRoleDialog}
+        onClose={() => setIsRoleDialogOpen(false)}
         title={selectedRole ? `${t('edit')}: ${selectedRole.roleName}` : t('new')}
         footer={
           <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
             <div>
               {selectedRole && (
+                // TODO(SEC-FE/SCR-SEC-007): gate on ROLE_UPDATE once SEC-FE's
+                // permission hooks exist (confirmed literal, securitydatascoperolebranches.md).
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => openDataScopeDrawer(null)}
+                  onClick={() => setIsDataScopeDrawerOpen(true)}
                   iconLeft={<i className="ti ti-building" />}
                 >
                   {t('dataScope')} →
@@ -289,10 +367,10 @@ export const RolesPage: React.FC = () => {
               )}
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>
-              <Button variant="secondary" onClick={closeRoleDialog}>
+              <Button variant="secondary" onClick={() => setIsRoleDialogOpen(false)}>
                 {t('cancel')}
               </Button>
-              <Button variant="primary" onClick={handleSave}>
+              <Button variant="primary" onClick={handleSave} loading={isLoading}>
                 {t('save')}
               </Button>
             </div>
@@ -303,7 +381,7 @@ export const RolesPage: React.FC = () => {
           <Input
             label={`${t('code')} *`}
             value={roleCode}
-            onChange={(e) => setRoleCode(e.target.value)}
+            onChange={(e) => setRoleCode(e.target.value.toUpperCase())}
             disabled={!!selectedRole}
             helperText={selectedRole ? t('readOnlyCodeHint') : 'e.g. ROLE_OPERATIONS_LEAD'}
             required
@@ -334,11 +412,7 @@ export const RolesPage: React.FC = () => {
                   {t('permissionMatrix')}
                 </div>
                 <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => syncAllPermissions(selectedRole.id, true)}
-                  >
+                  <Button variant="secondary" size="sm" onClick={handleSyncAll}>
                     {t('syncAll')}
                   </Button>
                   {otherRolesOptions.length > 0 && (
@@ -363,14 +437,7 @@ export const RolesPage: React.FC = () => {
                         ))}
                       </select>
                       {copySourceRoleId && (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => {
-                            copyPermissionsFromRole(selectedRole.id, copySourceRoleId);
-                            setCopySourceRoleId('');
-                          }}
-                        >
+                        <Button variant="secondary" size="sm" onClick={handleCopyFrom}>
                           {t('confirm')}
                         </Button>
                       )}
@@ -388,51 +455,43 @@ export const RolesPage: React.FC = () => {
                       <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('canCreate')}</th>
                       <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('canUpdate')}</th>
                       <th style={{ padding: '8px 12px', textAlign: 'center' }}>{t('canDelete')}</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'center' }} />
                     </tr>
                   </thead>
                   <tbody>
-                    {screens.map((scr) => {
-                      const p: RolePermission = selectedRole.permissions.find((perm) => perm.pageId === scr.id) || {
-                        pageId: scr.id,
-                        canView: false,
-                        canCreate: false,
-                        canUpdate: false,
-                        canDelete: false,
-                      };
-
+                    {(activePages.data ?? []).map((page) => {
+                      if (!page.pageCode) return null;
+                      const perms = matrixDraft[page.pageCode];
+                      const isAssigned = perms !== undefined;
                       return (
-                        <tr key={scr.id} style={{ borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
+                        <tr key={page.pageCode} style={{ borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
                           <td style={{ padding: '8px 12px' }}>
-                            <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)' }}>{scr.nameEn}</div>
-                            <div style={{ fontSize: '11px', color: 'var(--text-muted, #647488)' }}>{scr.pageCode}</div>
+                            <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)' }}>{page.nameEn}</div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted, #647488)' }}>{page.pageCode}</div>
                           </td>
                           <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                            <input
-                              type="checkbox"
-                              checked={p.canView}
-                              onChange={(e) => updateRolePermission(selectedRole.id, scr.id, 'canView', e.target.checked)}
-                            />
+                            {/* RULE-SEC-042 — VIEW is never independently togglable; it's implied by the page being assigned. */}
+                            <input type="checkbox" checked={isAssigned} disabled />
                           </td>
+                          {(['CREATE', 'UPDATE', 'DELETE'] as const).map((type) => (
+                            <td key={type} style={{ padding: '8px 12px', textAlign: 'center' }}>
+                              <input
+                                type="checkbox"
+                                checked={perms?.has(type) ?? false}
+                                onChange={(e) => togglePermission(page.pageCode!, type, e.target.checked)}
+                              />
+                            </td>
+                          ))}
                           <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                            <input
-                              type="checkbox"
-                              checked={p.canCreate}
-                              onChange={(e) => updateRolePermission(selectedRole.id, scr.id, 'canCreate', e.target.checked)}
-                            />
-                          </td>
-                          <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                            <input
-                              type="checkbox"
-                              checked={p.canUpdate}
-                              onChange={(e) => updateRolePermission(selectedRole.id, scr.id, 'canUpdate', e.target.checked)}
-                            />
-                          </td>
-                          <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                            <input
-                              type="checkbox"
-                              checked={p.canDelete}
-                              onChange={(e) => updateRolePermission(selectedRole.id, scr.id, 'canDelete', e.target.checked)}
-                            />
+                            {isAssigned && (
+                              <IconButton
+                                icon="ti ti-x"
+                                label={t('delete')}
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRemovePage(page.pageCode!)}
+                              />
+                            )}
                           </td>
                         </tr>
                       );
@@ -448,29 +507,29 @@ export const RolesPage: React.FC = () => {
       {/* 6. Data Scope Drawer */}
       <DataScopeDrawer
         isOpen={isDataScopeDrawerOpen}
-        onClose={closeDataScopeDrawer}
+        onClose={() => setIsDataScopeDrawerOpen(false)}
         scope={null}
         roleId={selectedRole?.id}
       />
 
       {/* 7. Confirm Dialog */}
       <Dialog
-        isOpen={isConfirmDialogOpen && (confirmActionType === 'DEACTIVATE_ROLE' || confirmActionType === 'ACTIVATE_ROLE')}
-        onClose={closeConfirmDialog}
+        isOpen={confirmToggle != null}
+        onClose={() => setConfirmToggle(null)}
         title={t('confirmActionTitle')}
         footer={
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={closeConfirmDialog}>
+            <Button variant="secondary" onClick={() => setConfirmToggle(null)}>
               {t('cancel')}
             </Button>
-            <Button variant="primary" onClick={executeConfirmAction}>
+            <Button variant="primary" onClick={handleConfirmToggle}>
               {t('confirm')}
             </Button>
           </div>
         }
       >
         <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-body, #354456)' }}>
-          {confirmActionType === 'DEACTIVATE_ROLE' ? t('confirmDeactivate') : t('confirmReactivate')}
+          {confirmToggle?.activate ? t('confirmReactivate') : t('confirmDeactivate')}
         </p>
       </Dialog>
     </div>

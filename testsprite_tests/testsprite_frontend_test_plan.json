@@ -1,0 +1,2092 @@
+[
+  {
+    "id": "TC001",
+    "title": "Login and reach the dashboard",
+    "description": "This test verifies that a valid employee can log in and land on the dashboard with the main authenticated landing content visible.",
+    "category": "Authentication and Self-Service",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard KPI content is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Create a new account and see it marked for activation",
+    "description": "This test verifies that a visitor can register a new account and receive confirmation that the account is created but not yet active.",
+    "category": "Authentication and Self-Service",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the signup tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with a unique username"
+      },
+      {
+        "type": "action",
+        "description": "Fill in email with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with a valid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the signup form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an account created confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the account is shown as disabled or inactive"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Activate an account with a token",
+    "description": "This test verifies that a user can activate an account from the public authentication screen and see activation confirmation.",
+    "category": "Authentication and Self-Service",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the activate tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the activation token field with a valid token"
+      },
+      {
+        "type": "action",
+        "description": "Submit the activation form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an account activated confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Request a password reset",
+    "description": "This test verifies that a user can request password recovery from the public screen and receive a confirmation message.",
+    "category": "Authentication and Self-Service",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the forgot password tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in email with a valid email address"
+      },
+      {
+        "type": "action",
+        "description": "Submit the password reset request"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a password reset confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Set a new password with a recovery token",
+    "description": "This test verifies that a user can complete password reset with a valid token and see the password updated confirmation.",
+    "category": "Authentication and Self-Service",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the reset password tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the OTP token field with a valid token"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the new password field with a valid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the reset form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a password updated confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Reject invalid login credentials",
+    "description": "This test verifies that the login form shows an error message when a user submits incorrect credentials.",
+    "category": "Authentication and Self-Service",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with an invalid username"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with an invalid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login error message is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Edit a role permission matrix and remove a page",
+    "description": "This test verifies that a security admin can adjust page-level permissions for a role, remove a page from the matrix, and see the saved permission set reflected afterward.",
+    "category": "Role Management and RBAC",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a role for editing"
+      },
+      {
+        "type": "action",
+        "description": "Toggle create, update, and delete permissions for a page"
+      },
+      {
+        "type": "action",
+        "description": "Remove a page from the role"
+      },
+      {
+        "type": "action",
+        "description": "Save changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated permission matrix is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Copy permissions from another role",
+    "description": "This test verifies that a security admin can copy permissions from one role to another after confirmation and see the copied page permissions on the target role.",
+    "category": "Role Management and RBAC",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a role for editing"
+      },
+      {
+        "type": "action",
+        "description": "Copy permissions from another role"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the copy"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the copied page permissions are applied"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Update a user's details and roles",
+    "description": "This test verifies that an administrator can edit an existing user, update their details and role assignments, and see the saved changes in the user list.",
+    "category": "User Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a user for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change user fields with new valid values"
+      },
+      {
+        "type": "action",
+        "description": "Select roles for the user"
+      },
+      {
+        "type": "action",
+        "description": "Save changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated user details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated role assignments are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Sync a role's permissions from a source role",
+    "description": "This test verifies that a security admin can replace a role's permissions by syncing from another role and see the copied permissions applied.",
+    "category": "Role Management and RBAC",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a role for editing"
+      },
+      {
+        "type": "action",
+        "description": "Sync all page permissions from another role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role permissions are replaced"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Search and filter users",
+    "description": "This test verifies that an administrator can search the user list and narrow results by status.",
+    "category": "User Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the search field with a keyword"
+      },
+      {
+        "type": "action",
+        "description": "Select an active status filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching users are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Edit a role and save changes",
+    "description": "This test verifies that a security admin can update role details and see the saved role information in the list.",
+    "category": "Role Management and RBAC",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a role for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change role details with new valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated role information is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Search and filter roles",
+    "description": "This test verifies that a security admin can search roles and filter them by status to find matching roles.",
+    "category": "Role Management and RBAC",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the search field with a keyword"
+      },
+      {
+        "type": "action",
+        "description": "Select an active status filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching roles are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Create a new user",
+    "description": "This test verifies that an administrator can create a user account and see the new user in the list.",
+    "category": "User Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open user creation"
+      },
+      {
+        "type": "action",
+        "description": "Fill in user details with unique valid values"
+      },
+      {
+        "type": "action",
+        "description": "Submit the create form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new user is displayed in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Create a new role",
+    "description": "This test verifies that a security admin can create a role and see it appear in the role list.",
+    "category": "Role Management and RBAC",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open role creation"
+      },
+      {
+        "type": "action",
+        "description": "Fill in role details with unique valid values"
+      },
+      {
+        "type": "action",
+        "description": "Submit the create form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new role is displayed in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "View security permission list and narrow it with search and module filters",
+    "description": "An administrator can search the permission registry and filter it by module to see the expected matching permissions.",
+    "category": "Permission Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security permissions navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Search for a permission by keyword"
+      },
+      {
+        "type": "action",
+        "description": "Filter the permissions by module"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching permissions are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Open profile and data scope drawers from a user",
+    "description": "This test verifies that an administrator can update a user's profile data and branch access scope from the user editor and see both updates saved.",
+    "category": "User Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a user for editing"
+      },
+      {
+        "type": "action",
+        "description": "Open the user profile drawer"
+      },
+      {
+        "type": "action",
+        "description": "Edit profile details with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile"
+      },
+      {
+        "type": "action",
+        "description": "Open the data scope drawer"
+      },
+      {
+        "type": "action",
+        "description": "Select branch access scope"
+      },
+      {
+        "type": "action",
+        "description": "Save the data scope"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile data is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated scope assignment is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Deactivate and reactivate a role",
+    "description": "This test verifies that a security admin can change a role's active state in both directions and see the status updated in the list.",
+    "category": "Role Management and RBAC",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a role"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the role"
+      },
+      {
+        "type": "action",
+        "description": "Confirm deactivation"
+      },
+      {
+        "type": "action",
+        "description": "Reactivate the role"
+      },
+      {
+        "type": "action",
+        "description": "Confirm reactivation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role is marked active"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Delete a user",
+    "description": "This test verifies that an administrator can delete a user after confirmation and see the user removed from the list.",
+    "category": "User Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a user to delete"
+      },
+      {
+        "type": "action",
+        "description": "Delete the created user"
+      },
+      {
+        "type": "action",
+        "description": "Confirm deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is removed from the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC020",
+    "title": "Create a new permission record",
+    "description": "An administrator can create a permission record and see it added to the permission registry.",
+    "category": "Permission Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security permissions navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Open the permission creation form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a unique permission name"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the permission module and description fields"
+      },
+      {
+        "type": "action",
+        "description": "Submit the create permission form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new permission is displayed in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC021",
+    "title": "Manage page registry entries",
+    "description": "This test verifies that an administrator can create or edit page registry entries and change their active state.",
+    "category": "User Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the page registry screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a page registry entry"
+      },
+      {
+        "type": "action",
+        "description": "Edit the page registry entry with new valid values"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the page registry entry"
+      },
+      {
+        "type": "action",
+        "description": "Reactivate the page registry entry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page registry entry is displayed with the updated state"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC022",
+    "title": "Rename an existing permission",
+    "description": "An administrator can open an existing permission, change its name, and see the updated name in the registry.",
+    "category": "Permission Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security permissions navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing permission for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change the permission name"
+      },
+      {
+        "type": "action",
+        "description": "Save the permission changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated permission name is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC023",
+    "title": "Manage permissions in the registry",
+    "description": "This test verifies that an administrator can create and rename permissions in the permission registry and see the updated permissions in the list.",
+    "category": "User Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the permissions registry screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a permission entry"
+      },
+      {
+        "type": "action",
+        "description": "Rename the permission entry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated permission is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC024",
+    "title": "Search pages and filter them by module and status",
+    "description": "An administrator can search the page registry and narrow results by module and status to find the expected pages.",
+    "category": "Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security pages navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Search for a page by keyword"
+      },
+      {
+        "type": "action",
+        "description": "Filter the pages by module"
+      },
+      {
+        "type": "action",
+        "description": "Filter the pages by status"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching pages are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC025",
+    "title": "Create a new page registry entry",
+    "description": "An administrator can create a page entry with its metadata and see it added to the page registry.",
+    "category": "Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security pages navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Open the page creation form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a unique page code"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the page name, route, and metadata fields"
+      },
+      {
+        "type": "action",
+        "description": "Submit the create page form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new page is displayed in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC026",
+    "title": "Create and manage a branch",
+    "description": "This test verifies that an authenticated employee can create and deactivate a branch in the mock organization module and see the branch status update.",
+    "category": "Organization and Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the branches screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a branch with unique valid values"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the branch"
+      },
+      {
+        "type": "action",
+        "description": "Confirm deactivation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the branch is marked inactive"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC027",
+    "title": "Create, edit, and delete a legal entity",
+    "description": "This test verifies that an authenticated user can create a legal entity, update it, and remove it from the organization list with the changes reflected locally.",
+    "category": "Organization Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the organization legal entities screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a new legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Edit the newly created legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Delete the newly created legal entity"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the legal entities list is displayed without the deleted entity"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC028",
+    "title": "Create and manage a legal entity",
+    "description": "This test verifies that an authenticated employee can create, edit, and delete a legal entity in the mock organization module and see the list update immediately.",
+    "category": "Organization and Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the legal entities screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a legal entity with unique valid values"
+      },
+      {
+        "type": "action",
+        "description": "Edit the legal entity with new valid values"
+      },
+      {
+        "type": "action",
+        "description": "Delete the legal entity"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the legal entity is removed from the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC029",
+    "title": "Create, edit, and deactivate a branch",
+    "description": "This test verifies that an authenticated user can create a branch, edit it, deactivate it through confirmation, and see the branch state update locally.",
+    "category": "Organization Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the branches screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a new branch"
+      },
+      {
+        "type": "action",
+        "description": "Edit the newly created branch"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the newly created branch"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the branch list reflects the updated inactive branch state"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC030",
+    "title": "Navigate through the organization tree views",
+    "description": "This test verifies that an authenticated employee can create and inspect hierarchical organization items in the departments and cost centers screens and return through quick navigation.",
+    "category": "Organization and Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the departments screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a department with unique valid values"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the cost centers screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a cost center with unique valid values"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the dashboard"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard quick navigation is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC031",
+    "title": "Deactivate and reactivate a page entry",
+    "description": "An administrator can deactivate a page and later reactivate it, with the status updated in the registry each time.",
+    "category": "Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security pages navigation link"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate an active page and confirm the action"
+      },
+      {
+        "type": "action",
+        "description": "Reactivate the same page and confirm the action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page is marked active"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC032",
+    "title": "Manage a profit center and a location",
+    "description": "This test verifies that an authenticated employee can create entries in the profit centers and locations screens and see them in the corresponding lists.",
+    "category": "Organization and Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the profit centers screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a profit center with unique valid values"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the locations screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a location with unique valid values"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the location is displayed in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC033",
+    "title": "Manage department tree items",
+    "description": "This test verifies that an authenticated user can expand the department tree and create, edit, and delete a department with the tree updating locally.",
+    "category": "Organization Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the departments screen"
+      },
+      {
+        "type": "action",
+        "description": "Expand the department tree"
+      },
+      {
+        "type": "action",
+        "description": "Create a new department"
+      },
+      {
+        "type": "action",
+        "description": "Edit the newly created department"
+      },
+      {
+        "type": "action",
+        "description": "Delete the newly created department"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the department tree shows the expected updated structure"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC034",
+    "title": "Create and manage a region",
+    "description": "This test verifies that an authenticated employee can create and edit a region in the mock organization module and see the updated region in the list.",
+    "category": "Organization and Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the regions screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a region with unique valid values"
+      },
+      {
+        "type": "action",
+        "description": "Edit the region with new valid values"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated region is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC035",
+    "title": "Open the dashboard and reach a module through quick navigation",
+    "description": "An authenticated user can view the dashboard KPI cards and use quick navigation to reach another module.",
+    "category": "Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Verify the dashboard is displayed"
+      },
+      {
+        "type": "action",
+        "description": "Open a quick navigation card for a major module"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected module is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC036",
+    "title": "Search and read notifications in the inbox",
+    "description": "This test verifies that an authenticated user can search the notification inbox, mark an item as read, and see the updated inbox state.",
+    "category": "Organization and Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the notifications inbox"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the inbox search field with a keyword"
+      },
+      {
+        "type": "action",
+        "description": "Mark a notification as read"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the notification inbox shows the updated read state"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC037",
+    "title": "Create, edit, and delete a region",
+    "description": "This test verifies that an authenticated user can manage regions end to end and see the list update locally after each change.",
+    "category": "Organization Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the regions screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a new region"
+      },
+      {
+        "type": "action",
+        "description": "Edit the newly created region"
+      },
+      {
+        "type": "action",
+        "description": "Delete the newly created region"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the regions list is displayed without the deleted region"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC038",
+    "title": "Manage cost center tree items",
+    "description": "This test verifies that an authenticated user can expand the cost center tree and create, edit, and delete a cost center with the tree updating locally.",
+    "category": "Organization Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the cost centers screen"
+      },
+      {
+        "type": "action",
+        "description": "Expand the cost center tree"
+      },
+      {
+        "type": "action",
+        "description": "Create a new cost center"
+      },
+      {
+        "type": "action",
+        "description": "Edit the newly created cost center"
+      },
+      {
+        "type": "action",
+        "description": "Delete the newly created cost center"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cost center tree shows the expected updated structure"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC039",
+    "title": "Archive notifications and mark all as read",
+    "description": "This test verifies that an authenticated user can archive a notification and clear unread state across the inbox.",
+    "category": "Organization and Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the notifications inbox"
+      },
+      {
+        "type": "action",
+        "description": "Archive a notification"
+      },
+      {
+        "type": "action",
+        "description": "Mark all notifications as read"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the inbox shows the updated notification state"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC040",
+    "title": "Search and filter notifications in the inbox",
+    "description": "This test verifies that an authenticated user can filter the notification inbox and see only matching notifications.",
+    "category": "Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the notifications inbox"
+      },
+      {
+        "type": "action",
+        "description": "Search or filter the inbox by notification type and status"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching notifications are displayed in the inbox"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC041",
+    "title": "Create and edit a notification template",
+    "description": "This test verifies that an authenticated user can create a notification template, edit its content, and switch between language body tabs.",
+    "category": "Organization and Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the notification templates screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a notification template with unique valid values"
+      },
+      {
+        "type": "action",
+        "description": "Edit the notification template body"
+      },
+      {
+        "type": "action",
+        "description": "Switch between the language body tabs"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated template is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC042",
+    "title": "Create and update a notification template",
+    "description": "This test verifies that an authenticated user can create a notification template, edit its English and Arabic content, and see the saved template in the list.",
+    "category": "Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the notification templates screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a new notification template"
+      },
+      {
+        "type": "action",
+        "description": "Update the English and Arabic template content"
+      },
+      {
+        "type": "action",
+        "description": "Save the template"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved template appears in the templates list"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC043",
+    "title": "Create, edit, and delete a profit center",
+    "description": "This test verifies that an authenticated user can manage profit centers end to end and see the list update locally after each change.",
+    "category": "Organization Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the profit centers screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a new profit center"
+      },
+      {
+        "type": "action",
+        "description": "Edit the newly created profit center"
+      },
+      {
+        "type": "action",
+        "description": "Delete the newly created profit center"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the profit centers list is displayed without the deleted profit center"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC044",
+    "title": "Enable and configure a notification channel",
+    "description": "This test verifies that an authenticated user can toggle a notification channel and edit its JSON configuration in the mock channels screen.",
+    "category": "Organization and Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the notification channels screen"
+      },
+      {
+        "type": "action",
+        "description": "Toggle a channel on or off"
+      },
+      {
+        "type": "action",
+        "description": "Edit the channel configuration with valid JSON"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the channel configuration is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC045",
+    "title": "Create, edit, and delete a location site",
+    "description": "This test verifies that an authenticated user can manage location sites end to end and see the list update locally after each change.",
+    "category": "Organization Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the locations screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a new location site"
+      },
+      {
+        "type": "action",
+        "description": "Edit the newly created location site"
+      },
+      {
+        "type": "action",
+        "description": "Delete the newly created location site"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the location sites list is displayed without the deleted location site"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC046",
+    "title": "Mark a notification as read",
+    "description": "This test verifies that an authenticated user can mark a notification as read and see its status change in the inbox.",
+    "category": "Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the notifications inbox"
+      },
+      {
+        "type": "action",
+        "description": "Mark a notification as read"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the notification is shown with a read status"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC047",
+    "title": "Mark all inbox notifications as read",
+    "description": "This test verifies that an authenticated user can mark all notifications as read and see the inbox update accordingly.",
+    "category": "Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the notifications inbox"
+      },
+      {
+        "type": "action",
+        "description": "Mark all notifications as read"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the inbox shows all notifications as read"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC048",
+    "title": "Archive a notification from the inbox",
+    "description": "This test verifies that an authenticated user can archive a notification and see it removed from the active inbox list.",
+    "category": "Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the login credentials with {{LOGIN_USER}} and {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the notifications inbox"
+      },
+      {
+        "type": "action",
+        "description": "Archive a notification"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the archived notification is removed from the active inbox"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC049",
+    "title": "Organization changes are local to the session",
+    "description": "This test verifies that mock organization changes appear in the current session and are not relied on after refresh, reflecting the local-state behavior of the module.",
+    "category": "Organization and Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in username with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in password with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to the branches screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a branch with unique valid values"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new branch is displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC050",
+    "title": "Open the dashboard attachment drawer",
+    "description": "An authenticated user can open the dashboard file attachments demo and see the attachment drawer.",
+    "category": "Dashboard",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the file attachments demo control"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the attachment drawer is displayed"
+      }
+    ],
+    "priority": "Low"
+  }
+]

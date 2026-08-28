@@ -15,7 +15,10 @@ Execute test scenarios for SECURITY — only for what's actually complete.
 Read `execution-state.json` → `test_phase.gated_by_phases[]`. Confirm
 every listed phase has `status == COMPLETE`. Empty list → gate passes automatically.
 
-Gated by (SECURITY): F1, F2, F3, F4, SEC-FE, ALIGN-FE
+Current gate: `["F1", "F2", "F3", "F4", "SEC-FE", "ALIGN-FE"]` — all
+six phases now have real content as of this generation. F1 is
+COMPLETE; F2/F3/F4/SEC-FE/ALIGN-FE are PENDING, so the gate does not
+pass yet.
 
 If not all complete:
 ```
@@ -35,12 +38,10 @@ STOP. Do not generate or run any test.
 
 ### 1.0 — Read `header_file` and `mandatory_file` once
 
-> NOTE: as of generation time, `packages/frontend-test/` for SECURITY
-> contains only empty placeholder directories (`UI-FLOWS/.gitkeep`,
-> `INT-FLOW/.gitkeep`) — no `.md` sub files, no `*-HEADER.md`, and no
-> `MANDATORY-*.md` exist yet. `header_file`/`mandatory_file` are `null`
-> in `execution-state.json`. These must be generated (or the test
-> package otherwise populated) before this command has any subs to run.
+⚠ Neither exists yet for this module — `packages/frontend-test/`
+contains only `UI-FLOWS/.gitkeep` and `INT-FLOW/.gitkeep`, no
+`*-HEADER.md`/`MANDATORY-*.md` and no scenario `.md` files. This step
+is a no-op until those are authored; do not invent their content.
 
 ### Per sub:
 1. Read `packages/frontend-test/[SUB].md` completely

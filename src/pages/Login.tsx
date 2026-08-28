@@ -1,33 +1,48 @@
 import React, { useState } from 'react';
+import { z } from 'zod';
 import { useLanguage } from '../context/LanguageContext';
-import { useAuthStore } from '../stores/useAuthStore';
+import { useAuthStore, type UserInfo } from '../stores/useAuthStore';
+import { useAuthFacade } from '../auth/hooks';
+import { loginSchema, signupSchema, activateSchema, forgotPasswordSchema, resetPasswordSchema } from '../auth/auth.schema';
+import { ApiError } from '../lib/errors/ApiError';
+import { secErrorMessage } from '../lib/errors/secErrors';
 import { Button } from '../components/ui/Button';
-import { Input, Checkbox, Select } from '../components/ui/FormControls';
+import { Input, Checkbox } from '../components/ui/FormControls';
 import { Tabs, Alert } from '../components/ui/OverlaysAndFeedback';
 
 export interface LoginProps {
-  onLogin?: (role?: 'admin' | 'finance' | 'hr', username?: string) => void;
+  onLogin?: (info: UserInfo) => void;
 }
 
 type AuthTab = 'login' | 'signup' | 'activate' | 'forgot' | 'reset';
+
+function fieldErrorsFrom(error: z.ZodError): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const issue of error.issues) {
+    const key = String(issue.path[0]);
+    if (!out[key]) out[key] = issue.message;
+  }
+  return out;
+}
 
 export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
   const { t, lang, toggleLanguage, dir } = useLanguage();
   const storeLogin = useAuthStore((state) => state.login);
   const handleLogin = propOnLogin ?? storeLogin;
+  const { loginWithToken, signup, activate, forgotPassword, resetPassword, isLoading } = useAuthFacade();
 
   const [activeTab, setActiveTab] = useState<AuthTab>('login');
-  const [role, setRole] = useState<'admin' | 'finance' | 'hr'>('admin');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
   // Signup fields
-  const [signupFullName, setSignupFullName] = useState('');
+  const [signupUsername, setSignupUsername] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
 
-  // Activate fields
+  // Activate fields — `activateUsername` is display-only context for the
+  // user; ActivateAccountRequest only carries `token` (confirmed contract).
   const [activateUsername, setActivateUsername] = useState('');
   const [activationCode, setActivationCode] = useState('');
 
@@ -35,46 +50,104 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
   const [forgotEmail, setForgotEmail] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
-  // Reset password fields
+  // Reset password fields — `resetOtp` is the token from the emailed link.
   const [resetOtp, setResetOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
 
-  const roles = [
-    { value: 'admin', label: t('admin') },
-    { value: 'finance', label: t('financeManager') },
-    { value: 'hr', label: t('hrOfficer') },
-  ];
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const onFormSubmit = (e: React.FormEvent) => {
+  const switchTab = (tab: AuthTab) => {
+    setErrorMessage(null);
+    setFieldErrors({});
+    setFeedbackMessage(null);
+    setActiveTab(tab);
+  };
+
+  const errorText = (err: unknown): string =>
+    err instanceof ApiError
+      ? err.message
+      : lang === 'ar'
+        ? 'حدث خطأ غير متوقع. حاول مرة أخرى.'
+        : 'An unexpected error occurred. Please try again.';
+
+  const onFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFeedbackMessage(null);
+    setErrorMessage(null);
+    setFieldErrors({});
+
     if (activeTab === 'login') {
-      handleLogin(role, username || (role === 'admin' ? 'admin' : role === 'finance' ? 'f.alotaibi' : 'n.alghamdi'));
+      const parsed = loginSchema.safeParse({ username, password });
+      if (!parsed.success) return setFieldErrors(fieldErrorsFrom(parsed.error));
+      try {
+        const info = await loginWithToken(parsed.data);
+        handleLogin(info);
+      } catch (err) {
+        setErrorMessage(errorText(err));
+      }
     } else if (activeTab === 'signup') {
-      setFeedbackMessage(lang === 'ar' ? 'تم إنشاء الحساب بنجاح! يرجى مراجعة بريدك للتفعيل.' : 'Account registered successfully! Please check your email for activation.');
-      setTimeout(() => {
-        setActiveTab('activate');
-        setFeedbackMessage(null);
-      }, 1500);
+      const parsed = signupSchema.safeParse({ username: signupUsername, email: signupEmail, password: signupPassword });
+      if (!parsed.success) return setFieldErrors(fieldErrorsFrom(parsed.error));
+      try {
+        await signup(parsed.data);
+        // RULE-SEC-030 — account is disabled until activated; this is the
+        // mandated post-submit message, not a generic success toast.
+        setFeedbackMessage(secErrorMessage('ERR-SEC-030', lang));
+        setTimeout(() => {
+          setActiveTab('activate');
+          setFeedbackMessage(null);
+        }, 1500);
+      } catch (err) {
+        setErrorMessage(errorText(err));
+      }
     } else if (activeTab === 'activate') {
-      setFeedbackMessage(lang === 'ar' ? 'تم تفعيل الحساب بنجاح! يمكنك الآن تسجيل الدخول.' : 'Account activated successfully! You can now sign in.');
-      setTimeout(() => {
-        setActiveTab('login');
-        setFeedbackMessage(null);
-      }, 1500);
+      const parsed = activateSchema.safeParse({ token: activationCode });
+      if (!parsed.success) return setFieldErrors(fieldErrorsFrom(parsed.error));
+      try {
+        await activate(parsed.data);
+        setFeedbackMessage(lang === 'ar' ? 'تم تفعيل الحساب بنجاح! يمكنك الآن تسجيل الدخول.' : 'Account activated successfully! You can now sign in.');
+        setTimeout(() => {
+          setActiveTab('login');
+          setFeedbackMessage(null);
+        }, 1500);
+      } catch (err) {
+        setErrorMessage(errorText(err));
+      }
     } else if (activeTab === 'forgot') {
-      setFeedbackMessage(lang === 'ar' ? 'تم إرسال رمز التحقق إلى بريدك الإلكتروني.' : 'Verification code sent to your email.');
-      setTimeout(() => {
-        setActiveTab('reset');
-        setFeedbackMessage(null);
-      }, 1500);
+      const parsed = forgotPasswordSchema.safeParse({ email: forgotEmail });
+      if (!parsed.success) return setFieldErrors(fieldErrorsFrom(parsed.error));
+      try {
+        await forgotPassword(parsed.data);
+        // RULE-SEC-038 — anti-enumeration: identical message regardless of
+        // whether the email exists, always shown on success.
+        setFeedbackMessage(secErrorMessage('ERR-SEC-038', lang));
+        setTimeout(() => {
+          setActiveTab('reset');
+          setFeedbackMessage(null);
+        }, 1500);
+      } catch (err) {
+        setErrorMessage(errorText(err));
+      }
     } else if (activeTab === 'reset') {
-      setFeedbackMessage(lang === 'ar' ? 'تم تحديث كلمة المرور بنجاح! يرجى تسجيل الدخول.' : 'Password updated successfully! Please sign in.');
-      setTimeout(() => {
-        setActiveTab('login');
-        setFeedbackMessage(null);
-      }, 1500);
+      const parsed = resetPasswordSchema.safeParse({ token: resetOtp, newPassword });
+      if (!parsed.success) return setFieldErrors(fieldErrorsFrom(parsed.error));
+      try {
+        await resetPassword(parsed.data);
+        setFeedbackMessage(lang === 'ar' ? 'تم تحديث كلمة المرور بنجاح! يرجى تسجيل الدخول.' : 'Password updated successfully! Please sign in.');
+        setTimeout(() => {
+          setActiveTab('login');
+          setFeedbackMessage(null);
+        }, 1500);
+      } catch (err) {
+        setErrorMessage(errorText(err));
+      }
     }
   };
+
+  // RULE-SEC-033 — a token-consuming form must not be resubmittable with
+  // the same token once it has succeeded (until it navigates away).
+  const submitDisabled = isLoading || ((activeTab === 'activate' || activeTab === 'reset') && !!feedbackMessage);
 
   return (
     <div
@@ -253,7 +326,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
                   { id: 'signup', label: t('signup'), icon: <i className="ti ti-user-plus" /> },
                 ]}
                 activeTab={activeTab}
-                onChange={(id) => setActiveTab(id as AuthTab)}
+                onChange={(id) => switchTab(id as AuthTab)}
               />
             </div>
           )}
@@ -264,22 +337,23 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
             </div>
           )}
 
+          {errorMessage && (
+            <div style={{ marginBottom: '18px' }}>
+              <Alert variant="danger" message={errorMessage} />
+            </div>
+          )}
+
           {/* Form container */}
           <form onSubmit={onFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {activeTab === 'login' && (
               <>
-                <Select
-                  label={t('role')}
-                  options={roles}
-                  value={role}
-                  onChange={(e) => setRole(e.target.value as 'admin' | 'finance' | 'hr')}
-                />
                 <Input
                   label={t('username')}
-                  placeholder={role === 'admin' ? 'admin' : role === 'finance' ? 'f.alotaibi' : 'n.alghamdi'}
+                  placeholder="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   iconLeft={<i className="ti ti-user" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+                  error={fieldErrors.username}
                   required
                 />
                 <Input
@@ -289,6 +363,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   iconLeft={<i className="ti ti-key" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+                  error={fieldErrors.password}
                   required
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
@@ -299,7 +374,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
                   />
                   <button
                     type="button"
-                    onClick={() => setActiveTab('forgot')}
+                    onClick={() => switchTab('forgot')}
                     style={{
                       background: 'none',
                       border: 'none',
@@ -313,13 +388,13 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
                     {t('forgotPassword')}
                   </button>
                 </div>
-                <Button type="submit" variant="primary" size="lg" block>
+                <Button type="submit" variant="primary" size="lg" block loading={isLoading} disabled={submitDisabled}>
                   {t('enterWorkspace')}
                 </Button>
                 <div style={{ textAlign: 'center', marginTop: '10px' }}>
                   <button
                     type="button"
-                    onClick={() => setActiveTab('activate')}
+                    onClick={() => switchTab('activate')}
                     style={{
                       background: 'none',
                       border: 'none',
@@ -337,10 +412,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
             {activeTab === 'signup' && (
               <>
                 <Input
-                  label={t('fullName')}
-                  placeholder="Hesham Al-Ahmadi"
-                  value={signupFullName}
-                  onChange={(e) => setSignupFullName(e.target.value)}
+                  label={t('username')}
+                  placeholder="username"
+                  value={signupUsername}
+                  onChange={(e) => setSignupUsername(e.target.value)}
+                  error={fieldErrors.username}
                   required
                 />
                 <Input
@@ -349,6 +425,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
                   placeholder="user@avelynq.com"
                   value={signupEmail}
                   onChange={(e) => setSignupEmail(e.target.value)}
+                  error={fieldErrors.email}
                   required
                 />
                 <Input
@@ -357,9 +434,10 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
                   placeholder="••••••••••••"
                   value={signupPassword}
                   onChange={(e) => setSignupPassword(e.target.value)}
+                  error={fieldErrors.password}
                   required
                 />
-                <Button type="submit" variant="primary" size="lg" block>
+                <Button type="submit" variant="primary" size="lg" block loading={isLoading} disabled={submitDisabled}>
                   {t('submitAccountCreation')}
                 </Button>
               </>
@@ -372,22 +450,22 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
                   placeholder="username"
                   value={activateUsername}
                   onChange={(e) => setActivateUsername(e.target.value)}
-                  required
                 />
                 <Input
                   label={t('activationCode')}
                   placeholder="ACT-998822"
                   value={activationCode}
                   onChange={(e) => setActivationCode(e.target.value)}
+                  error={fieldErrors.token}
                   required
                 />
-                <Button type="submit" variant="primary" size="lg" block>
+                <Button type="submit" variant="primary" size="lg" block loading={isLoading} disabled={submitDisabled}>
                   {t('submitActivation')}
                 </Button>
                 <div style={{ textAlign: 'center', marginTop: '8px' }}>
                   <button
                     type="button"
-                    onClick={() => setActiveTab('login')}
+                    onClick={() => switchTab('login')}
                     style={{
                       background: 'none',
                       border: 'none',
@@ -411,15 +489,16 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
                   placeholder="user@avelynq.com"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
+                  error={fieldErrors.email}
                   required
                 />
-                <Button type="submit" variant="primary" size="lg" block>
+                <Button type="submit" variant="primary" size="lg" block loading={isLoading} disabled={submitDisabled}>
                   {t('submitPasswordResetReq')}
                 </Button>
                 <div style={{ textAlign: 'center', marginTop: '8px' }}>
                   <button
                     type="button"
-                    onClick={() => setActiveTab('login')}
+                    onClick={() => switchTab('login')}
                     style={{
                       background: 'none',
                       border: 'none',
@@ -442,6 +521,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
                   placeholder="6-digit OTP"
                   value={resetOtp}
                   onChange={(e) => setResetOtp(e.target.value)}
+                  error={fieldErrors.token}
                   required
                 />
                 <Input
@@ -450,15 +530,16 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
                   placeholder="••••••••••••"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
+                  error={fieldErrors.newPassword}
                   required
                 />
-                <Button type="submit" variant="primary" size="lg" block>
+                <Button type="submit" variant="primary" size="lg" block loading={isLoading} disabled={submitDisabled}>
                   {t('submitNewPassword')}
                 </Button>
                 <div style={{ textAlign: 'center', marginTop: '8px' }}>
                   <button
                     type="button"
-                    onClick={() => setActiveTab('login')}
+                    onClick={() => switchTab('login')}
                     style={{
                       background: 'none',
                       border: 'none',

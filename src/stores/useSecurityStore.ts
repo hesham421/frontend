@@ -390,7 +390,7 @@ export const useSecurityStore = create<SecurityState>((set, get) => ({
         id: `ds-${Date.now()}`,
         roleId: scopeData.roleId || state.selectedRole?.id || 'role-1',
         branchId: scopeData.branchId || 'br-1',
-        dataAccessLevel: scopeData.dataAccessLevel || 'BRANCH',
+        dataAccessLevel: scopeData.dataAccessLevel || 'BRANCH_ONLY',
         isActive: scopeData.isActive ?? true,
       };
       return {

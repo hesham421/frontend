@@ -1,63 +1,69 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { useSecurityStore } from '../../stores/useSecurityStore';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
+import { useUserProfileFacade } from '../../userProfiles/hooks';
+import type { UserDto } from '../../users/usersApi';
 import { Drawer } from '../../components/ui/OverlaysAndFeedback';
 import { Button } from '../../components/ui/Button';
-import { Input, Select, Switch } from '../../components/ui/FormControls';
-import { AppUser } from '../../data/mockData';
+import { Input, Select } from '../../components/ui/FormControls';
+import { Badge } from '../../components/ui/DataDisplay';
 
 export interface UserProfileDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  user: AppUser | null;
+  user: UserDto | null;
+}
+
+// Organization's own module hasn't been wired to a real API yet (out of
+// SECURITY's scope) — useOrganizationStore's branch ids are mock string
+// slugs ('br-1'), but branchIdFk (RULE-SEC-034) is a real number. Bridges
+// the numeric suffix until Organization ships a real numeric-id branch list.
+function branchIdToNumber(id: string): number {
+  return Number(id.replace(/^\D+/, ''));
 }
 
 export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, onClose, user }) => {
   const { t } = useLanguage();
-  const saveUserProfile = useSecurityStore((state) => state.saveUserProfile);
   const branches = useOrganizationStore((state) => state.branches);
+  const { profile, isLoading, saveProfile } = useUserProfileFacade(user?.id);
 
   const [fullNameEn, setFullNameEn] = useState('');
   const [fullNameAr, setFullNameAr] = useState('');
-  const [branchId, setBranchId] = useState('br-1');
+  const [branchId, setBranchId] = useState<number | undefined>(undefined);
   const [preferredLang, setPreferredLang] = useState<'ar' | 'en'>('ar');
   const [employeeId, setEmployeeId] = useState('');
-  const [isActive, setIsActive] = useState(true);
 
   useEffect(() => {
-    if (user?.profile) {
-      setFullNameEn(user.profile.fullNameEn || '');
-      setFullNameAr(user.profile.fullNameAr || '');
-      setBranchId(user.profile.branchId || 'br-1');
-      setPreferredLang(user.profile.preferredLang || 'ar');
-      setEmployeeId(user.profile.employeeId || '');
-      setIsActive(user.profile.isActive ?? true);
+    if (profile) {
+      setFullNameEn(profile.fullNameEn || '');
+      setFullNameAr(profile.fullNameAr || '');
+      setBranchId(profile.branchIdFk);
+      setPreferredLang((profile.preferredLang as 'ar' | 'en') || 'ar');
+      setEmployeeId(profile.employeeIdFk != null ? String(profile.employeeIdFk) : '');
     } else if (user) {
-      setFullNameEn(user.username);
+      setFullNameEn(user.username || '');
       setFullNameAr('');
-      setBranchId('br-1');
+      setBranchId(undefined);
       setPreferredLang('ar');
-      setEmployeeId(`EMP-${Math.floor(100 + Math.random() * 900)}`);
-      setIsActive(true);
+      setEmployeeId('');
     }
-  }, [user]);
+  }, [profile, user]);
 
-  const handleSave = () => {
-    if (!user) return;
-    saveUserProfile(user.id, {
-      fullNameEn,
+  const handleSave = async () => {
+    if (!user?.id || branchId == null) return;
+    await saveProfile({
+      branchIdFk: branchId,
       fullNameAr,
-      branchId,
+      fullNameEn,
       preferredLang,
-      employeeId,
-      isActive,
+      employeeIdFk: employeeId ? Number(employeeId) : undefined,
     });
+    onClose();
   };
 
   const activeBranches = branches
-    .filter((b) => b.isActive || b.id === branchId)
-    .map((b) => ({ value: b.id, label: `${b.nameEn} (${b.branchCode})` }));
+    .filter((b) => b.isActive || branchIdToNumber(b.id) === branchId)
+    .map((b) => ({ value: String(branchIdToNumber(b.id)), label: `${b.nameEn} (${b.branchCode})` }));
 
   const langOptions = [
     { value: 'ar', label: 'العربية (Arabic)' },
@@ -75,7 +81,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
           <Button variant="secondary" onClick={onClose}>
             {t('cancel')}
           </Button>
-          <Button variant="primary" onClick={handleSave}>
+          <Button variant="primary" onClick={handleSave} loading={isLoading}>
             {t('save')}
           </Button>
         </div>
@@ -97,8 +103,8 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
         <Select
           label={`${t('assignedBranch')} *`}
           options={activeBranches}
-          value={branchId}
-          onChange={(e) => setBranchId(e.target.value)}
+          value={branchId != null ? String(branchId) : ''}
+          onChange={(e) => setBranchId(Number(e.target.value))}
         />
         <Select
           label={t('preferredLang')}
@@ -108,15 +114,20 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
         />
         <Input
           label={t('employeeId')}
+          type="number"
           value={employeeId}
           onChange={(e) => setEmployeeId(e.target.value)}
-          placeholder="EMP-1001"
+          placeholder="1001"
         />
-        <Switch
-          label={t('active')}
-          checked={isActive}
-          onChange={(checked) => setIsActive(checked)}
-        />
+        {profile && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '13px', color: 'var(--text-muted, #647488)' }}>{t('active')}:</span>
+            {/* isActiveFl has no write field on Create/UpdateSecUserProfileRequest — display only. */}
+            <Badge variant={profile.isActiveFl ? 'success' : 'neutral'} size="sm">
+              {profile.isActiveFl ? t('active') : t('inactive')}
+            </Badge>
+          </div>
+        )}
       </div>
     </Drawer>
   );

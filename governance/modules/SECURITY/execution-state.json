@@ -1,0 +1,91 @@
+{
+  "module": "SECURITY",
+  "generated_at": "2026-08-28",
+  "ui_shell_complete_confirmed": true,
+  "current_phase": "SEC-FE",
+  "current_sub": null,
+  "api_docs_path": "governance/modules/SECURITY/api-docs/",
+  "phases": [
+    {
+      "id": "F1",
+      "status": "COMPLETE",
+      "subs": [
+        { "id": "SCR-SEC-001", "status": "COMPLETE" },
+        { "id": "SCR-SEC-002", "status": "COMPLETE" },
+        { "id": "SCR-SEC-003", "status": "COMPLETE" },
+        { "id": "SCR-SEC-004", "status": "COMPLETE" },
+        { "id": "SCR-SEC-005", "status": "COMPLETE" },
+        { "id": "SCR-SEC-006", "status": "COMPLETE" },
+        { "id": "SCR-SEC-007", "status": "COMPLETE" }
+      ]
+    },
+    {
+      "id": "F2",
+      "status": "COMPLETE",
+      "subs": [
+        { "id": "SCR-SEC-001", "status": "COMPLETE" },
+        { "id": "SCR-SEC-002", "status": "COMPLETE" },
+        { "id": "SCR-SEC-003", "status": "COMPLETE" },
+        { "id": "SCR-SEC-004", "status": "COMPLETE" },
+        { "id": "SCR-SEC-005", "status": "COMPLETE" },
+        { "id": "SCR-SEC-006", "status": "COMPLETE" },
+        { "id": "SCR-SEC-007", "status": "COMPLETE" }
+      ]
+    },
+    {
+      "id": "F3",
+      "status": "COMPLETE",
+      "subs": [
+        { "id": "SCR-SEC-001", "status": "COMPLETE" },
+        { "id": "SCR-SEC-002", "status": "COMPLETE" },
+        { "id": "SCR-SEC-003", "status": "COMPLETE" },
+        { "id": "SCR-SEC-005", "status": "COMPLETE" },
+        { "id": "SCR-SEC-006", "status": "COMPLETE" },
+        { "id": "SCR-SEC-007", "status": "COMPLETE" }
+      ]
+    },
+    {
+      "id": "F4",
+      "status": "COMPLETE",
+      "subs": [
+        { "id": "SCR-SEC-001", "status": "COMPLETE" },
+        { "id": "SCR-SEC-002", "status": "COMPLETE" },
+        { "id": "SCR-SEC-003", "status": "COMPLETE" },
+        { "id": "SCR-SEC-004", "status": "COMPLETE" },
+        { "id": "SCR-SEC-005", "status": "COMPLETE" },
+        { "id": "SCR-SEC-006", "status": "COMPLETE" },
+        { "id": "SCR-SEC-007", "status": "COMPLETE" }
+      ]
+    },
+    {
+      "id": "SEC-FE",
+      "status": "PENDING",
+      "subs": [
+        { "id": "SCR-SEC-001", "status": "PENDING" },
+        { "id": "SCR-SEC-002", "status": "PENDING" },
+        { "id": "SCR-SEC-003", "status": "PENDING" },
+        { "id": "SCR-SEC-004", "status": "PENDING" },
+        { "id": "SCR-SEC-005", "status": "PENDING" },
+        { "id": "SCR-SEC-006", "status": "PENDING" },
+        { "id": "SCR-SEC-007", "status": "PENDING" }
+      ]
+    },
+    {
+      "id": "ALIGN-FE",
+      "status": "PENDING",
+      "subs": [
+        { "id": "ALIGN-FE", "status": "PENDING" }
+      ]
+    }
+  ],
+  "test_phase": {
+    "id": "frontend-test",
+    "status": "PENDING",
+    "gated_by_phases": ["F1", "F2", "F3", "F4", "SEC-FE", "ALIGN-FE"],
+    "header_file": null,
+    "mandatory_file": null,
+    "subs": []
+  },
+  "blocked": [],
+  "api_doc_gaps": []
+}

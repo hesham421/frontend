@@ -1,68 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { useSecurityStore } from '../../stores/useSecurityStore';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
-import { Drawer } from '../../components/ui/OverlaysAndFeedback';
+import { useRolesOptions } from '../../roles/hooks';
+import { useRoleDataScopeFacade } from '../../roleDataScope/hooks';
+import { DATA_ACCESS_LEVELS, type DataAccessLevel } from '../../roleDataScope/dataAccessLevel';
+import type { SecRoleBranchDto } from '../../roleDataScope/roleDataScopeApi';
+import { Drawer, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button } from '../../components/ui/Button';
-import { Select, Switch } from '../../components/ui/FormControls';
-import { DataScope } from '../../data/mockData';
+import { Select } from '../../components/ui/FormControls';
 
 export interface DataScopeDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  scope: DataScope | null;
-  roleId?: string;
+  scope: SecRoleBranchDto | null;
+  roleId?: number;
 }
 
-export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClose, scope, roleId }) => {
+// Same bridge as UserProfileDrawer — Organization's branch ids are mock
+// string slugs until that module is wired to a real numeric-id API.
+function branchIdToNumber(id: string): number {
+  return Number(id.replace(/^\D+/, ''));
+}
+
+export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClose, scope: initialScope, roleId }) => {
   const { t } = useLanguage();
-  const saveDataScope = useSecurityStore((state) => state.saveDataScope);
-  const openConfirmDialog = useSecurityStore((state) => state.openConfirmDialog);
-  const roles = useSecurityStore((state) => state.roles);
+  const roleOptions = useRolesOptions();
   const branches = useOrganizationStore((state) => state.branches);
 
-  const [selectedRoleId, setSelectedRoleId] = useState(roleId || 'role-1');
-  const [selectedBranchId, setSelectedBranchId] = useState('br-1');
-  const [dataAccessLevel, setDataAccessLevel] = useState<'BRANCH' | 'CHILDREN' | 'ALL'>('BRANCH');
-  const [isActive, setIsActive] = useState(true);
+  const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(roleId ?? initialScope?.roleIdFk);
+  const [selectedBranchId, setSelectedBranchId] = useState<number | undefined>(initialScope?.branchIdFk);
+  const [dataAccessLevel, setDataAccessLevel] = useState<DataAccessLevel>(initialScope?.dataAccessLevel ?? 'BRANCH_ONLY');
+
+  const { scope, isLoading, saveScope, deleteScope } = useRoleDataScopeFacade(selectedRoleId, selectedBranchId);
 
   useEffect(() => {
-    if (scope) {
-      setSelectedRoleId(scope.roleId || roleId || 'role-1');
-      setSelectedBranchId(scope.branchId || 'br-1');
-      setDataAccessLevel(scope.dataAccessLevel || 'BRANCH');
-      setIsActive(scope.isActive ?? true);
-    } else {
-      setSelectedRoleId(roleId || 'role-1');
-      setSelectedBranchId('br-1');
-      setDataAccessLevel('BRANCH');
-      setIsActive(true);
-    }
-  }, [scope, roleId]);
+    setSelectedRoleId(roleId ?? initialScope?.roleIdFk);
+    setSelectedBranchId(initialScope?.branchIdFk);
+    setDataAccessLevel(initialScope?.dataAccessLevel ?? 'BRANCH_ONLY');
+  }, [roleId, initialScope, isOpen]);
 
-  const handleSave = () => {
-    saveDataScope({
-      id: scope?.id,
-      roleId: selectedRoleId,
-      branchId: selectedBranchId,
-      dataAccessLevel,
-      isActive,
-    });
+  useEffect(() => {
+    if (scope) setDataAccessLevel(scope.dataAccessLevel ?? 'BRANCH_ONLY');
+  }, [scope]);
+
+  const handleSave = async () => {
+    if (selectedRoleId == null || selectedBranchId == null) return;
+    await saveScope(dataAccessLevel);
+    onClose();
   };
 
-  const handleDelete = () => {
-    if (scope?.id) {
-      openConfirmDialog('DELETE_DATASCOPE', scope.id);
-    }
+  const handleDelete = async () => {
+    if (!scope) return;
+    await deleteScope();
+    onClose();
   };
 
-  const roleOptions = roles.map((r) => ({ value: r.id, label: `${r.roleName} (${r.roleCode})` }));
-  const branchOptions = branches.map((b) => ({ value: b.id, label: `${b.nameEn} - ${b.nameAr}` }));
-  const accessLevelOptions = [
-    { value: 'BRANCH', label: t('branchOnly') },
-    { value: 'CHILDREN', label: t('branchAndChildren') },
-    { value: 'ALL', label: t('allBranches') },
-  ];
+  const roleSelectOptions = (roleOptions.data ?? []).map((r) => ({ value: String(r.id), label: `${r.roleName} (${r.roleCode})` }));
+  const branchOptions = branches.map((b) => ({ value: String(branchIdToNumber(b.id)), label: `${b.nameEn} - ${b.nameAr}` }));
+  const accessLevelOptions = DATA_ACCESS_LEVELS.map((level) => ({
+    value: level,
+    label: level === 'BRANCH_ONLY' ? t('branchOnly') : level === 'BRANCH_AND_CHILDREN' ? t('branchAndChildren') : t('allBranches'),
+  }));
 
   return (
     <Drawer
@@ -83,7 +81,7 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
             <Button variant="secondary" onClick={onClose}>
               {t('cancel')}
             </Button>
-            <Button variant="primary" onClick={handleSave}>
+            <Button variant="primary" onClick={handleSave} loading={isLoading}>
               {t('save')}
             </Button>
           </div>
@@ -91,29 +89,31 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {/* RULE-SEC-036 has no client pre-check — duplicate (role, branch) pairs surface via 409/422 on save. */}
         <Select
           label={`${t('navRoles')} *`}
-          options={roleOptions}
-          value={selectedRoleId}
-          onChange={(e) => setSelectedRoleId(e.target.value)}
+          options={roleSelectOptions}
+          value={selectedRoleId != null ? String(selectedRoleId) : ''}
+          onChange={(e) => setSelectedRoleId(Number(e.target.value))}
         />
         <Select
           label={`${t('assignedBranch')} *`}
           options={branchOptions}
-          value={selectedBranchId}
-          onChange={(e) => setSelectedBranchId(e.target.value)}
+          value={selectedBranchId != null ? String(selectedBranchId) : ''}
+          onChange={(e) => setSelectedBranchId(Number(e.target.value))}
         />
         <Select
           label={`${t('dataAccessLevel')} *`}
           options={accessLevelOptions}
           value={dataAccessLevel}
-          onChange={(e) => setDataAccessLevel(e.target.value as 'BRANCH' | 'CHILDREN' | 'ALL')}
+          onChange={(e) => setDataAccessLevel(e.target.value as DataAccessLevel)}
         />
-        <Switch
-          label={t('active')}
-          checked={isActive}
-          onChange={(checked) => setIsActive(checked)}
-        />
+        {scope && (
+          <Alert
+            variant="info"
+            message={`${t('active')}: ${scope.isActiveFl ? t('active') : t('inactive')}`}
+          />
+        )}
       </div>
     </Drawer>
   );

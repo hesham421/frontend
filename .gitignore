@@ -42,7 +42,6 @@ testem.log
 Thumbs.db
 
 # Environment secrets — never commit the real .env
-.env
 
 # Docker overrides
 docker-compose.override.yml
@@ -51,3 +50,8 @@ docker-compose.override.yml
 # specific and must never be committed
 __pycache__/
 *.pyc
+testsprite_tests/tmp/
+testsprite_tests/tmp/config.json
+
+# Playwright MCP
+.playwright-mcp/

@@ -1,0 +1,29 @@
+{
+  "module": "SECURITY",
+  "status": {
+    "archived": true,
+    "split": false
+  },
+  "artifacts": {
+    "p3_2": "modules/SECURITY/P3_2",
+    "p3_5_fe": "modules/SECURITY/P3_5_FE"
+  },
+  "registries": {
+    "exec_fe": "modules/SECURITY/P3_2/registry-exec-fe-security.md",
+    "test_fe": "modules/SECURITY/P3_5_FE/registry-test-fe-security.md"
+  },
+  "packages": {
+    "frontend_execution": "modules/SECURITY/packages/frontend-execution",
+    "frontend_test": "modules/SECURITY/packages/frontend-test"
+  },
+  "created_at": "2026-08-28T14:25:25.666745",
+  "archived_at": "2026-08-28T16:58:02.957151",
+  "archived_files": [
+    "frontend-execution-plan.md"
+  ],
+  "skipped_files": [
+    "registry-exec-fe-security.md",
+    "frontend-test-plan.md",
+    "registry-test-fe-security.md"
+  ]
+}

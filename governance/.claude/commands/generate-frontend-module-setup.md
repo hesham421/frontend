@@ -6,7 +6,10 @@ Invokes    : frontend/governance/governance-tools/agent1_create_structure.py,
              agent2_archive.py, agent3_splitter.py — these tools know
              ONLY the frontend. There is no track concept here; this
              file and the tools it calls have no representation of
-             "backend" anywhere except the two sanctioned reads noted below.
+             "backend" anywhere except the one sanctioned neutral read
+             noted below — the frontend track is otherwise fully
+             standalone and never depends on backend readiness, status,
+             sign-off, source code, or governance artifacts.
 ```
 
 ## Your Task
@@ -26,15 +29,20 @@ Both generated commands reference `TEST-EXECUTION-AGENT.md` for MCP
 boundaries and the failure taxonomy — shared across modules, not
 regenerated per module.
 
-**The two sanctioned cross-repo reads** (nothing else ever reaches into
-`backend/governance/`):
+**The one sanctioned cross-repo read** (nothing ever reaches into
+`backend/governance/` or backend source — this is a neutral, jointly-
+published contract file, not a path inside backend's own tree):
 ```
-1. ../backend/governance/governance-tools/modules-registry.json
+1. ../shared/modules-registry.json
    — read-only, to validate the module actually exists. This repo
    never registers a module itself.
-2. ../backend/governance/modules/[MODULE]/api-docs/
-   — real API Docs, used during execution (STEP 1.5)
 ```
+
+API Docs are NOT read from backend at all — this repo owns its own
+copy under `governance/modules/[MODULE]/api-docs/`, used during
+execution (STEP 1.5). See `governance/governance-tools/config.py`'s
+`get_api_docs_path()` — this is the existing, already-established
+frontend API-docs location.
 
 ---
 
@@ -49,13 +57,14 @@ If missing, ask for it — do not guess.
 **Module validation (the only identity check — no module is ever**
 **named or excluded by this file itself):**
 ```bash
-grep -q "\"$MODULE\"" ../backend/governance/governance-tools/modules-registry.json \
+grep -q "\"$MODULE\"" ../shared/modules-registry.json \
   && echo "found" || echo "not found"
 ```
 If not found: stop with a plain "module not registered" message and
-explain that registration only happens in the backend toolset. There
-is no auto-register option here, and no other module-specific check
-anywhere in this file — a module that was never registered is simply
+explain that registration only happens in the backend toolset, which
+publishes the shared registry file read above. There is no
+auto-register option here, and no other module-specific check anywhere
+in this file — a module that was never registered is simply
 unreachable, for any module, by construction.
 
 ---
@@ -67,25 +76,23 @@ unreachable, for any module, by construction.
 ╔══════════════════════════════════════════════════════════════════╗
 ║   FRONTEND READINESS GATE                                         ║
 ╠════════════════════════════════════╦═══════════════════════════════╣
-║ GATE: BACKEND MODULE COMPLETE      ║ [Yes / No]                    ║
-║ (backend 100% implemented + real   ║                                ║
-║  API Docs + UI/UX approved)        ║                                ║
 ║ GATE: UI SHELL COMPLETE confirmed  ║ [Yes / No]                    ║
 ║ frontend-execution-plan.md exists  ║ [Yes / No]                    ║
 ║ with Gate ALIGN-FE ✓               ║                                ║
 ╚══════════════════════════════════════════════════════════════════╝
 ```
 
-If all three are Yes: proceed to Step 1 directly.
+If both are Yes: proceed to Step 1 directly.
 
 If any is No: offer a documented-override path — this exists for any
-module with a real, working backend but missing formal upstream
-artifacts (a readiness gap, not an identity question):
+module where the frontend-owned condition is substantively met but a
+formal artifact is missing only because it was never generated (a
+readiness gap, not an identity question):
 
 ```
-This module doesn't meet the standard readiness gate. Does it have a
-real, working backend already, with formal artifacts missing only
-because they were never generated for it?
+This module doesn't meet the standard readiness gate. Is the missing
+item substantively ready, with the formal artifact missing only
+because it was never generated for it?
 
   1) Yes — documented override (one question, then proceed immediately)
   2) No — stop here, complete the standard flow first
@@ -94,8 +101,9 @@ because they were never generated for it?
 If (2): stop, state exactly which precondition is missing.
 
 If (1): ask exactly one follow-up question — a one-line reason — then
-append to `../backend/governance/modules/[MODULE]/frontend-gate-overrides.json`
-(create with `"overrides": []` if absent; always append, never overwrite):
+append to `governance/modules/[MODULE]/frontend-gate-overrides.json`
+(this repo's own copy — create with `"overrides": []` if absent;
+always append, never overwrite):
 ```json
 {
   "date": "[actual current date]",
@@ -154,11 +162,10 @@ for the same module).
 {
   "module": "[MODULE]",
   "generated_at": "[today's date]",
-  "backend_module_complete_confirmed": true,
   "ui_shell_complete_confirmed": true,
   "current_phase": "[FIRST_PHASE]",
   "current_sub": "[FIRST_SUB or null]",
-  "api_docs_path": "../backend/governance/modules/[MODULE]/api-docs/",
+  "api_docs_path": "governance/modules/[MODULE]/api-docs/",
   "phases": [
     {
       "id": "[PHASE_NAME]",
@@ -184,15 +191,15 @@ for the same module).
 }
 ```
 
-The two `*_confirmed` booleans record that the precondition gate
-actually passed (standard or override) — a record, not a cache to
+The `ui_shell_complete_confirmed` boolean records that the precondition
+gate actually passed (standard or override) — a record, not a cache to
 trust blindly much later.
 
 Rules: list only phases actually found; `gated_by_phases` lists only
 phases present for this module; `blocked`/`api_doc_gaps` start empty.
 No `deferred_xm` field here — XM-IDs never appear in frontend state at all.
 
-### `api_doc_gaps[]` entry format (same shape as backend's)
+### `api_doc_gaps[]` entry format
 ```json
 {
   "type": "MISSING_IN_DOCS",
@@ -200,7 +207,7 @@ No `deferred_xm` field here — XM-IDs never appear in frontend state at all.
   "sub": "[SUB]",
   "endpoint": "[METHOD] [path]",
   "detail": "[what was missing]",
-  "resolution": "resolved via backend source: <path>",
+  "resolution": "blocked pending frontend API contract clarification",
   "recorded_at": "[timestamp]"
 }
 ```
@@ -255,9 +262,13 @@ Proceed? [waits for confirmation]
      file — never create a competing new one. If genuinely absent: flag
      it in the session report as a Shell gap, implement as an explicit addition.
 3. **API Contract Resolution** [phases F1/F2/F3 only]: check
-   `api_docs_path` first — treat it as trusted. Only fall back to
-   backend source if confirmed absent from api-docs, and log the
-   fallback in `api_doc_gaps[]`.
+   `api_docs_path` first — treat it as the authoritative and only API
+   contract. If an endpoint or contract detail is confirmed absent from
+   api-docs, do not inspect backend source, controllers, services,
+   repositories, or governance — record it in `api_doc_gaps[]` with
+   resolution `"blocked pending frontend API contract clarification"`
+   and continue with remaining tasks (same pattern as an OQ-blocked
+   item below). Never invent the missing contract.
 4. Map each task to the skill routing table in `GOVERNANCE-RULES.md`
 5. Read required skills from `.github/skills/frontend/`
 6. Execute all tasks in order
@@ -296,8 +307,9 @@ Phase/sub completed, tasks executed, blocked items, any api_doc_gaps added.
   every value to an F4-SCREEN block, raise an OQ if none covers it
 - NEVER redesign a component/route that already exists in the UI Shell
 - NEVER call an endpoint not present in real API Docs
-- NEVER go to backend source for an API detail unless confirmed absent
-  from api-docs — always log the fallback
+- NEVER consult backend source, controllers, services, repositories,
+  or governance for an API detail — if missing from api-docs, record
+  it in `api_doc_gaps[]` and continue
 - NEVER write an XM-ID reference in frontend code
 - NEVER advance phase without explicit instruction
 - ALWAYS update execution-state.json after every sub
@@ -382,7 +394,6 @@ Write to `reports/TEST-REPORT-[MODULE]-frontend-[YYYY-MM-DD].md`. Any
 FRONTEND MODULE SETUP COMPLETE: [MODULE]
 ══════════════════════════════════════════════════════
 Preconditions:
-  GATE: BACKEND MODULE COMPLETE : [✓ / override logged]
   GATE: UI SHELL COMPLETE       : [✓ / override logged]
   ALIGN-FE ✓                    : [✓ / override logged]
 
@@ -412,9 +423,13 @@ To run tests once implementation is COMPLETE:
 
 - NEVER run without MODULE specified
 - NEVER proceed past the module-validation check for a module not
-  found in backend's registry — there is no override for
+  found in the shared modules registry — there is no override for
   non-existence, only for readiness (a different question entirely)
-- NEVER reach into `backend/governance/` for anything beyond the two
-  sanctioned reads listed at the top of this file
+- NEVER reach into `backend/governance/` or backend source for
+  anything — the only cross-repo read is the neutral, jointly-
+  published `../shared/modules-registry.json` listed at the top of
+  this file; frontend readiness never depends on backend completion,
+  implementation status, production status, sign-off, source code, or
+  governance artifacts
 - NEVER invent a phase, sub, or file path not found in Step 1's scan
 - NEVER name or special-case any specific module anywhere in this file

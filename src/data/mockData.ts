@@ -19,21 +19,65 @@ export interface AuditLogRecord {
 export interface UserProfile {
   fullNameAr: string;
   fullNameEn: string;
+  // F1/SCR-SEC-006: real field is branchIdFk, numeric (PK is shared with
+  // USERS via @MapsId — no separate id on this entity at all).
   branchId: string;
+  // F1/SCR-SEC-006: srs.md OQ-001 CLOSED — genuinely free-text VARCHAR(10)
+  // on the wire, not a closed union. F3 may still constrain the *input
+  // control* to ar/en as a pure UX choice, but must not present it as a
+  // backend contract. Widening deferred to F2.
   preferredLang: 'ar' | 'en';
+  // F1/SCR-SEC-006: real field is employeeIdFk, numeric (BIGINT), and per
+  // srs.md OQ-002 CLOSED is permanently unconstrained (no FK validation).
   employeeId: string;
+  // F1/SCR-SEC-006: real field is isActiveFl (standard naming — this
+  // entity is confirmed NOT part of the SECURITY core's permanent
+  // isActive/active naming exception, unlike AppRole/AppScreen).
   isActive: boolean;
 }
 
 export interface AppUser {
+  // F1/SCR-SEC-002: real UserDto.id is BIGINT (number), not string.
+  // Widening this is deferred to F2 — it cascades into every id-keyed
+  // lookup/route in this module (see F1-HEADER.md ENTITY-SEC-001 #1).
   id: string;
   username: string;
+  // F1/SCR-SEC-002 (OQ-SEC-FE-002): no real endpoint exposes an email
+  // write path (POST/PUT users). Read-only from the API's perspective;
+  // F3 should render this field disabled pending product/backend decision.
   email: string;
   enabled: boolean;
-  roles: string[]; // Role IDs
+  // F1/SCR-SEC-002: real API sends/expects role NAME strings here, not
+  // role IDs — confirmed via GET/PUT /api/users/{userId}/roles. Mock
+  // data and Users.tsx (roles.find(item => item.id === roleId)) still
+  // treat this as an id-keyed join; rewiring to name-based lookup is F2.
+  roles: string[]; // Role IDs (Shell-only, not the real contract — see above)
+  // F1/SCR-SEC-002: NOT embedded on the real UserDto at all. It's a
+  // separate resource (SecUserProfileDto, ENTITY-SEC-009) fetched by
+  // userId via its own endpoints. Removing this field and replacing its
+  // reads (Users.tsx search/display name, UserProfileDrawer prefill)
+  // with a client-side join is F2 work, not done here.
   profile?: UserProfile;
+  // F1/SCR-SEC-002: real DTO field with no prior Shell counterpart —
+  // flattened permissions across the user's roles, for future
+  // client-side gating. Not required by any confirmed screen today.
+  permissions?: string[];
+  // F1/SCR-SEC-002: audit fields on the real DTO with no prior Shell
+  // counterpart — optional, display-only.
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
+// F1/SCR-SEC-003: the real shape is PageAssignmentResponse — keyed by
+// `pageCode` (business code), not `pageId`, and permission flags are
+// `permissions: string[]` (subset of 'CREATE'|'UPDATE'|'DELETE') rather
+// than 4 independent booleans. VIEW is auto-granted the instant a page is
+// assigned (RULE-SEC-042) and can't be toggled off — the UI's View column
+// must render checked+disabled, not a normal checkbox. Rewiring the
+// pageId-keyed lookup in Roles.tsx (permissions.find(perm => perm.pageId
+// === scr.id)) to this shape is F2 work, not done here.
 export interface RolePermission {
   pageId: string;
   canView: boolean;
@@ -43,41 +87,109 @@ export interface RolePermission {
 }
 
 export interface AppRole {
+  // F1/SCR-SEC-003: real RoleDto.id is BIGINT (number), not string —
+  // widening deferred to F2 (same id-cascade note as AppUser above).
   id: string;
   roleCode: string; // Read-Only after first save
   roleName: string;
   description: string;
+  // F1/SCR-SEC-003: real field is `active` (PERMANENT EXCEPTION naming,
+  // IS_ACTIVE column) — renaming is a straightforward but wide rename
+  // across Roles.tsx (filter/badge/KPI/activate-deactivate), deferred to F2.
   isActive: boolean;
+  // F1/SCR-SEC-003: NOT part of the real RoleDto at all — it's a separate
+  // resource keyed by roleId (GET/PUT /api/roles/{roleId}/pages). See
+  // RolePermission above for the shape correction.
   permissions: RolePermission[];
 }
 
 export interface AppPermission {
   id: string;
   name: string; // pattern: PERM_<CODE>_<TYPE>
+  // F1/SCR-SEC-004: no real API value or LOV-SEC-001 entry supports
+  // 'SYSTEM' — the real meaning ("no associated page") is represented by
+  // permissionType/pageId being null, not a literal string. Corrected
+  // union: 'VIEW' | 'CREATE' | 'UPDATE' | 'DELETE' | null. Dropping the
+  // permTypeOptions 'SYSTEM' entry and the badge branch keyed on it
+  // (Permissions.tsx) is deferred to F2.
   permissionType: 'VIEW' | 'CREATE' | 'UPDATE' | 'DELETE' | 'SYSTEM';
+  // F1/SCR-SEC-004: real DTO also carries a redundant pageCode: string|null
+  // for the same relation — should become the canonical join key once
+  // wired (F2), consistent with the pageCode-keyed Role-Pages-Matrix.
   pageId?: string;
+  // F1/SCR-SEC-004: has NO basis on PermissionDto — module is a Page-level
+  // field, not a Permission-level one. srs.md confirms the module filter
+  // is an INDIRECT filter (POST /api/permissions/search resolves it via
+  // the related Page). Keep the filter-bar UI; do not bind `module` as a
+  // display column or create/edit form field once real data lands
+  // (Permissions.tsx currently does both — F2 to remove).
   module: string;
+  // F1/SCR-SEC-004: canonical join key going forward (see pageId comment
+  // above) — no prior Shell counterpart.
+  pageCode?: string | null;
+  // F1/SCR-SEC-004: real DTO field with no prior Shell counterpart —
+  // available but unused; not required by the create/edit dialog unless
+  // product asks.
+  description?: string;
 }
 
 export interface AppScreen {
+  // F1/SCR-SEC-005: real PageResponse.id/parentId are BIGINT (number),
+  // not string — widening deferred to F2 (same id-cascade note as
+  // AppUser/AppRole above).
   id: string;
   pageCode: string;
   nameEn: string;
   nameAr: string;
+  // F1/SCR-SEC-005: real column is a free VARCHAR(50), not FK-enforced —
+  // srs.md confirms a value outside this union would NOT be rejected
+  // server-side. This closed union is a reasonable frontend-only
+  // narrowing, not a real contract constraint; F3/F4 must not present it
+  // as validated.
   module: 'SEC' | 'ORG' | 'FILE' | 'NOTIF' | 'FIN' | 'HR' | 'INV';
+  // Carried forward for F4 (see shell-manifest-SECURITY.md "Inconsistency
+  // to flag"): real, required, unique, regex-validated server-side, but
+  // never read by this app's switch-based navigation. Genuine
+  // architecture mismatch, not resolved here.
   route: string;
   icon?: string;
   parentId?: string;
   displayOrder?: number;
   description?: string;
+  // F1/SCR-SEC-005: real field is `active` (PERMANENT EXCEPTION naming,
+  // same as AppRole.isActive) — wide rename across Pages.tsx
+  // (filter/badge/KPI/activate-deactivate), deferred to F2.
   isActive: boolean;
+  // F1/SCR-SEC-005: the 4 auto-generated permission-name keys for this
+  // page — no prior Shell counterpart. Optional, read-only; useful for F2
+  // facades that need a page's own permission names without a second lookup.
+  permissionKeys?: object;
+  // F1/SCR-SEC-005: audit fields on the real DTO with no prior Shell
+  // counterpart — optional, display-only.
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface DataScope {
+  // F1/SCR-SEC-007: the real entity has NO id field — the PK is the
+  // composite (roleIdFk, branchIdFk) pair, confirmed across all 6
+  // endpoints (all keyed by {roleId}/{branchId} path pairs). Removing
+  // this and switching React keys/cache keys/mutations to the composite
+  // pair is deferred to F2.
   id: string;
+  // F1/SCR-SEC-007: real field is roleIdFk, numeric — widening deferred to F2.
   roleId: string;
+  // F1/SCR-SEC-007: real field is branchIdFk, numeric — widening deferred to F2.
   branchId: string;
-  dataAccessLevel: 'BRANCH' | 'CHILDREN' | 'ALL';
+  // F1/SCR-SEC-007: CORRECTED (unambiguous, applied directly here — see
+  // F1-HEADER.md ENTITY-SEC-010 #3). The Shell's previous values
+  // ('BRANCH' | 'CHILDREN') do not match the real, seeded LOV-SEC-002
+  // codes and would fail every save.
+  dataAccessLevel: 'BRANCH_ONLY' | 'BRANCH_AND_CHILDREN' | 'ALL';
+  // F1/SCR-SEC-007: real field is isActiveFl (standard naming — not part
+  // of the SECURITY core's permanent naming exception). Deferred to F2.
   isActive: boolean;
 }
 
@@ -431,7 +543,7 @@ export const mockUsers: AppUser[] = [
 export const mockDataScopes: DataScope[] = [
   { id: 'ds-1', roleId: 'role-1', branchId: 'br-1', dataAccessLevel: 'ALL', isActive: true },
   { id: 'ds-2', roleId: 'role-2', branchId: 'br-1', dataAccessLevel: 'ALL', isActive: true },
-  { id: 'ds-3', roleId: 'role-3', branchId: 'br-2', dataAccessLevel: 'BRANCH', isActive: true },
+  { id: 'ds-3', roleId: 'role-3', branchId: 'br-2', dataAccessLevel: 'BRANCH_ONLY', isActive: true },
   { id: 'ds-4', roleId: 'role-4', branchId: 'br-3', dataAccessLevel: 'ALL', isActive: true },
 ];
 
