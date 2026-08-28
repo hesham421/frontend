@@ -37,7 +37,21 @@ Never at the root of `governance/`, never inside `modules/<MOD>/`, and never
 inside `.claude/commands/`. This keeps the folders that ARE read by agents
 (`modules/`, `.claude/commands/`, `governance-tools/`) free of files that
 exist only for a human to read later. This mirrors the backend's rule (see
-`backend/CLAUDE.md`'s "STRUCTURAL LAW" ownership table, which names this
-path as `frontend/governance/project-artifacts/frontend/` from the backend
-repo's point of view — from inside this repo it's simply
-`governance/project-artifacts/`).
+`backend/CLAUDE.md`'s "STRUCTURAL LAW" ownership table) — flat, same as
+backend's own `project-artifacts/`, no nested per-repo subfolder.
+
+---
+
+## Code Comments — No Banners, No Oversized Javadoc/JSDoc
+
+Mirrors `backend/governance/GOVERNANCE-RULES.md`'s equivalent rule so both
+repos hold the same line on comment noise:
+
+- NEVER write banner/section-divider comments (`// ==== Section ====`, a
+  repeated-character line used to slice one file into visual sections). A
+  file that feels like it needs dividers should be split into smaller
+  files/components instead.
+- NEVER write a JSDoc/comment block longer than ~5 lines, and never restate
+  what a well-named function/component/prop already says. Document the one
+  non-obvious thing — a hidden constraint, a workaround, a subtle
+  invariant — or don't comment at all.
