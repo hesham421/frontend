@@ -42,6 +42,7 @@ Shape: `CostCenterResponse`
 | nameAr | string | No |  | Arabic name - الاسم بالعربية |
 | nameEn | string | No |  | English name - الاسم بالإنجليزية |
 | branchFk | integer (int64) | No |  | Parent Branch ID - معرف الفرع الأب |
+| branchCode | string | No |  | Parent Branch business code - رمز الفرع الأب |
 | parentCostCenterFk | integer (int64) | No |  | Parent Cost Center ID — null for a root node - معرف مركز التكلفة الأب |
 | nodeTypeId | string | No |  | Node type (LOV-ORG-004: SUMMARY, DETAIL) - نوع العقدة |
 | costCenterTypeId | string | No |  | Cost center type (LOV-ORG-005: DIRECT, INDIRECT, SHARED) - نوع مركز التكلفة |
@@ -116,6 +117,7 @@ Shape: `CostCenterResponse`
 | nameAr | string | No |  | Arabic name - الاسم بالعربية |
 | nameEn | string | No |  | English name - الاسم بالإنجليزية |
 | branchFk | integer (int64) | No |  | Parent Branch ID - معرف الفرع الأب |
+| branchCode | string | No |  | Parent Branch business code - رمز الفرع الأب |
 | parentCostCenterFk | integer (int64) | No |  | Parent Cost Center ID — null for a root node - معرف مركز التكلفة الأب |
 | nodeTypeId | string | No |  | Node type (LOV-ORG-004: SUMMARY, DETAIL) - نوع العقدة |
 | costCenterTypeId | string | No |  | Cost center type (LOV-ORG-005: DIRECT, INDIRECT, SHARED) - نوع مركز التكلفة |
@@ -167,6 +169,7 @@ Shape: `CostCenterResponse`
 | nameAr | string | No |  | Arabic name - الاسم بالعربية |
 | nameEn | string | No |  | English name - الاسم بالإنجليزية |
 | branchFk | integer (int64) | No |  | Parent Branch ID - معرف الفرع الأب |
+| branchCode | string | No |  | Parent Branch business code - رمز الفرع الأب |
 | parentCostCenterFk | integer (int64) | No |  | Parent Cost Center ID — null for a root node - معرف مركز التكلفة الأب |
 | nodeTypeId | string | No |  | Node type (LOV-ORG-004: SUMMARY, DETAIL) - نوع العقدة |
 | costCenterTypeId | string | No |  | Cost center type (LOV-ORG-005: DIRECT, INDIRECT, SHARED) - نوع مركز التكلفة |
@@ -217,6 +220,7 @@ Shape: `CostCenterResponse`
 | nameAr | string | No |  | Arabic name - الاسم بالعربية |
 | nameEn | string | No |  | English name - الاسم بالإنجليزية |
 | branchFk | integer (int64) | No |  | Parent Branch ID - معرف الفرع الأب |
+| branchCode | string | No |  | Parent Branch business code - رمز الفرع الأب |
 | parentCostCenterFk | integer (int64) | No |  | Parent Cost Center ID — null for a root node - معرف مركز التكلفة الأب |
 | nodeTypeId | string | No |  | Node type (LOV-ORG-004: SUMMARY, DETAIL) - نوع العقدة |
 | costCenterTypeId | string | No |  | Cost center type (LOV-ORG-005: DIRECT, INDIRECT, SHARED) - نوع مركز التكلفة |
@@ -290,6 +294,7 @@ Shape: `CostCenterResponse`
 | nameAr | string | No |  | Arabic name - الاسم بالعربية |
 | nameEn | string | No |  | English name - الاسم بالإنجليزية |
 | branchFk | integer (int64) | No |  | Parent Branch ID - معرف الفرع الأب |
+| branchCode | string | No |  | Parent Branch business code - رمز الفرع الأب |
 | parentCostCenterFk | integer (int64) | No |  | Parent Cost Center ID — null for a root node - معرف مركز التكلفة الأب |
 | nodeTypeId | string | No |  | Node type (LOV-ORG-004: SUMMARY, DETAIL) - نوع العقدة |
 | costCenterTypeId | string | No |  | Cost center type (LOV-ORG-005: DIRECT, INDIRECT, SHARED) - نوع مركز التكلفة |
@@ -351,6 +356,7 @@ Shape: `paginated list of CostCenterResponse (see Pagination Envelope in index.m
 | nameAr | string | No |  | Arabic name - الاسم بالعربية |
 | nameEn | string | No |  | English name - الاسم بالإنجليزية |
 | branchFk | integer (int64) | No |  | Parent Branch ID - معرف الفرع الأب |
+| branchCode | string | No |  | Parent Branch business code - رمز الفرع الأب |
 | parentCostCenterFk | integer (int64) | No |  | Parent Cost Center ID — null for a root node - معرف مركز التكلفة الأب |
 | nodeTypeId | string | No |  | Node type (LOV-ORG-004: SUMMARY, DETAIL) - نوع العقدة |
 | costCenterTypeId | string | No |  | Cost center type (LOV-ORG-005: DIRECT, INDIRECT, SHARED) - نوع مركز التكلفة |

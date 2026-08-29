@@ -94,13 +94,15 @@ authority (read via the sanctioned cross-repo path — see
 |---|---|
 | Login, signup/activation, forgot/reset password, dashboard landing | `SECURITY` |
 | Roles (create/edit/deactivate/permission matrix/copy/sync), Users (create/edit/delete/search), Permissions (create/rename/manage), Pages registry (create/search/filter), profile & data-scope drawers | `SECURITY` |
-| Legal entities, branches, organization tree navigation | `ORG` |
+| Legal entities, branches, regions, departments, cost centers, profit centers, location sites, organization tree navigation | `ORG` |
 | Notifications (inbox/templates/channels) — **mock/local-state only as of this writing**, per the bootstrap `additionalInstruction`; still classify any generated test for it under `NOTIFICATION` when it appears | `NOTIFICATION` |
 
-As of the 2026-08-28 run this frontend only exercises `SECURITY` (TC001–025)
-and `ORG` (TC026–030) — no `NOTIFICATION` or `MASTERDATA` UI flows have been
-generated yet. Add a row here the first time a generated test lands in a
-module not yet listed above, rather than guessing where it goes.
+As of the 2026-08-29c run this frontend exercises `SECURITY` (login, users,
+roles) and `ORG` (all 7 entities: legal entities, branches, regions,
+departments, cost centers, profit centers, location sites) — no
+`NOTIFICATION` or `MASTERDATA` UI flows have been generated yet. Add a row
+here the first time a generated test lands in a module not yet listed
+above, rather than guessing where it goes.
 
 ---
 

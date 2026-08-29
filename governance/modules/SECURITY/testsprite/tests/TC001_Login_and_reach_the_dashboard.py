@@ -40,30 +40,30 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Enter 'admin' into the 'Username or Email' field, enter 'admin' into the 'Password' field, then click the 'Sign In to ERP' button.
+        # -> Fill 'admin' into the 'اسم المستخدم أو البريد' (username or email) field on the login form.
         # username text field
-        elem = page.locator('[id="avl-username-or-email"]')
+        elem = page.locator('[id="avl-اسم-المستخدم-أو-البريد"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Enter 'admin' into the 'Username or Email' field, enter 'admin' into the 'Password' field, then click the 'Sign In to ERP' button.
+        # -> Fill 'admin' into the 'اسم المستخدم أو البريد' (username or email) field on the login form.
         # •••••••••••• password field
-        elem = page.locator('[id="avl-password"]')
+        elem = page.locator('[id="avl-كلمة-المرور"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Enter 'admin' into the 'Username or Email' field, enter 'admin' into the 'Password' field, then click the 'Sign In to ERP' button.
-        # Sign In to ERP button
-        elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
+        # -> Fill 'admin' into the 'اسم المستخدم أو البريد' (username or email) field on the login form.
+        # دخول لوحة التحكم button
+        elem = page.get_by_role('button', name='دخول لوحة التحكم', exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> Dashboard landing screen is displayed with the System Command Center header visible.
+        # --> Authenticated dashboard is displayed (dashboard header is visible).
         await page.locator("xpath=/html/body/div[1]/div[1]/div/div[2]/header/div[1]").nth(0).scroll_into_view_if_needed()
         # Assert-outcome: passed
-        # Assert: Header element for the dashboard is visible.
-        await expect(page.locator("xpath=/html/body/div[1]/div[1]/div/div[2]/header/div[1]").nth(0)).to_be_visible(timeout=15000), "Header element for the dashboard is visible."
+        # Assert: The dashboard header is visible on the page.
+        await expect(page.locator("xpath=/html/body/div[1]/div[1]/div/div[2]/header/div[1]").nth(0)).to_be_visible(timeout=15000), "The dashboard header is visible on the page."
         await asyncio.sleep(5)
 
     finally:

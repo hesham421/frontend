@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { z } from 'zod';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuthStore, type UserInfo } from '../stores/useAuthStore';
@@ -25,13 +25,30 @@ function fieldErrorsFrom(error: z.ZodError): Record<string, string> {
   return out;
 }
 
+// The reset-password and account-activation emails link to
+// `<origin>/reset-password?token=...` / `?token=...` (see backend
+// PasswordResetEmailContextBuilder). This SPA has no URL router (App.tsx
+// gates everything on isAuthenticated via an in-memory screen switch), so
+// without reading the query string here, that link is decorative — nothing
+// ever consumed the token, and a stale session in the same browser would
+// just bounce the user straight to the dashboard instead.
+function readTokenFromUrl(): { tab: AuthTab; token: string } | null {
+  if (typeof window === 'undefined') return null;
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  if (!token) return null;
+  const tab: AuthTab = window.location.pathname.includes('activate') ? 'activate' : 'reset';
+  return { tab, token };
+}
+
 export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
   const { t, lang, toggleLanguage, dir } = useLanguage();
   const storeLogin = useAuthStore((state) => state.login);
   const handleLogin = propOnLogin ?? storeLogin;
   const { loginWithToken, signup, activate, forgotPassword, resetPassword, isLoading } = useAuthFacade();
 
-  const [activeTab, setActiveTab] = useState<AuthTab>('login');
+  const [urlToken] = useState(readTokenFromUrl);
+  const [activeTab, setActiveTab] = useState<AuthTab>(urlToken?.tab ?? 'login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -44,15 +61,24 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
   // Activate fields — `activateUsername` is display-only context for the
   // user; ActivateAccountRequest only carries `token` (confirmed contract).
   const [activateUsername, setActivateUsername] = useState('');
-  const [activationCode, setActivationCode] = useState('');
+  const [activationCode, setActivationCode] = useState(urlToken?.tab === 'activate' ? urlToken.token : '');
 
   // Forgot password fields
   const [forgotEmail, setForgotEmail] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   // Reset password fields — `resetOtp` is the token from the emailed link.
-  const [resetOtp, setResetOtp] = useState('');
+  const [resetOtp, setResetOtp] = useState(urlToken?.tab === 'reset' ? urlToken.token : '');
   const [newPassword, setNewPassword] = useState('');
+
+  // The token now lives in component state; drop it from the visible URL so
+  // a refresh/share/back-navigation doesn't re-expose or re-consume it.
+  useEffect(() => {
+    if (urlToken) {
+      window.history.replaceState(null, '', window.location.pathname === '/' ? '/' : window.location.origin);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});

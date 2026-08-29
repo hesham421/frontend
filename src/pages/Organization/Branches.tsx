@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useForm, Controller, type Resolver } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
 import { useNavigationStore } from '../../stores/useNavigationStore';
+import { usePermission } from '../../auth/permissions';
 import { Breadcrumb, Drawer, EmptyState, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
 import { Card, Badge } from '../../components/ui/DataDisplay';
@@ -9,6 +13,16 @@ import { Input, Select } from '../../components/ui/FormControls';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
 import { Branch } from '../../data/mockData';
+import { createBranchSchema, updateBranchSchema } from '../../branches/branches.schema';
+
+// legalEntityFk is z.number() in createBranchSchema (real API contract), but
+// this page's mock store and its <Select> both deal in string ids — override
+// just that field for this mock-store-bound form (branches.schema.ts itself
+// is out of scope, it correctly describes the real API).
+const branchFormSchema = createBranchSchema.extend({
+  legalEntityFk: z.string().min(1, 'Legal entity is required.'),
+});
+type BranchFormValues = z.infer<typeof branchFormSchema>;
 
 export const BranchesPage: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -42,44 +56,61 @@ export const BranchesPage: React.FC = () => {
     executeConfirmAction,
   } = useOrganizationStore();
 
-  const [nameEn, setNameEn] = useState('');
-  const [nameAr, setNameAr] = useState('');
-  const [legalEntityFk, setLegalEntityFk] = useState('le-1');
-  const [branchTypeId, setBranchTypeId] = useState<Branch['branchTypeId']>('SUB');
-  const [notes, setNotes] = useState('');
+  const { can } = usePermission();
+  const canCreate = can('PERM_BRANCH_CREATE');
+  const canEdit = can('PERM_BRANCH_UPDATE');
+  // Editing an existing branch needs UPDATE; the create-drawer branch needs CREATE.
+  const canSaveDrawer = selectedBranch ? canEdit : canCreate;
+
+  const isEditMode = !!selectedBranch;
+  const form = useForm<BranchFormValues>({
+    resolver: zodResolver(isEditMode ? updateBranchSchema : branchFormSchema) as unknown as Resolver<BranchFormValues>,
+    defaultValues: {
+      nameEn: '',
+      nameAr: '',
+      legalEntityFk: legalEntities[0]?.id || 'le-1',
+      branchTypeId: 'SUB_BRANCH',
+      notes: '',
+    },
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
+  });
 
   const handleOpenCreate = () => {
-    setNameEn('');
-    setNameAr('');
-    setLegalEntityFk(legalEntities[0]?.id || 'le-1');
-    setBranchTypeId('SUB');
-    setNotes('');
+    form.reset({
+      nameEn: '',
+      nameAr: '',
+      legalEntityFk: legalEntities[0]?.id || 'le-1',
+      branchTypeId: 'SUB_BRANCH',
+      notes: '',
+    });
     openBranchDrawer(null);
   };
 
   const handleOpenEdit = (branch: Branch) => {
-    setNameEn(branch.nameEn);
-    setNameAr(branch.nameAr);
-    setLegalEntityFk(branch.legalEntityFk);
-    setBranchTypeId(branch.branchTypeId);
-    setNotes(branch.notes || '');
+    form.reset({
+      nameEn: branch.nameEn,
+      nameAr: branch.nameAr,
+      legalEntityFk: branch.legalEntityFk,
+      branchTypeId: branch.branchTypeId,
+      notes: branch.notes || '',
+    });
     openBranchDrawer(branch);
   };
 
-  const handleSave = () => {
+  const onValid = (values: BranchFormValues) => {
+    if (!canSaveDrawer) return;
     const isEdit = !!selectedBranch;
     saveBranch({
       id: selectedBranch?.id,
-      nameEn,
-      nameAr,
-      legalEntityFk,
-      branchTypeId,
-      notes,
+      ...values,
+      branchTypeId: values.branchTypeId as Branch['branchTypeId'],
     });
     showToast(t(isEdit ? 'branchSavedSuccess' : 'branchCreatedSuccess'), 'success');
   };
 
   const handleConfirmDeactivate = () => {
+    if (!canEdit) return;
     executeConfirmAction();
     showToast(t('branchDeactivatedSuccess'), 'success');
   };
@@ -130,10 +161,10 @@ export const BranchesPage: React.FC = () => {
 
   const branchTypeOptions = [
     { value: 'ALL', label: t('all') },
-    { value: 'MAIN', label: 'Main (الرئيسي)' },
-    { value: 'SUB', label: 'Sub (فرعي)' },
-    { value: 'OPERATIONS', label: 'Operations (تشغيلي)' },
-    { value: 'ADMIN', label: 'Admin (إداري)' },
+    { value: 'MAIN_BRANCH', label: 'Main (الرئيسي)' },
+    { value: 'SUB_BRANCH', label: 'Sub (فرعي)' },
+    { value: 'OPERATIONS_BRANCH', label: 'Operations (تشغيلي)' },
+    { value: 'ADMIN_BRANCH', label: 'Admin (إداري)' },
   ];
 
   const statusOptions = [
@@ -166,9 +197,11 @@ export const BranchesPage: React.FC = () => {
             {t('orgBranchesTitle')}
           </h1>
         </div>
-        <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
-          {t('new')}
-        </Button>
+        {canCreate && (
+          <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+            {t('new')}
+          </Button>
+        )}
       </div>
 
       {/* 2. Filter Bar */}
@@ -227,7 +260,7 @@ export const BranchesPage: React.FC = () => {
             icon="ti ti-git-branch-deleted"
             title={t('noRecordsFound')}
             description={t('noRecordsDesc')}
-            action={{ label: t('new'), onClick: handleOpenCreate }}
+            action={canCreate ? { label: t('new'), onClick: handleOpenCreate } : undefined}
           />
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -314,14 +347,16 @@ export const BranchesPage: React.FC = () => {
                           >
                             {t('navLocationSites')}
                           </Button>
-                          <IconButton
-                            icon="ti ti-edit"
-                            label={t('edit')}
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleOpenEdit(b)}
-                          />
-                          {b.isActive && (
+                          {canEdit && (
+                            <IconButton
+                              icon="ti ti-edit"
+                              label={t('edit')}
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleOpenEdit(b)}
+                            />
+                          )}
+                          {b.isActive && canEdit && (
                             <IconButton
                               icon="ti ti-ban"
                               label={t('deactivate')}
@@ -342,62 +377,115 @@ export const BranchesPage: React.FC = () => {
       </Card>
 
       {/* 5. Create / Edit Drawer */}
-      <Drawer
-        isOpen={isBranchDrawerOpen}
-        onClose={closeBranchDrawer}
-        title={selectedBranch ? `${t('edit')}: ${lang === 'ar' ? selectedBranch.nameAr : selectedBranch.nameEn}` : t('new')}
-        width="md"
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={closeBranchDrawer}>
-              {t('cancel')}
-            </Button>
-            <Button variant="primary" onClick={handleSave}>
-              {t('save')}
-            </Button>
-          </div>
-        }
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {selectedBranch && (
-            <Input
-              label={t('code')}
-              value={selectedBranch.branchCode}
-              disabled
-              helperText={t('readOnlyCodeHint')}
+      <form onSubmit={form.handleSubmit(onValid)} noValidate>
+        <Drawer
+          isOpen={isBranchDrawerOpen}
+          onClose={closeBranchDrawer}
+          title={selectedBranch ? `${t('edit')}: ${lang === 'ar' ? selectedBranch.nameAr : selectedBranch.nameEn}` : t('new')}
+          width="md"
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <Button type="button" variant="secondary" onClick={closeBranchDrawer}>
+                {t('cancel')}
+              </Button>
+              {canSaveDrawer && (
+                <Button type="submit" variant="primary" loading={form.formState.isSubmitting}>
+                  {t('save')}
+                </Button>
+              )}
+            </div>
+          }
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {selectedBranch && (
+              <Input
+                label={t('code')}
+                value={selectedBranch.branchCode}
+                disabled
+                helperText={t('readOnlyCodeHint')}
+              />
+            )}
+            <Controller
+              control={form.control}
+              name="nameEn"
+              render={({ field, fieldState }) => (
+                <Input
+                  label={`${t('nameEn')} *`}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                  required
+                />
+              )}
             />
-          )}
-          <Input
-            label={`${t('nameEn')} *`}
-            value={nameEn}
-            onChange={(e) => setNameEn(e.target.value)}
-            required
-          />
-          <Input
-            label={`${t('nameAr')} *`}
-            value={nameAr}
-            onChange={(e) => setNameAr(e.target.value)}
-            required
-          />
-          <Select
-            label={`${t('legalEntity')} *`}
-            options={entityOptions.filter((opt) => opt.value !== 'ALL')}
-            value={legalEntityFk}
-            onChange={(e) => setLegalEntityFk(e.target.value)}
-          />
-          <Select
-            label={`${t('branchType')} *`}
-            options={branchTypeOptions.filter((opt) => opt.value !== 'ALL')}
-            value={branchTypeId}
-            onChange={(e) => setBranchTypeId(e.target.value as Branch['branchTypeId'])}
-          />
-          <Input
-            label={t('notes')}
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </div>
-      </Drawer>
+            <Controller
+              control={form.control}
+              name="nameAr"
+              render={({ field, fieldState }) => (
+                <Input
+                  label={`${t('nameAr')} *`}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                  required
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="legalEntityFk"
+              render={({ field, fieldState }) => (
+                <Select
+                  label={`${t('legalEntity')} *`}
+                  options={entityOptions.filter((opt) => opt.value !== 'ALL')}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="branchTypeId"
+              render={({ field, fieldState }) => (
+                <Select
+                  label={`${t('branchType')} *`}
+                  options={branchTypeOptions.filter((opt) => opt.value !== 'ALL')}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value as Branch['branchTypeId'])}
+                  onBlur={field.onBlur}
+                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="notes"
+              render={({ field, fieldState }) => (
+                <Input
+                  label={t('notes')}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                />
+              )}
+            />
+          </div>
+        </Drawer>
+      </form>
 
       {/* 6. Cascade Dialog */}
       <ConfirmDialog

@@ -198,84 +198,253 @@ export interface DataScope {
 // ----------------------------------------------------------------------------
 
 export interface LegalEntity {
+  // F1/SCR-ORG-001 — FINDING-3: real API DTO's `id` is `integer (int64)`
+  // (legal-entity-management.md); Shell uses `string` as a systemic
+  // string-vs-number convention across this module. Not resolved here —
+  // an integration decision deferred to API-client wiring.
   id: string;
   legalEntityCode: string; // Auto-generated / Read-Only in Edit
   nameEn: string;
   nameAr: string;
-  entityTypeId: 'HEAD_OFFICE' | 'BRANCH_OFFICE' | 'SUBSIDIARY' | 'REP_OFFICE';
+  // F1/SCR-ORG-001 — CORRECTED: real LOV-ORG-001 code is
+  // REPRESENTATIVE_OFFICE (Shell previously had REP_OFFICE).
+  entityTypeId: 'HEAD_OFFICE' | 'BRANCH_OFFICE' | 'SUBSIDIARY' | 'REPRESENTATIVE_OFFICE';
   notes?: string;
   isActive: boolean;
+  // F1/SCR-ORG-001 — FINDING-3: Shell-only field, no backing field on the
+  // real LegalEntityResponse DTO (legal-entity-management.md). Kept for the
+  // Shell's existing cascade-warning UI; integration decision deferred.
   activeBranchesCount?: number;
+  // F1/SCR-ORG-001 — ADDED: present on the real LegalEntityResponse DTO
+  // (legal-entity-management.md) and required by the approved ui-ux-spec's
+  // "Record info" audit footer (all 7 ORG screens). Optional here to match
+  // the documented contract (Required: No) and because the Shell's
+  // in-memory store does not currently populate them.
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface Branch {
+  // F1/SCR-ORG-002 — FINDING-3: real API DTO's `id` is `integer (int64)`
+  // (branch-management.md); Shell uses `string` as a systemic string-vs-number
+  // convention across this module. Not resolved here — an integration
+  // decision deferred to API-client wiring.
   id: string;
   branchCode: string; // Auto-generated / Read-Only in Edit
   nameEn: string;
   nameAr: string;
+  // F1/SCR-ORG-002 — FINDING-3: real API DTO's `legalEntityFk` is
+  // `integer (int64)` (branch-management.md); same string-vs-number
+  // convention issue as `id` above. Not resolved here.
   legalEntityFk: string; // Ref LegalEntity.id
-  branchTypeId: 'MAIN' | 'SUB' | 'OPERATIONS' | 'ADMIN';
+  // F1/SCR-ORG-002 — ADDED: denormalized parent Legal Entity business code,
+  // present on the real BranchResponse DTO (branch-management.md) but not
+  // carried by the Shell. Added for search-grid/entry display parity.
+  legalEntityCode: string;
+  // F1/SCR-ORG-002 — CORRECTED: real LOV-ORG-002 codes all carry the
+  // _BRANCH suffix (Shell previously had 'MAIN'|'SUB'|'OPERATIONS'|'ADMIN').
+  branchTypeId: 'MAIN_BRANCH' | 'SUB_BRANCH' | 'OPERATIONS_BRANCH' | 'ADMIN_BRANCH';
   notes?: string;
   isActive: boolean;
+  // F1/SCR-ORG-002 — ADDED: present on the real BranchResponse DTO
+  // (branch-management.md) and required by the approved ui-ux-spec's
+  // "Record info" audit footer (all 7 ORG screens). Optional here to match
+  // the documented contract (Required: No) and because the Shell's
+  // in-memory store does not currently populate them.
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface Region {
+  // F1/SCR-ORG-003 — FINDING-3: real API DTO's `id` is `integer (int64)`
+  // (region-management.md); Shell uses `string` as a systemic string-vs-number
+  // convention across this module. Not resolved here — an integration
+  // decision deferred to API-client wiring.
   id: string;
   regionCode: string; // Auto-generated / Read-Only in Edit
   nameEn: string;
   nameAr: string;
+  // F1/SCR-ORG-003 — FINDING-3: real API DTO's `legalEntityFk` is
+  // `integer (int64)` (region-management.md); same string-vs-number
+  // convention issue as `id` above. Not resolved here.
   legalEntityFk: string; // Ref LegalEntity.id
-  regionTypeIdFk: 'CENTRAL' | 'WESTERN' | 'EASTERN' | 'SOUTHERN' | 'NORTHERN';
+  // F1/SCR-ORG-003 — ADDED: denormalized parent Legal Entity business code,
+  // present on the real RegionResponse DTO (region-management.md) but not
+  // carried by the Shell. Added for search-grid/entry display parity.
+  legalEntityCode: string;
+  // F1/SCR-ORG-003 — DEFERRED per FINDING-2 / OQ-ORG-002: real API types
+  // regionTypeIdFk as `integer (int64)` FK to ENTITY-ORG-008 (RegionType),
+  // which has no listing endpoint. The Shell's 5-value directional union
+  // ('CENTRAL'|'WESTERN'|'EASTERN'|'SOUTHERN'|'NORTHERN') does not correspond
+  // to any real backend enumeration and is removed here. Retyped to match
+  // the real API; no create/edit picker until a real region-type listing
+  // endpoint exists (see OQ-ORG-002 — status OPEN).
+  regionTypeIdFk: number | null;
+  // F1/SCR-ORG-003 — ADDED: denormalized Region Type English name, present
+  // on the real RegionResponse DTO (region-management.md). Used for the
+  // drawer's read-only display per the FINDING-2/OQ-ORG-002 deferral.
+  regionTypeNameEn: string;
   notes?: string;
   isActive: boolean;
+  // F1/SCR-ORG-003 — ADDED: present on the real RegionResponse DTO
+  // (region-management.md) and required by the approved ui-ux-spec's
+  // "Record info" audit footer (all 7 ORG screens). Optional here to match
+  // the documented contract (Required: No) and because the Shell's
+  // in-memory store does not currently populate them.
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface DepartmentNode {
+  // F1/SCR-ORG-004 — FINDING-3: real API DTO's `id` is `integer (int64)`
+  // (department-management.md); Shell uses `string` as a systemic
+  // string-vs-number convention across this module. Not resolved here —
+  // an integration decision deferred to API-client wiring.
   id: string;
   deptCode: string; // Auto-generated
   nameEn: string;
   nameAr: string;
+  // F1/SCR-ORG-004 — FINDING-3: real API DTO's `branchFk` is
+  // `integer (int64)` (department-management.md); same string-vs-number
+  // convention issue as `id` above. Not resolved here.
   branchFk: string; // Ref Branch.id
+  // F1/SCR-ORG-004 — ADDED: denormalized parent Branch business code, for
+  // search-grid/entry display parity, mirroring the legalEntityCode pattern
+  // on Branch/Region. Confirmed real: department-management.md now documents
+  // `branchCode` on the flat DepartmentResponse shape (backend mapping gap
+  // fixed; DepartmentTreeNodeResponse remains branch-scoped with no branch
+  // fields, by design).
+  branchCode: string;
+  // F1/SCR-ORG-004 — FINDING-3: real API DTO's `parentDepartmentFk` is
+  // `integer (int64) | null` (department-management.md); same
+  // string-vs-number convention issue as `id` above. Semantics already
+  // match (null = root node) — only the id type differs. Not resolved here.
   parentDepartmentFk?: string | null;
   nodeTypeId: 'SUMMARY' | 'DETAIL'; // Locked post-save
   notes?: string;
   isActive: boolean;
   children?: DepartmentNode[];
+  // F1/SCR-ORG-004 — ADDED: present on the real DepartmentResponse DTO
+  // (department-management.md) and required by the approved ui-ux-spec's
+  // "Record info" audit footer (all 7 ORG screens). Optional here to match
+  // the documented contract (Required: No) and because the Shell's
+  // in-memory store does not currently populate them.
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface CostCenterNode {
+  // F1/SCR-ORG-005 — FINDING-3: real API DTO's `id` is `integer (int64)`
+  // (cost-center-management.md); Shell uses `string` as a systemic
+  // string-vs-number convention across this module. Not resolved here —
+  // an integration decision deferred to API-client wiring.
   id: string;
-  costCenterCode: string; // Auto-generated
+  costCenterCode: string; // Auto-generated — matches real CostCenterResponse, no change
   nameEn: string;
   nameAr: string;
+  // F1/SCR-ORG-005 — FINDING-3: real API DTO's `branchFk` is
+  // `integer (int64)` (cost-center-management.md); same string-vs-number
+  // convention issue as `id` above. Not resolved here.
   branchFk: string; // Ref Branch.id
+  // F1/SCR-ORG-005 — ADDED: denormalized parent Branch business code, for
+  // search-grid/entry display parity, mirroring the branchCode pattern on
+  // Department. Confirmed real: cost-center-management.md now documents
+  // `branchCode` on the flat CostCenterResponse shape (backend mapping gap
+  // fixed; CostCenterTreeNodeResponse remains branch-scoped with no branch
+  // fields, by design).
+  branchCode: string;
+  // F1/SCR-ORG-005 — FINDING-3: real API DTO's `parentCostCenterFk` is
+  // `integer (int64) | null` (cost-center-management.md); same
+  // string-vs-number convention issue as `id` above. Semantics already
+  // match (null = root node) — only the id type differs. Not resolved here.
   parentCostCenterFk?: string | null;
-  costCenterTypeId: 'DIRECT' | 'INDIRECT' | 'SHARED';
-  nodeTypeId: 'SUMMARY' | 'DETAIL'; // Locked post-save
+  nodeTypeId: 'SUMMARY' | 'DETAIL'; // matches real LOV-ORG-004 codes exactly — no change. Locked post-save per RULE-ORG-020 (F3 concern, not implemented here).
+  costCenterTypeId: 'DIRECT' | 'INDIRECT' | 'SHARED'; // matches real LOV-ORG-005 codes exactly — no change
   notes?: string;
   isActive: boolean;
-  children?: CostCenterNode[];
+  children?: CostCenterNode[]; // shape-compatible with real GET /cost-centers/tree (API-ORG-027) — no change
+  // F1/SCR-ORG-005 — ADDED: present on the real CostCenterResponse DTO
+  // (cost-center-management.md) and required by the approved ui-ux-spec's
+  // "Record info" audit footer (all 7 ORG screens). Optional here to match
+  // the documented contract (Required: No) and because the Shell's
+  // in-memory store does not currently populate them.
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface ProfitCenter {
+  // F1/SCR-ORG-006 — FINDING-3: real API DTO's `id` is `integer (int64)`
+  // (profit-center-management.md); Shell uses `string` as a systemic
+  // string-vs-number convention across this module. Not resolved here —
+  // an integration decision deferred to API-client wiring.
   id: string;
-  profitCenterCode: string; // Auto-generated
+  profitCenterCode: string; // Auto-generated — matches real ProfitCenterResponse, no change
   nameEn: string;
   nameAr: string;
+  // F1/SCR-ORG-006 — FINDING-3: real API DTO's `legalEntityFk` is
+  // `integer (int64)` (profit-center-management.md); same string-vs-number
+  // convention issue as `id` above. Not resolved here.
   legalEntityFk: string; // Ref LegalEntity.id
+  // F1/SCR-ORG-006 — ADDED: denormalized parent Legal Entity business code,
+  // CONFIRMED present on the real ProfitCenterResponse DTO
+  // (profit-center-management.md, all 6 endpoints) — same as the analogous
+  // branchCode field on Department/CostCenter, now likewise confirmed real
+  // (backend mapping gap fixed; api-docs updated). Added for search-grid/
+  // entry display parity, mirroring the legalEntityCode pattern on
+  // Branch/Region.
+  legalEntityCode: string;
   notes?: string;
   isActive: boolean;
+  // F1/SCR-ORG-006 — ADDED: present on the real ProfitCenterResponse DTO
+  // (profit-center-management.md) and required by the approved ui-ux-spec's
+  // "Record info" audit footer (all 7 ORG screens). Optional here to match
+  // the documented contract (Required: No) and because the Shell's
+  // in-memory store does not currently populate them.
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 export interface LocationSite {
+  // F1/SCR-ORG-007 — FINDING-3: real API DTO's `id` is `integer (int64)`
+  // (location-site-management.md); Shell uses `string` as a systemic
+  // string-vs-number convention across this module. Not resolved here — an
+  // integration decision deferred to API-client wiring.
   id: string;
-  locationSiteCode: string; // Auto-generated
+  locationSiteCode: string; // Auto-generated / Read-Only in Edit — matches real `locationSiteCode` (location-site-management.md) and SRS `location_site_code`
   nameEn: string;
   nameAr: string;
+  // F1/SCR-ORG-007 — FINDING-3: real API DTO's `branchFk` is
+  // `integer (int64)` (location-site-management.md); same string-vs-number
+  // convention issue as `id` above. Not resolved here.
   branchFk: string; // Ref Branch.id
-  siteTypeId: 'OFFICE' | 'WAREHOUSE' | 'FACTORY' | 'SITE' | 'RETAIL';
+  // F1/SCR-ORG-007 — ADDED: denormalized parent Branch business code,
+  // present on the real LocationSiteResponse DTO (location-site-management.md)
+  // but not carried by the Shell. Added for search-grid/entry display parity.
+  branchCode: string;
+  siteTypeId: 'OFFICE' | 'WAREHOUSE' | 'FACTORY' | 'SITE' | 'RETAIL'; // matches real LOV-ORG-006 codes exactly — no change
   notes?: string;
   isActive: boolean;
+  // F1/SCR-ORG-007 — ADDED: present on the real LocationSiteResponse DTO
+  // (location-site-management.md) and required by the approved ui-ux-spec's
+  // "Record info" audit footer (all 7 ORG screens). Optional here to match
+  // the documented contract (Required: No) and because the Shell's
+  // in-memory store does not currently populate them.
+  createdAt?: string;
+  createdBy?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }
 
 // ----------------------------------------------------------------------------
@@ -575,7 +744,7 @@ export const mockLegalEntities: LegalEntity[] = [
     legalEntityCode: 'LE-003',
     nameEn: 'Avelynq Digital Solutions Agency',
     nameAr: 'وكالة أفيلينك للحلول الرقمية',
-    entityTypeId: 'REP_OFFICE',
+    entityTypeId: 'REPRESENTATIVE_OFFICE',
     notes: 'Representative office for MENA digital transformation projects.',
     isActive: false,
     activeBranchesCount: 0,
@@ -589,7 +758,8 @@ export const mockBranches: Branch[] = [
     nameEn: 'Riyadh Main Headquarters',
     nameAr: 'المقر الرئيسي - الرياض',
     legalEntityFk: 'le-1',
-    branchTypeId: 'MAIN',
+    legalEntityCode: 'LE-001',
+    branchTypeId: 'MAIN_BRANCH',
     notes: 'King Fahd Road, Corporate Towers.',
     isActive: true,
   },
@@ -599,7 +769,8 @@ export const mockBranches: Branch[] = [
     nameEn: 'Jeddah Regional Office',
     nameAr: 'فرع جدة الإقليمي',
     legalEntityFk: 'le-1',
-    branchTypeId: 'SUB',
+    legalEntityCode: 'LE-001',
+    branchTypeId: 'SUB_BRANCH',
     notes: 'Al-Andalus District business center.',
     isActive: true,
   },
@@ -609,7 +780,8 @@ export const mockBranches: Branch[] = [
     nameEn: 'Dammam Operations Hub',
     nameAr: 'مركز عمليات الدمام',
     legalEntityFk: 'le-2',
-    branchTypeId: 'OPERATIONS',
+    legalEntityCode: 'LE-002',
+    branchTypeId: 'OPERATIONS_BRANCH',
     notes: 'Eastern Province Logistics park.',
     isActive: true,
   },
@@ -619,7 +791,8 @@ export const mockBranches: Branch[] = [
     nameEn: 'Madinah Logistics Center',
     nameAr: 'مركز لوجستيات المدينة المنورة',
     legalEntityFk: 'le-2',
-    branchTypeId: 'ADMIN',
+    legalEntityCode: 'LE-002',
+    branchTypeId: 'ADMIN_BRANCH',
     notes: 'Secondary dispatch station.',
     isActive: false,
   },
@@ -632,7 +805,9 @@ export const mockRegions: Region[] = [
     nameEn: 'Central Region (Riyadh & Qassim)',
     nameAr: 'المنطقة الوسطى (الرياض والقصيم)',
     legalEntityFk: 'le-1',
-    regionTypeIdFk: 'CENTRAL',
+    legalEntityCode: 'LE-001',
+    regionTypeIdFk: 1,
+    regionTypeNameEn: 'Geographic',
     notes: 'Primary capital economic corridor.',
     isActive: true,
   },
@@ -642,7 +817,9 @@ export const mockRegions: Region[] = [
     nameEn: 'Western Region (Makkah & Madinah)',
     nameAr: 'المنطقة الغربية (مكة المكرمة والمدينة)',
     legalEntityFk: 'le-1',
-    regionTypeIdFk: 'WESTERN',
+    legalEntityCode: 'LE-001',
+    regionTypeIdFk: 1,
+    regionTypeNameEn: 'Geographic',
     notes: 'Coastal and commercial trade zone.',
     isActive: true,
   },
@@ -652,7 +829,9 @@ export const mockRegions: Region[] = [
     nameEn: 'Eastern Region (Dammam & Khobar)',
     nameAr: 'المنطقة الشرقية (الدمام والخبر)',
     legalEntityFk: 'le-2',
-    regionTypeIdFk: 'EASTERN',
+    legalEntityCode: 'LE-002',
+    regionTypeIdFk: 2,
+    regionTypeNameEn: 'Operational',
     notes: 'Industrial and energy hub.',
     isActive: true,
   },
@@ -665,6 +844,7 @@ export const mockDepartments: DepartmentNode[] = [
     nameEn: 'Executive Management',
     nameAr: 'الإدارة التنفيذية العليا',
     branchFk: 'br-1',
+    branchCode: 'BR-RUH-01',
     parentDepartmentFk: null,
     nodeTypeId: 'SUMMARY',
     notes: 'Executive board and corporate leadership.',
@@ -676,6 +856,7 @@ export const mockDepartments: DepartmentNode[] = [
         nameEn: 'Finance & Accounts',
         nameAr: 'الإدارة المالية والحسابات',
         branchFk: 'br-1',
+        branchCode: 'BR-RUH-01',
         parentDepartmentFk: 'dept-1',
         nodeTypeId: 'SUMMARY',
         isActive: true,
@@ -686,6 +867,7 @@ export const mockDepartments: DepartmentNode[] = [
             nameEn: 'General Ledger & Reporting',
             nameAr: 'الأستاذ العام والتقارير المالية',
             branchFk: 'br-1',
+            branchCode: 'BR-RUH-01',
             parentDepartmentFk: 'dept-2',
             nodeTypeId: 'DETAIL',
             isActive: true,
@@ -696,6 +878,7 @@ export const mockDepartments: DepartmentNode[] = [
             nameEn: 'Treasury & Disbursements',
             nameAr: 'الخزينة والمدفوعات',
             branchFk: 'br-1',
+            branchCode: 'BR-RUH-01',
             parentDepartmentFk: 'dept-2',
             nodeTypeId: 'DETAIL',
             isActive: true,
@@ -708,6 +891,7 @@ export const mockDepartments: DepartmentNode[] = [
         nameEn: 'Information Technology',
         nameAr: 'تقنية المعلومات والتحول الرقمي',
         branchFk: 'br-1',
+        branchCode: 'BR-RUH-01',
         parentDepartmentFk: 'dept-1',
         nodeTypeId: 'SUMMARY',
         isActive: true,
@@ -718,6 +902,7 @@ export const mockDepartments: DepartmentNode[] = [
             nameEn: 'Software Engineering',
             nameAr: 'هندسة البرمجيات',
             branchFk: 'br-1',
+            branchCode: 'BR-RUH-01',
             parentDepartmentFk: 'dept-5',
             nodeTypeId: 'DETAIL',
             isActive: true,
@@ -728,6 +913,7 @@ export const mockDepartments: DepartmentNode[] = [
             nameEn: 'Cybersecurity & Infrastructure',
             nameAr: 'الأمن السيبراني والبنية التحتية',
             branchFk: 'br-1',
+            branchCode: 'BR-RUH-01',
             parentDepartmentFk: 'dept-5',
             nodeTypeId: 'DETAIL',
             isActive: true,
@@ -742,6 +928,7 @@ export const mockDepartments: DepartmentNode[] = [
     nameEn: 'Jeddah Field Operations',
     nameAr: 'عمليات فرع جدة الميدانية',
     branchFk: 'br-2',
+    branchCode: 'BR-JED-02',
     parentDepartmentFk: null,
     nodeTypeId: 'SUMMARY',
     isActive: true,
@@ -752,6 +939,7 @@ export const mockDepartments: DepartmentNode[] = [
         nameEn: 'Port Logistics & Customs',
         nameAr: 'لوجستيات الميناء والتخليص الجمركي',
         branchFk: 'br-2',
+        branchCode: 'BR-JED-02',
         parentDepartmentFk: 'dept-8',
         nodeTypeId: 'DETAIL',
         isActive: true,
@@ -767,6 +955,7 @@ export const mockCostCenters: CostCenterNode[] = [
     nameEn: 'Corporate Shared Overhead',
     nameAr: 'المصاريف المشتركة للمجموعة',
     branchFk: 'br-1',
+    branchCode: 'BR-RUH-01',
     parentCostCenterFk: null,
     costCenterTypeId: 'SHARED',
     nodeTypeId: 'SUMMARY',
@@ -778,6 +967,7 @@ export const mockCostCenters: CostCenterNode[] = [
         nameEn: 'Enterprise Cloud & Systems',
         nameAr: 'السحابة والنظم المؤسسية',
         branchFk: 'br-1',
+        branchCode: 'BR-RUH-01',
         parentCostCenterFk: 'cc-1',
         costCenterTypeId: 'INDIRECT',
         nodeTypeId: 'DETAIL',
@@ -789,6 +979,7 @@ export const mockCostCenters: CostCenterNode[] = [
         nameEn: 'Headquarters Facilities & Utilities',
         nameAr: 'المرافق والخدمات العامة للمقر',
         branchFk: 'br-1',
+        branchCode: 'BR-RUH-01',
         parentCostCenterFk: 'cc-1',
         costCenterTypeId: 'INDIRECT',
         nodeTypeId: 'DETAIL',
@@ -802,6 +993,7 @@ export const mockCostCenters: CostCenterNode[] = [
     nameEn: 'Industrial Production Cost Center',
     nameAr: 'مركز تكلفة خطوط الإنتاج',
     branchFk: 'br-3',
+    branchCode: 'BR-DMM-03',
     parentCostCenterFk: null,
     costCenterTypeId: 'DIRECT',
     nodeTypeId: 'SUMMARY',
@@ -813,6 +1005,7 @@ export const mockCostCenters: CostCenterNode[] = [
         nameEn: 'Assembly Line Automation',
         nameAr: 'أتمتة خطوط التجميع',
         branchFk: 'br-3',
+        branchCode: 'BR-DMM-03',
         parentCostCenterFk: 'cc-4',
         costCenterTypeId: 'DIRECT',
         nodeTypeId: 'DETAIL',
@@ -829,6 +1022,7 @@ export const mockProfitCenters: ProfitCenter[] = [
     nameEn: 'Enterprise SaaS Subscriptions',
     nameAr: 'اشتراكات البرمجيات السحابية المؤسسية',
     legalEntityFk: 'le-1',
+    legalEntityCode: 'LE-001',
     notes: 'High margin recurring enterprise licenses.',
     isActive: true,
   },
@@ -838,6 +1032,7 @@ export const mockProfitCenters: ProfitCenter[] = [
     nameEn: 'Digital Advisory & Implementation',
     nameAr: 'الخدمات الاستشارية وتطبيق الأنظمة',
     legalEntityFk: 'le-1',
+    legalEntityCode: 'LE-001',
     notes: 'Professional consulting project revenue.',
     isActive: true,
   },
@@ -847,6 +1042,7 @@ export const mockProfitCenters: ProfitCenter[] = [
     nameEn: 'Cold-Chain Freight Services',
     nameAr: 'خدمات النقل المبرد واللوجستيات',
     legalEntityFk: 'le-2',
+    legalEntityCode: 'LE-002',
     notes: 'Distribution logistics contracts.',
     isActive: true,
   },
@@ -856,6 +1052,7 @@ export const mockProfitCenters: ProfitCenter[] = [
     nameEn: 'Retail Hardware POS Solutions',
     nameAr: 'حلول أجهزة نقاط البيع بالتجزئة',
     legalEntityFk: 'le-2',
+    legalEntityCode: 'LE-002',
     notes: 'Hardware terminal sales and maintenance.',
     isActive: false,
   },
@@ -868,6 +1065,7 @@ export const mockLocationSites: LocationSite[] = [
     nameEn: 'Al-Faisaliyah Tower Office 44A',
     nameAr: 'برج الفيصلية - مكتب 44أ',
     branchFk: 'br-1',
+    branchCode: 'BR-RUH-01',
     siteTypeId: 'OFFICE',
     notes: 'Headquarters executive floor.',
     isActive: true,
@@ -878,6 +1076,7 @@ export const mockLocationSites: LocationSite[] = [
     nameEn: 'Dammam Industrial Mega-Warehouse 1',
     nameAr: 'مستودع الدمام الصناعي الرئيسي 1',
     branchFk: 'br-3',
+    branchCode: 'BR-DMM-03',
     siteTypeId: 'WAREHOUSE',
     notes: 'Temperature-controlled storage (12,000 sqm).',
     isActive: true,
@@ -888,6 +1087,7 @@ export const mockLocationSites: LocationSite[] = [
     nameEn: 'Islamic Port Distribution Yard',
     nameAr: 'ساحة توزيع ميناء جدة الإسلامي',
     branchFk: 'br-2',
+    branchCode: 'BR-JED-02',
     siteTypeId: 'SITE',
     notes: 'Container sorting and clearance site.',
     isActive: true,
@@ -898,6 +1098,7 @@ export const mockLocationSites: LocationSite[] = [
     nameEn: 'Sultana Retail Showroom',
     nameAr: 'معرض شارع سلطانة للتجزئة',
     branchFk: 'br-4',
+    branchCode: 'BR-MED-04',
     siteTypeId: 'RETAIL',
     notes: 'Customer demo showroom.',
     isActive: false,

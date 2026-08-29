@@ -73,7 +73,7 @@ export interface OrganizationState {
   isLocationDrawerOpen: boolean;
 
   isConfirmDialogOpen: boolean;
-  confirmActionType: 'DEACTIVATE_ENTITY' | 'DEACTIVATE_BRANCH' | 'DEACTIVATE_REGION' | 'DEACTIVATE_DEPT' | 'DEACTIVATE_COST_CENTER' | 'DEACTIVATE_PROFIT' | 'DEACTIVATE_LOCATION' | null;
+  confirmActionType: 'DEACTIVATE_ENTITY' | 'DEACTIVATE_BRANCH' | 'DEACTIVATE_REGION' | 'DEACTIVATE_DEPT' | 'ACTIVATE_DEPT' | 'DEACTIVATE_COST_CENTER' | 'DEACTIVATE_PROFIT' | 'DEACTIVATE_LOCATION' | null;
   confirmTargetId: string | null;
   cascadeWarningMessage: string | null;
 
@@ -128,6 +128,7 @@ export interface OrganizationState {
   setSelectedDepartment: (dept: DepartmentNode | null) => void;
   saveDepartment: (deptData: Partial<DepartmentNode>) => void;
   deactivateDepartment: (id: string) => void;
+  activateDepartment: (id: string) => void;
 
   // Cost Center Tree Operations
   setSelectedCostCenter: (cc: CostCenterNode | null) => void;
@@ -194,6 +195,18 @@ function deactivateDeptInTree(nodes: DepartmentNode[], id: string): DepartmentNo
     }
     if (node.children) {
       return { ...node, children: deactivateDeptInTree(node.children, id) };
+    }
+    return node;
+  });
+}
+
+function activateDeptInTree(nodes: DepartmentNode[], id: string): DepartmentNode[] {
+  return nodes.map((node) => {
+    if (node.id === id) {
+      return { ...node, isActive: true };
+    }
+    if (node.children) {
+      return { ...node, children: activateDeptInTree(node.children, id) };
     }
     return node;
   });
@@ -377,13 +390,18 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
           isBranchDrawerOpen: false,
         };
       }
+      const resolvedLegalEntityFk = data.legalEntityFk || 'le-1';
       const newBranch: Branch = {
         id: `br-${Date.now()}`,
         branchCode: `BR-${data.nameEn?.slice(0, 3).toUpperCase() || 'NEW'}-0${state.branches.length + 1}`,
         nameEn: data.nameEn || '',
         nameAr: data.nameAr || '',
-        legalEntityFk: data.legalEntityFk || 'le-1',
-        branchTypeId: data.branchTypeId || 'SUB',
+        legalEntityFk: resolvedLegalEntityFk,
+        // F1/SCR-ORG-002 — ADDED: denormalized display field, resolved from
+        // the selected parent Legal Entity (see Branch.legalEntityCode).
+        legalEntityCode:
+          state.legalEntities.find((e) => e.id === resolvedLegalEntityFk)?.legalEntityCode || '',
+        branchTypeId: data.branchTypeId || 'SUB_BRANCH',
         notes: data.notes || '',
         isActive: true,
       };
@@ -408,13 +426,22 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
           isRegionDrawerOpen: false,
         };
       }
+      const resolvedRegionLegalEntityFk = data.legalEntityFk || 'le-1';
       const newRegion: Region = {
         id: `reg-${Date.now()}`,
-        regionCode: `REG-${data.regionTypeIdFk || 'NEW'}`,
+        regionCode: `REG-${data.nameEn?.slice(0, 3).toUpperCase() || 'NEW'}`,
         nameEn: data.nameEn || '',
         nameAr: data.nameAr || '',
-        legalEntityFk: data.legalEntityFk || 'le-1',
-        regionTypeIdFk: data.regionTypeIdFk || 'CENTRAL',
+        legalEntityFk: resolvedRegionLegalEntityFk,
+        // F1/SCR-ORG-003 — ADDED: denormalized display field, resolved from
+        // the selected parent Legal Entity (see Region.legalEntityCode).
+        legalEntityCode:
+          state.legalEntities.find((e) => e.id === resolvedRegionLegalEntityFk)?.legalEntityCode || '',
+        // F1/SCR-ORG-003 — FINDING-2 / OQ-ORG-002 (deferred): no create/edit
+        // picker exists for regionTypeIdFk (no real listing endpoint), so a
+        // newly created record has no type assigned yet.
+        regionTypeIdFk: data.regionTypeIdFk ?? null,
+        regionTypeNameEn: data.regionTypeNameEn || '',
         notes: data.notes || '',
         isActive: true,
       };
@@ -443,12 +470,16 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
           selectedDepartment: updated,
         };
       }
+      const resolvedDeptBranchFk = deptData.branchFk || state.deptBranchFilter || 'br-1';
       const newDept: DepartmentNode = {
         id: `dept-${Date.now()}`,
         deptCode: `DEP-${Math.floor(100 + Math.random() * 900)}`,
         nameEn: deptData.nameEn || '',
         nameAr: deptData.nameAr || '',
-        branchFk: deptData.branchFk || state.deptBranchFilter || 'br-1',
+        branchFk: resolvedDeptBranchFk,
+        // F1/SCR-ORG-004 — ADDED: denormalized display field, resolved from
+        // the selected parent Branch (see DepartmentNode.branchCode).
+        branchCode: state.branches.find((b) => b.id === resolvedDeptBranchFk)?.branchCode || '',
         parentDepartmentFk: deptData.parentDepartmentFk || null,
         nodeTypeId: deptData.nodeTypeId || 'DETAIL',
         notes: deptData.notes || '',
@@ -463,6 +494,11 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
     set((state) => ({
       departments: deactivateDeptInTree(state.departments, id),
       selectedDepartment: state.selectedDepartment?.id === id ? { ...state.selectedDepartment, isActive: false } : state.selectedDepartment,
+    })),
+  activateDepartment: (id) =>
+    set((state) => ({
+      departments: activateDeptInTree(state.departments, id),
+      selectedDepartment: state.selectedDepartment?.id === id ? { ...state.selectedDepartment, isActive: true } : state.selectedDepartment,
     })),
 
   // Cost Center Actions
@@ -480,12 +516,16 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
           selectedCostCenter: updated,
         };
       }
+      const resolvedCCBranchFk = ccData.branchFk || state.costCenterBranchFilter || 'br-1';
       const newCC: CostCenterNode = {
         id: `cc-${Date.now()}`,
         costCenterCode: `CC-${Math.floor(100 + Math.random() * 900)}`,
         nameEn: ccData.nameEn || '',
         nameAr: ccData.nameAr || '',
-        branchFk: ccData.branchFk || state.costCenterBranchFilter || 'br-1',
+        branchFk: resolvedCCBranchFk,
+        // F1/SCR-ORG-005 — ADDED: denormalized display field, resolved from
+        // the selected parent Branch (see CostCenterNode.branchCode).
+        branchCode: state.branches.find((b) => b.id === resolvedCCBranchFk)?.branchCode || '',
         parentCostCenterFk: ccData.parentCostCenterFk || null,
         costCenterTypeId: ccData.costCenterTypeId || 'DIRECT',
         nodeTypeId: ccData.nodeTypeId || 'DETAIL',
@@ -514,12 +554,17 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
           isProfitDrawerOpen: false,
         };
       }
+      const resolvedProfitLegalEntityFk = data.legalEntityFk || 'le-1';
       const newPC: ProfitCenter = {
         id: `pc-${Date.now()}`,
         profitCenterCode: `PC-00${state.profitCenters.length + 1}`,
         nameEn: data.nameEn || '',
         nameAr: data.nameAr || '',
-        legalEntityFk: data.legalEntityFk || 'le-1',
+        legalEntityFk: resolvedProfitLegalEntityFk,
+        // F1/SCR-ORG-006 — ADDED: denormalized display field, resolved from
+        // the selected parent Legal Entity (see ProfitCenter.legalEntityCode).
+        legalEntityCode:
+          state.legalEntities.find((e) => e.id === resolvedProfitLegalEntityFk)?.legalEntityCode || '',
         notes: data.notes || '',
         isActive: true,
       };
@@ -544,12 +589,16 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
           isLocationDrawerOpen: false,
         };
       }
+      const resolvedBranchFk = data.branchFk || 'br-1';
       const newLoc: LocationSite = {
         id: `loc-${Date.now()}`,
         locationSiteCode: `LOC-00${state.locationSites.length + 1}`,
         nameEn: data.nameEn || '',
         nameAr: data.nameAr || '',
-        branchFk: data.branchFk || 'br-1',
+        branchFk: resolvedBranchFk,
+        // F1/SCR-ORG-007 — ADDED: denormalized display field, resolved from
+        // the selected parent Branch (see LocationSite.branchCode).
+        branchCode: state.branches.find((b) => b.id === resolvedBranchFk)?.branchCode || '',
         siteTypeId: data.siteTypeId || 'OFFICE',
         notes: data.notes || '',
         isActive: true,
@@ -577,6 +626,7 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
       deactivateBranch,
       deactivateRegion,
       deactivateDepartment,
+      activateDepartment,
       deactivateCostCenter,
       deactivateProfitCenter,
       deactivateLocationSite,
@@ -587,6 +637,7 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
     else if (confirmActionType === 'DEACTIVATE_BRANCH') deactivateBranch(confirmTargetId);
     else if (confirmActionType === 'DEACTIVATE_REGION') deactivateRegion(confirmTargetId);
     else if (confirmActionType === 'DEACTIVATE_DEPT') deactivateDepartment(confirmTargetId);
+    else if (confirmActionType === 'ACTIVATE_DEPT') activateDepartment(confirmTargetId);
     else if (confirmActionType === 'DEACTIVATE_COST_CENTER') deactivateCostCenter(confirmTargetId);
     else if (confirmActionType === 'DEACTIVATE_PROFIT') deactivateProfitCenter(confirmTargetId);
     else if (confirmActionType === 'DEACTIVATE_LOCATION') deactivateLocationSite(confirmTargetId);

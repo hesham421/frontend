@@ -1,0 +1,2332 @@
+[
+  {
+    "id": "TC001",
+    "title": "Login and reach the dashboard",
+    "description": "An employee can sign in with valid credentials and land on the authenticated dashboard.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Create and update a legal entity",
+    "description": "An organization administrator can create a legal entity, edit it, and see the record reflected in the list.",
+    "category": "Legal Entities",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the legal entities section"
+      },
+      {
+        "type": "action",
+        "description": "Create a new legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required legal entity details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the legal entity form"
+      },
+      {
+        "type": "action",
+        "description": "Open the created legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Edit the legal entity details"
+      },
+      {
+        "type": "action",
+        "description": "Save the legal entity changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the legal entity appears in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated legal entity details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Create and manage a user role",
+    "description": "Verifies that an authenticated security administrator can create or edit a role, toggle its active state, edit the permission matrix, and copy permissions from another role.",
+    "category": "Organization - Branches Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open role management"
+      },
+      {
+        "type": "action",
+        "description": "Create or open a role for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the role details"
+      },
+      {
+        "type": "action",
+        "description": "Toggle the role active state"
+      },
+      {
+        "type": "action",
+        "description": "Open the permission matrix editor"
+      },
+      {
+        "type": "action",
+        "description": "Copy permissions from another role"
+      },
+      {
+        "type": "action",
+        "description": "Save the role changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role updates are reflected in the role list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Create and maintain a branch under a legal entity",
+    "description": "An organization administrator can create a branch under a selected legal entity, edit it, and see the branch in the list.",
+    "category": "Branches",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the legal entities section"
+      },
+      {
+        "type": "action",
+        "description": "Create a legal entity for branch scoping"
+      },
+      {
+        "type": "action",
+        "description": "Submit the legal entity form"
+      },
+      {
+        "type": "action",
+        "description": "Click the branches section"
+      },
+      {
+        "type": "action",
+        "description": "Select the parent legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Create a new branch"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required branch details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the branch form"
+      },
+      {
+        "type": "action",
+        "description": "Open the created branch"
+      },
+      {
+        "type": "action",
+        "description": "Edit the branch details"
+      },
+      {
+        "type": "action",
+        "description": "Save the branch changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the branch appears in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated branch details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Create a new user",
+    "description": "A security administrator can create a user account and see it added to the users list.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security users section"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a user"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required user details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the user form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new user appears in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Create and maintain a legal entity",
+    "description": "Verify an organization administrator can create a legal entity, update it, and see it persist in the legal entities list.",
+    "category": "Organization - Legal Entities Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for legal entities"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the Arabic name field with a unique value"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the English name field with a unique value"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid legal entity type"
+      },
+      {
+        "type": "action",
+        "description": "Submit the legal entity form"
+      },
+      {
+        "type": "action",
+        "description": "Open the newly created legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Update one of the legal entity details"
+      },
+      {
+        "type": "action",
+        "description": "Save the legal entity changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the legal entity appears in the list with the saved updates"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Create a root cost center",
+    "description": "Verifies that a user can create a root cost center and see it added to the selected branch tree.",
+    "category": "Organization - Cost Centers Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-cost-centers)"
+      },
+      {
+        "type": "action",
+        "description": "Choose a branch"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a root cost center"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the cost center details"
+      },
+      {
+        "type": "action",
+        "description": "Choose a node type"
+      },
+      {
+        "type": "action",
+        "description": "Choose a cost center type"
+      },
+      {
+        "type": "action",
+        "description": "Submit the cost center form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new cost center appears in the tree"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Create a child department under a parent node",
+    "description": "Verifies that an authenticated user can choose a branch, select a parent department, create a child department, and see the new node in the tree.",
+    "category": "Organization - Departments Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open department management"
+      },
+      {
+        "type": "action",
+        "description": "Choose a branch"
+      },
+      {
+        "type": "action",
+        "description": "Select a parent department"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a child department"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the department details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the department form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new child department is displayed in the tree"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Create a profit center",
+    "description": "Verifies that a user can create a profit center under a legal entity and see it added to the list.",
+    "category": "Organization - Profit Centers Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-profit-centers)"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a profit center"
+      },
+      {
+        "type": "action",
+        "description": "Choose a legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the profit center details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the profit center form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new profit center appears in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Create a region with a legal entity",
+    "description": "Verifies that an authenticated user can create a region by filling the form, selecting a legal entity and region type, submitting it, and seeing the new region in the list.",
+    "category": "Organization - Regions Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open region management"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new region"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the region details"
+      },
+      {
+        "type": "action",
+        "description": "Choose a legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Choose a region type"
+      },
+      {
+        "type": "action",
+        "description": "Submit the region form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new region is displayed in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Activate and deactivate a legal entity",
+    "description": "An organization administrator can toggle a legal entity between active and inactive states.",
+    "category": "Legal Entities",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the legal entities section"
+      },
+      {
+        "type": "action",
+        "description": "Create a new legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required legal entity details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the legal entity form"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the created legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Activate the same legal entity"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the legal entity returns to active state"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Create a location site",
+    "description": "Verifies that a user can create a location site under a branch and see it added to the list.",
+    "category": "Organization - Location Sites Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-locations)"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a location site"
+      },
+      {
+        "type": "action",
+        "description": "Choose a branch"
+      },
+      {
+        "type": "action",
+        "description": "Choose a site type"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the location site details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the location site form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new location site appears in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Manage roles and permissions",
+    "description": "A role administrator can create, edit, activate, deactivate, copy permissions, and update the permission matrix for roles.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security roles section"
+      },
+      {
+        "type": "action",
+        "description": "Create a new role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required role details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the role form"
+      },
+      {
+        "type": "action",
+        "description": "Open the created role"
+      },
+      {
+        "type": "action",
+        "description": "Edit the role details"
+      },
+      {
+        "type": "action",
+        "description": "Save the role changes"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the role"
+      },
+      {
+        "type": "action",
+        "description": "Activate the role"
+      },
+      {
+        "type": "action",
+        "description": "Open the permission matrix"
+      },
+      {
+        "type": "action",
+        "description": "Toggle one or more permissions"
+      },
+      {
+        "type": "action",
+        "description": "Save the permission matrix changes"
+      },
+      {
+        "type": "action",
+        "description": "Open the copy permissions action"
+      },
+      {
+        "type": "action",
+        "description": "Choose a source role"
+      },
+      {
+        "type": "action",
+        "description": "Copy permissions into the current role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role details are updated"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the permission matrix changes are reflected"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Edit a branch and save updates",
+    "description": "Verifies that an authenticated user can open an existing branch, change its editable details, save, and see the updated record in the list.",
+    "category": "Organization - Branches Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open branch management"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing branch for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the editable branch details"
+      },
+      {
+        "type": "action",
+        "description": "Save the branch changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the branch list shows the updated record"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Update a user's roles and profile",
+    "description": "A security administrator can edit a user, update assigned roles and profile details, and see the changes reflected in the list and profile view.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security users section"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing user"
+      },
+      {
+        "type": "action",
+        "description": "Change the assigned roles"
+      },
+      {
+        "type": "action",
+        "description": "Open the profile details drawer"
+      },
+      {
+        "type": "action",
+        "description": "Update the extended profile fields"
+      },
+      {
+        "type": "action",
+        "description": "Save the user changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated role assignment is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile information is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Deactivate and reactivate a legal entity",
+    "description": "Verify an organization administrator can deactivate an active legal entity and then reactivate it.",
+    "category": "Organization - Legal Entities Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for legal entities"
+      },
+      {
+        "type": "action",
+        "description": "Select an active legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the selected legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Select the same legal entity while inactive"
+      },
+      {
+        "type": "action",
+        "description": "Activate the selected legal entity"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the legal entity returns to an active state"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Edit and deactivate a department in the branch tree",
+    "description": "Verifies that an authenticated user can choose a branch, edit a department in the tree, save changes, and deactivate the department successfully.",
+    "category": "Organization - Departments Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open department management"
+      },
+      {
+        "type": "action",
+        "description": "Choose a branch"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing department for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the department details"
+      },
+      {
+        "type": "action",
+        "description": "Save the department changes"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the department"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated department appears inactive in the tree"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Create a child cost center",
+    "description": "Verifies that a user can create a child cost center under an existing parent and see it added in the tree.",
+    "category": "Organization - Cost Centers Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-cost-centers)"
+      },
+      {
+        "type": "action",
+        "description": "Choose a branch"
+      },
+      {
+        "type": "action",
+        "description": "Select a parent cost center"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a child cost center"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the cost center details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the cost center form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new child cost center appears in the tree"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Create and maintain a department with a branch",
+    "description": "An organization administrator can create a department tied to a branch, edit it, and see the department in the list.",
+    "category": "Departments",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the branches section"
+      },
+      {
+        "type": "action",
+        "description": "Create a branch for department scoping"
+      },
+      {
+        "type": "action",
+        "description": "Submit the branch form"
+      },
+      {
+        "type": "action",
+        "description": "Click the departments section"
+      },
+      {
+        "type": "action",
+        "description": "Select the parent branch"
+      },
+      {
+        "type": "action",
+        "description": "Create a new department"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required department details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the department form"
+      },
+      {
+        "type": "action",
+        "description": "Open the created department"
+      },
+      {
+        "type": "action",
+        "description": "Edit the department details"
+      },
+      {
+        "type": "action",
+        "description": "Save the department changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the department appears in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated department details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Create and maintain a region",
+    "description": "An organization administrator can create a region, edit it, and see the record reflected in the list.",
+    "category": "Regions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the regions section"
+      },
+      {
+        "type": "action",
+        "description": "Create a new region"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required region details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the region form"
+      },
+      {
+        "type": "action",
+        "description": "Open the created region"
+      },
+      {
+        "type": "action",
+        "description": "Edit the region details"
+      },
+      {
+        "type": "action",
+        "description": "Save the region changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the region appears in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated region details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Edit a cost center",
+    "description": "Verifies that a user can update an existing cost center and see the tree reflect the saved changes.",
+    "category": "Organization - Cost Centers Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-cost-centers)"
+      },
+      {
+        "type": "action",
+        "description": "Choose a branch"
+      },
+      {
+        "type": "action",
+        "description": "Select an existing cost center"
+      },
+      {
+        "type": "action",
+        "description": "Edit the cost center details"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated cost center node is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Create and maintain a cost center",
+    "description": "An organization administrator can create a cost center, edit it, and see the record reflected in the list.",
+    "category": "Cost Centers",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the cost centers section"
+      },
+      {
+        "type": "action",
+        "description": "Create a new cost center"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required cost center details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the cost center form"
+      },
+      {
+        "type": "action",
+        "description": "Open the created cost center"
+      },
+      {
+        "type": "action",
+        "description": "Edit the cost center details"
+      },
+      {
+        "type": "action",
+        "description": "Save the cost center changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cost center appears in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated cost center details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Deactivate an active branch",
+    "description": "Verifies that an authenticated user can deactivate an active branch and see it marked inactive afterward.",
+    "category": "Organization - Branches Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open branch management"
+      },
+      {
+        "type": "action",
+        "description": "Select an active branch"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the branch"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the branch is shown as inactive"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "View cost centers for a selected branch",
+    "description": "Verifies that a user can choose a branch and see the corresponding cost center tree.",
+    "category": "Organization - Cost Centers Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-cost-centers)"
+      },
+      {
+        "type": "action",
+        "description": "Choose a branch"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cost center tree for the selected branch is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Search and filter users",
+    "description": "A security administrator can search users and narrow the list with status or role filters.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security users section"
+      },
+      {
+        "type": "action",
+        "description": "Search for an existing user"
+      },
+      {
+        "type": "action",
+        "description": "Apply a status or role filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user list is filtered"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching users are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC026",
+    "title": "Edit a profit center",
+    "description": "Verifies that a user can update an existing profit center and see the saved changes in the list.",
+    "category": "Organization - Profit Centers Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-profit-centers)"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing profit center"
+      },
+      {
+        "type": "action",
+        "description": "Edit the profit center details"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profit center is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC027",
+    "title": "Search branches by name or code",
+    "description": "Verifies that an authenticated user can filter the branch list by name or code and see matching results.",
+    "category": "Organization - Branches Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open branch management"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a branch name or code into the search field"
+      },
+      {
+        "type": "action",
+        "description": "Apply the search filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching branches are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC028",
+    "title": "Edit a location site",
+    "description": "Verifies that a user can update an existing location site and see the saved changes in the list.",
+    "category": "Organization - Location Sites Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-locations)"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing location site"
+      },
+      {
+        "type": "action",
+        "description": "Edit the location site details"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated location site is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC029",
+    "title": "Search and filter roles",
+    "description": "A role administrator can search roles and narrow the list with filters.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security roles section"
+      },
+      {
+        "type": "action",
+        "description": "Search for an existing role"
+      },
+      {
+        "type": "action",
+        "description": "Apply a role filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role list is filtered"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching roles are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC030",
+    "title": "Search legal entities by name or code",
+    "description": "Verify an organization administrator can search legal entities using filters and see matching records.",
+    "category": "Organization - Legal Entities Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for legal entities"
+      },
+      {
+        "type": "action",
+        "description": "Search for a legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Apply a name or code filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching legal entities are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC031",
+    "title": "Update a user's data scope",
+    "description": "A security administrator can change a user's branch-level data scope and see the updated scope saved.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security users section"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing user"
+      },
+      {
+        "type": "action",
+        "description": "Open the data scope settings"
+      },
+      {
+        "type": "action",
+        "description": "Change the branch-level access"
+      },
+      {
+        "type": "action",
+        "description": "Save the data scope changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated scope is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC032",
+    "title": "Deactivate an active cost center",
+    "description": "Verifies that a user can deactivate an active cost center and see it marked inactive in the tree.",
+    "category": "Organization - Cost Centers Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-cost-centers)"
+      },
+      {
+        "type": "action",
+        "description": "Choose a branch"
+      },
+      {
+        "type": "action",
+        "description": "Select an active cost center"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the cost center"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the cost center is shown as inactive"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC033",
+    "title": "Search permissions with module filtering",
+    "description": "Verify a security administrator can search permissions and narrow the results by module to see matching permissions.",
+    "category": "Security Permissions Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for permissions registry"
+      },
+      {
+        "type": "action",
+        "description": "Search for an existing permission"
+      },
+      {
+        "type": "action",
+        "description": "Apply a module filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching permissions are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC034",
+    "title": "Maintain page registry entries",
+    "description": "A security administrator can create and edit a page registry entry and toggle its active state.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the page registry section"
+      },
+      {
+        "type": "action",
+        "description": "Create a new page registry entry"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required page details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the page form"
+      },
+      {
+        "type": "action",
+        "description": "Open the created page entry"
+      },
+      {
+        "type": "action",
+        "description": "Edit the page details"
+      },
+      {
+        "type": "action",
+        "description": "Save the page changes"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the page entry"
+      },
+      {
+        "type": "action",
+        "description": "Activate the page entry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page entry is saved"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page entry can be toggled active"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC035",
+    "title": "Activate an inactive branch",
+    "description": "Verifies that an authenticated user can activate an inactive branch and see it marked active afterward.",
+    "category": "Organization - Branches Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open branch management"
+      },
+      {
+        "type": "action",
+        "description": "Select an inactive branch"
+      },
+      {
+        "type": "action",
+        "description": "Activate the branch"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the branch is shown as active"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC036",
+    "title": "Search profit centers by filter",
+    "description": "Verifies that a user can search profit centers and see matching results in the list.",
+    "category": "Organization - Profit Centers Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-profit-centers)"
+      },
+      {
+        "type": "action",
+        "description": "Search profit centers by name or code"
+      },
+      {
+        "type": "action",
+        "description": "Apply a filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching profit centers are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC037",
+    "title": "Remove a permission row from the matrix",
+    "description": "A role administrator can remove a page permission row and see it stay removed after saving.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security roles section"
+      },
+      {
+        "type": "action",
+        "description": "Open the permission matrix for a role"
+      },
+      {
+        "type": "action",
+        "description": "Remove a page permission row"
+      },
+      {
+        "type": "action",
+        "description": "Save the permission matrix changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the permission row remains removed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC038",
+    "title": "Search location sites by filter",
+    "description": "Verifies that a user can search location sites and see matching results in the list.",
+    "category": "Organization - Location Sites Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-locations)"
+      },
+      {
+        "type": "action",
+        "description": "Search location sites by name or code"
+      },
+      {
+        "type": "action",
+        "description": "Apply a filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching location sites are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC039",
+    "title": "Search pages and view matching registry entries",
+    "description": "Verify a security administrator can search the page registry and see matching entries.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for page registry"
+      },
+      {
+        "type": "action",
+        "description": "Search for a page registry entry"
+      },
+      {
+        "type": "action",
+        "description": "Apply a filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching page registry entries are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC040",
+    "title": "Search regions by name or code",
+    "description": "Verifies that an authenticated user can filter the region list by name or code and see matching results.",
+    "category": "Organization - Regions Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open region management"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a region name or code into the search field"
+      },
+      {
+        "type": "action",
+        "description": "Apply the search filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify matching regions are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC041",
+    "title": "Create a new page registry entry",
+    "description": "Verify a security administrator can create a page registry entry and see permissions generated for it.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for page registry"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a page"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the page details form with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Submit the page form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new page entry is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify generated permissions are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC042",
+    "title": "Delete a user",
+    "description": "A security administrator can delete a user and see the user removed from the list.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the security users section"
+      },
+      {
+        "type": "action",
+        "description": "Create a new user for deletion"
+      },
+      {
+        "type": "action",
+        "description": "Open the delete action for that user"
+      },
+      {
+        "type": "action",
+        "description": "Confirm deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user no longer appears in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC043",
+    "title": "Deactivate and reactivate a profit center",
+    "description": "Verifies that a user can toggle a profit center between active and inactive states from the management screen.",
+    "category": "Organization - Profit Centers Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-profit-centers)"
+      },
+      {
+        "type": "action",
+        "description": "Select an active profit center"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the profit center"
+      },
+      {
+        "type": "action",
+        "description": "Select an inactive profit center"
+      },
+      {
+        "type": "action",
+        "description": "Activate the profit center"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the profit center is shown as active"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC044",
+    "title": "Create a new permission",
+    "description": "Verify a security administrator can create a permission and see it appear in the registry list.",
+    "category": "Security Permissions Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for permissions registry"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a permission"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the permission name field with a unique value"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the permission description field with a valid description"
+      },
+      {
+        "type": "action",
+        "description": "Submit the permission form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new permission appears in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC045",
+    "title": "Deactivate and reactivate a location site",
+    "description": "Verifies that a user can toggle a location site between active and inactive states from the management screen.",
+    "category": "Organization - Location Sites Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(org-locations)"
+      },
+      {
+        "type": "action",
+        "description": "Select an active location site"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the location site"
+      },
+      {
+        "type": "action",
+        "description": "Select an inactive location site"
+      },
+      {
+        "type": "action",
+        "description": "Activate the location site"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the location site is shown as active"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC046",
+    "title": "Edit an existing permission",
+    "description": "Verify a security administrator can update an existing permission and see the saved changes in the registry.",
+    "category": "Security Permissions Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry for permissions registry"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing permission"
+      },
+      {
+        "type": "action",
+        "description": "Update the permission name or description"
+      },
+      {
+        "type": "action",
+        "description": "Save the permission changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated permission is shown in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC047",
+    "title": "Create a notification template",
+    "description": "This verifies that a user can create a new notification template and see it added to the template list.",
+    "category": "Notifications Workspace",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the notification templates screen"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a notification template"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a template name into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in template content into the content field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the template form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new template appears in the template list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC048",
+    "title": "Use notification inbox, templates, and channels",
+    "description": "A reviewer or editor can open the notifications workspace, review inbox items, and create or edit templates and channels in local state.",
+    "category": "Notifications",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the notifications inbox"
+      },
+      {
+        "type": "action",
+        "description": "Review an inbox item"
+      },
+      {
+        "type": "action",
+        "description": "Open notification templates"
+      },
+      {
+        "type": "action",
+        "description": "Create a new notification template"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required template details"
+      },
+      {
+        "type": "action",
+        "description": "Save the notification template"
+      },
+      {
+        "type": "action",
+        "description": "Open notification channels"
+      },
+      {
+        "type": "action",
+        "description": "Create a new notification channel"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required channel details"
+      },
+      {
+        "type": "action",
+        "description": "Save the notification channel"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify inbox items are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new template and channel are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC049",
+    "title": "Create a notification channel",
+    "description": "This verifies that a user can create a new notification channel and see it added to the channel list.",
+    "category": "Notifications Workspace",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the notification channels screen"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a notification channel"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a channel name into the name field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in channel settings into the settings field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the channel form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new channel appears in the channel list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC050",
+    "title": "Review a notification inbox item",
+    "description": "This verifies that an authenticated user can open the notifications inbox and view the details of a notification item.",
+    "category": "Notifications Workspace",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Click the link to open the notifications inbox"
+      },
+      {
+        "type": "action",
+        "description": "Open a notification item"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify notification details are displayed"
+      }
+    ],
+    "priority": "Medium"
+  }
+]

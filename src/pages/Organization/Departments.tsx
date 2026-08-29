@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useForm, Controller, type Resolver } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
+import { usePermission } from '../../auth/permissions';
 import { Breadcrumb, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
 import { Card, Badge } from '../../components/ui/DataDisplay';
@@ -8,6 +12,21 @@ import { Input, Select } from '../../components/ui/FormControls';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
 import { DepartmentNode } from '../../data/mockData';
+import { createDepartmentSchema, updateDepartmentSchema } from '../../departments/departments.schema';
+
+// branchFk is required in createDepartmentSchema, but this page never
+// collects it via a form field — it comes from the separate branch-filter
+// <Select> above the tree (deptBranchFilter), merged in manually at save.
+// parentDepartmentFk is z.number().optional() in both schemas, but the mock
+// store's actual type is string | null — overridden here in both variants.
+const departmentFormSchema = createDepartmentSchema
+  .omit({ branchFk: true })
+  .extend({ parentDepartmentFk: z.string().nullable().optional() });
+type DepartmentFormValues = z.infer<typeof departmentFormSchema>;
+
+const departmentUpdateFormSchema = updateDepartmentSchema.extend({
+  parentDepartmentFk: z.string().nullable().optional(),
+});
 
 export const DepartmentsPage: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -31,37 +50,19 @@ export const DepartmentsPage: React.FC = () => {
   const [isCreatingChild, setIsCreatingChild] = useState(false);
   const [isCreatingRoot, setIsCreatingRoot] = useState(false);
 
-  // Form State
-  const [nameEn, setNameEn] = useState('');
-  const [nameAr, setNameAr] = useState('');
-  const [nodeTypeId, setNodeTypeId] = useState<'SUMMARY' | 'DETAIL'>('DETAIL');
-  const [parentDepartmentFk, setParentDepartmentFk] = useState<string | null>(null);
-  const [notes, setNotes] = useState('');
+  const { can } = usePermission();
+  const canCreate = can('PERM_DEPARTMENT_CREATE');
+  const canEdit = can('PERM_DEPARTMENT_UPDATE');
+  // Creating a root or child department needs CREATE; editing an existing node needs UPDATE.
+  const canSaveForm = (isCreatingRoot || isCreatingChild) ? canCreate : canEdit;
 
-  // Sync form with selectedDepartment or creation mode
-  useEffect(() => {
-    if (isCreatingRoot) {
-      setNameEn('');
-      setNameAr('');
-      setNodeTypeId('SUMMARY');
-      setParentDepartmentFk(null);
-      setNotes('');
-    } else if (isCreatingChild && selectedDepartment) {
-      setNameEn('');
-      setNameAr('');
-      setNodeTypeId('DETAIL');
-      setParentDepartmentFk(selectedDepartment.id);
-      setNotes('');
-    } else if (selectedDepartment) {
-      setNameEn(selectedDepartment.nameEn);
-      setNameAr(selectedDepartment.nameAr);
-      setNodeTypeId(selectedDepartment.nodeTypeId);
-      setParentDepartmentFk(selectedDepartment.parentDepartmentFk || null);
-      setNotes(selectedDepartment.notes || '');
-      setIsCreatingChild(false);
-      setIsCreatingRoot(false);
-    }
-  }, [selectedDepartment, isCreatingChild, isCreatingRoot]);
+  const isEditMode = !isCreatingRoot && !isCreatingChild && !!selectedDepartment;
+  const form = useForm<DepartmentFormValues>({
+    resolver: zodResolver(isEditMode ? departmentUpdateFormSchema : departmentFormSchema) as unknown as Resolver<DepartmentFormValues>,
+    defaultValues: { nameEn: '', nameAr: '', nodeTypeId: 'DETAIL', parentDepartmentFk: null, notes: '' },
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
+  });
 
   const toggleExpand = (id: string) => {
     setExpandedNodeIds((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -71,6 +72,13 @@ export const DepartmentsPage: React.FC = () => {
     setIsCreatingRoot(false);
     setIsCreatingChild(false);
     setSelectedDepartment(node);
+    form.reset({
+      nameEn: node.nameEn,
+      nameAr: node.nameAr,
+      nodeTypeId: node.nodeTypeId,
+      parentDepartmentFk: node.parentDepartmentFk || null,
+      notes: node.notes || '',
+    });
   };
 
   const handleStartAddChild = (parent: DepartmentNode) => {
@@ -78,34 +86,47 @@ export const DepartmentsPage: React.FC = () => {
     setIsCreatingChild(true);
     setIsCreatingRoot(false);
     setExpandedNodeIds((prev) => ({ ...prev, [parent.id]: true }));
+    form.reset({
+      nameEn: '',
+      nameAr: '',
+      nodeTypeId: 'DETAIL',
+      parentDepartmentFk: parent.id,
+      notes: '',
+    });
   };
 
   const handleStartAddRoot = () => {
     setSelectedDepartment(null);
     setIsCreatingRoot(true);
     setIsCreatingChild(false);
+    form.reset({
+      nameEn: '',
+      nameAr: '',
+      nodeTypeId: 'SUMMARY',
+      parentDepartmentFk: null,
+      notes: '',
+    });
   };
 
-  const handleSaveForm = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onValid = (values: DepartmentFormValues) => {
+    if (!canSaveForm) return;
     const isEdit = !isCreatingChild && !isCreatingRoot;
     saveDepartment({
       id: isEdit ? selectedDepartment?.id : undefined,
-      nameEn,
-      nameAr,
+      ...values,
       branchFk: deptBranchFilter,
-      parentDepartmentFk,
-      nodeTypeId,
-      notes,
+      nodeTypeId: values.nodeTypeId as DepartmentNode['nodeTypeId'],
     });
     setIsCreatingChild(false);
     setIsCreatingRoot(false);
     showToast(t(isEdit ? 'departmentSavedSuccess' : 'departmentCreatedSuccess'), 'success');
   };
 
-  const handleConfirmDeactivate = () => {
+  const handleConfirmToggleActive = () => {
+    if (!canEdit) return;
+    const wasActivating = confirmActionType === 'ACTIVATE_DEPT';
     executeConfirmAction();
-    showToast(t('departmentDeactivatedSuccess'), 'success');
+    showToast(t(wasActivating ? 'departmentActivatedSuccess' : 'departmentDeactivatedSuccess'), 'success');
   };
 
   // Branch options
@@ -178,8 +199,12 @@ export const DepartmentsPage: React.FC = () => {
             {node.nodeTypeId === 'SUMMARY' ? t('summaryNode') : t('detailNode')}
           </Badge>
 
+          <Badge variant={node.isActive ? 'success' : 'danger'} size="sm">
+            {node.isActive ? t('active') : t('inactive')}
+          </Badge>
+
           <div style={{ display: 'inline-flex', gap: '4px' }} onClick={(e) => e.stopPropagation()}>
-            {node.nodeTypeId === 'SUMMARY' && (
+            {node.nodeTypeId === 'SUMMARY' && canCreate && (
               <IconButton
                 icon="ti ti-plus"
                 label={t('addChild')}
@@ -188,14 +213,16 @@ export const DepartmentsPage: React.FC = () => {
                 onClick={() => handleStartAddChild(node)}
               />
             )}
-            <IconButton
-              icon="ti ti-edit"
-              label={t('edit')}
-              variant="ghost"
-              size="sm"
-              onClick={() => handleSelectNode(node)}
-            />
-            {node.isActive && (
+            {canEdit && (
+              <IconButton
+                icon="ti ti-edit"
+                label={t('edit')}
+                variant="ghost"
+                size="sm"
+                onClick={() => handleSelectNode(node)}
+              />
+            )}
+            {canEdit && (node.isActive ? (
               <IconButton
                 icon="ti ti-ban"
                 label={t('deactivate')}
@@ -203,7 +230,15 @@ export const DepartmentsPage: React.FC = () => {
                 size="sm"
                 onClick={() => openConfirmDialog('DEACTIVATE_DEPT', node.id)}
               />
-            )}
+            ) : (
+              <IconButton
+                icon="ti ti-check"
+                label={t('reactivate')}
+                variant="ghost"
+                size="sm"
+                onClick={() => openConfirmDialog('ACTIVATE_DEPT', node.id)}
+              />
+            ))}
           </div>
         </div>
 
@@ -254,15 +289,17 @@ export const DepartmentsPage: React.FC = () => {
             />
           </div>
           <div style={{ marginInlineStart: 'auto', display: 'flex', gap: '8px' }}>
-            <Button
-              variant="primary"
-              size="md"
-              iconLeft={<i className="ti ti-folder-plus" />}
-              onClick={handleStartAddRoot}
-              disabled={!deptBranchFilter}
-            >
-              {t('addRoot')}
-            </Button>
+            {canCreate && (
+              <Button
+                variant="primary"
+                size="md"
+                iconLeft={<i className="ti ti-folder-plus" />}
+                onClick={handleStartAddRoot}
+                disabled={!deptBranchFilter}
+              >
+                {t('addRoot')}
+              </Button>
+            )}
           </div>
         </div>
       </Card>
@@ -323,7 +360,7 @@ export const DepartmentsPage: React.FC = () => {
                 Select a department node from the tree on the left or click <strong>+ Add Root Node</strong> to begin.
               </div>
             ) : (
-              <form onSubmit={handleSaveForm} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <form onSubmit={form.handleSubmit(onValid)} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {selectedDepartment && !isCreatingChild && !isCreatingRoot && (
                   <Input
                     label={t('code')}
@@ -333,40 +370,79 @@ export const DepartmentsPage: React.FC = () => {
                   />
                 )}
 
-                <Input
-                  label={`${t('nameEn')} *`}
-                  value={nameEn}
-                  onChange={(e) => setNameEn(e.target.value)}
-                  required
+                <Controller
+                  control={form.control}
+                  name="nameEn"
+                  render={({ field, fieldState }) => (
+                    <Input
+                      label={`${t('nameEn')} *`}
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                      error={fieldState.error?.message}
+                      disabled={!canSaveForm}
+                      required
+                    />
+                  )}
                 />
 
-                <Input
-                  label={`${t('nameAr')} *`}
-                  value={nameAr}
-                  onChange={(e) => setNameAr(e.target.value)}
-                  required
+                <Controller
+                  control={form.control}
+                  name="nameAr"
+                  render={({ field, fieldState }) => (
+                    <Input
+                      label={`${t('nameAr')} *`}
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                      error={fieldState.error?.message}
+                      disabled={!canSaveForm}
+                      required
+                    />
+                  )}
                 />
 
-                <Select
-                  label={`${t('nodeType')} *`}
-                  options={[
-                    { value: 'SUMMARY', label: t('summaryNode') },
-                    { value: 'DETAIL', label: t('detailNode') },
-                  ]}
-                  value={nodeTypeId}
-                  disabled={!isCreatingRoot && !isCreatingChild && !!selectedDepartment}
-                  helperText={!isCreatingRoot && !isCreatingChild ? t('nodeTypeLockedHint') : undefined}
-                  onChange={(e) => setNodeTypeId(e.target.value as 'SUMMARY' | 'DETAIL')}
+                <Controller
+                  control={form.control}
+                  name="nodeTypeId"
+                  render={({ field, fieldState }) => (
+                    <Select
+                      label={`${t('nodeType')} *`}
+                      options={[
+                        { value: 'SUMMARY', label: t('summaryNode') },
+                        { value: 'DETAIL', label: t('detailNode') },
+                      ]}
+                      value={field.value ?? ''}
+                      disabled={(!isCreatingRoot && !isCreatingChild && !!selectedDepartment) || !canSaveForm}
+                      helperText={!isCreatingRoot && !isCreatingChild ? t('nodeTypeLockedHint') : undefined}
+                      onChange={(e) => field.onChange(e.target.value as 'SUMMARY' | 'DETAIL')}
+                      onBlur={field.onBlur}
+                      onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                      error={fieldState.error?.message}
+                    />
+                  )}
                 />
 
-                <Input
-                  label={t('notes')}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                <Controller
+                  control={form.control}
+                  name="notes"
+                  render={({ field, fieldState }) => (
+                    <Input
+                      label={t('notes')}
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      error={fieldState.error?.message}
+                      disabled={!canSaveForm}
+                    />
+                  )}
                 />
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                   <Button
+                    type="button"
                     variant="secondary"
                     onClick={() => {
                       setIsCreatingChild(false);
@@ -376,9 +452,11 @@ export const DepartmentsPage: React.FC = () => {
                   >
                     {t('cancel')}
                   </Button>
-                  <Button variant="primary" type="submit">
-                    {t('save')}
-                  </Button>
+                  {canSaveForm && (
+                    <Button variant="primary" type="submit" loading={form.formState.isSubmitting}>
+                      {t('save')}
+                    </Button>
+                  )}
                 </div>
               </form>
             )}
@@ -388,14 +466,14 @@ export const DepartmentsPage: React.FC = () => {
 
       {/* Confirmation Dialog */}
       <ConfirmDialog
-        isOpen={isConfirmDialogOpen && confirmActionType === 'DEACTIVATE_DEPT'}
+        isOpen={isConfirmDialogOpen && (confirmActionType === 'DEACTIVATE_DEPT' || confirmActionType === 'ACTIVATE_DEPT')}
         onClose={closeConfirmDialog}
-        onConfirm={handleConfirmDeactivate}
+        onConfirm={handleConfirmToggleActive}
         title={t('confirmActionTitle')}
-        message={t('confirmDeactivate')}
-        confirmLabel={t('deactivate')}
+        message={confirmActionType === 'ACTIVATE_DEPT' ? t('confirmReactivate') : t('confirmDeactivate')}
+        confirmLabel={confirmActionType === 'ACTIVATE_DEPT' ? t('reactivate') : t('deactivate')}
         cancelLabel={t('cancel')}
-        tone="danger"
+        tone={confirmActionType === 'ACTIVATE_DEPT' ? 'primary' : 'danger'}
       />
     </div>
   );

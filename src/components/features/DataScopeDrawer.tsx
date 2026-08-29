@@ -49,7 +49,14 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
   }, [scope]);
 
   const handleSave = async () => {
-    if (selectedRoleId == null || selectedBranchId == null) return;
+    if (selectedRoleId == null) {
+      setErrorMessage(t('selectRoleRequired'));
+      return;
+    }
+    if (selectedBranchId == null) {
+      setErrorMessage(t('assignedBranchRequired'));
+      return;
+    }
     setErrorMessage(null);
     try {
       await saveScope(dataAccessLevel);
@@ -72,11 +79,24 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
     }
   };
 
-  const roleSelectOptions = (roleOptions.data ?? []).map((r) => ({ value: String(r.id), label: `${r.roleName} (${r.roleCode})` }));
-  const branchOptions = branches.map((b) => ({
-    value: String(branchIdToNumber(b.id)),
-    label: lang === 'ar' ? `${b.nameAr} - ${b.nameEn}` : `${b.nameEn} - ${b.nameAr}`,
-  }));
+  // Leading placeholders are required: without them, a Select whose value
+  // doesn't match any option (unset roleId/branchId, e.g. every time this
+  // drawer opens fresh since `scope` is always passed as null by callers)
+  // falls back to the browser's native first-option-selected rendering —
+  // visually implying a role/branch is chosen when the state is still empty,
+  // which reads as "showing the wrong previous value" (it isn't a previous
+  // value at all, just whichever option happens to be first in the list).
+  const roleSelectOptions = [
+    { value: '', label: t('selectRolePlaceholder') },
+    ...(roleOptions.data ?? []).map((r) => ({ value: String(r.id), label: `${r.roleName} (${r.roleCode})` })),
+  ];
+  const branchOptions = [
+    { value: '', label: t('selectBranchPlaceholder') },
+    ...branches.map((b) => ({
+      value: String(branchIdToNumber(b.id)),
+      label: lang === 'ar' ? `${b.nameAr} - ${b.nameEn}` : `${b.nameEn} - ${b.nameAr}`,
+    })),
+  ];
   const accessLevelOptions = DATA_ACCESS_LEVELS.map((level) => ({
     value: level,
     label: level === 'BRANCH_ONLY' ? t('branchOnly') : level === 'BRANCH_AND_CHILDREN' ? t('branchAndChildren') : t('allBranches'),

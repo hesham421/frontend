@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useForm, Controller, type Resolver } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
+import { usePermission } from '../../auth/permissions';
 import { Breadcrumb, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
 import { Card, Badge } from '../../components/ui/DataDisplay';
@@ -8,6 +12,21 @@ import { Input, Select } from '../../components/ui/FormControls';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
 import { CostCenterNode } from '../../data/mockData';
+import { createCostCenterSchema, updateCostCenterSchema } from '../../costCenters/costCenters.schema';
+
+// branchFk is required in createCostCenterSchema, but this page never
+// collects it via a form field — it comes from the separate branch-filter
+// <Select> above the tree (costCenterBranchFilter), merged in manually at save.
+// parentCostCenterFk is z.number().optional() in both schemas, but the mock
+// store's actual type is string | null — overridden here in both variants.
+const costCenterFormSchema = createCostCenterSchema
+  .omit({ branchFk: true })
+  .extend({ parentCostCenterFk: z.string().nullable().optional() });
+type CostCenterFormValues = z.infer<typeof costCenterFormSchema>;
+
+const costCenterUpdateFormSchema = updateCostCenterSchema.extend({
+  parentCostCenterFk: z.string().nullable().optional(),
+});
 
 export const CostCentersPage: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -31,40 +50,19 @@ export const CostCentersPage: React.FC = () => {
   const [isCreatingChild, setIsCreatingChild] = useState(false);
   const [isCreatingRoot, setIsCreatingRoot] = useState(false);
 
-  // Form State
-  const [nameEn, setNameEn] = useState('');
-  const [nameAr, setNameAr] = useState('');
-  const [costCenterTypeId, setCostCenterTypeId] = useState<'DIRECT' | 'INDIRECT' | 'SHARED'>('DIRECT');
-  const [nodeTypeId, setNodeTypeId] = useState<'SUMMARY' | 'DETAIL'>('DETAIL');
-  const [parentCostCenterFk, setParentCostCenterFk] = useState<string | null>(null);
-  const [notes, setNotes] = useState('');
+  const { can } = usePermission();
+  const canCreate = can('PERM_COST_CENTER_CREATE');
+  const canEdit = can('PERM_COST_CENTER_UPDATE');
+  // Creating a root or child cost center needs CREATE; editing an existing node needs UPDATE.
+  const canSaveForm = (isCreatingRoot || isCreatingChild) ? canCreate : canEdit;
 
-  useEffect(() => {
-    if (isCreatingRoot) {
-      setNameEn('');
-      setNameAr('');
-      setCostCenterTypeId('SHARED');
-      setNodeTypeId('SUMMARY');
-      setParentCostCenterFk(null);
-      setNotes('');
-    } else if (isCreatingChild && selectedCostCenter) {
-      setNameEn('');
-      setNameAr('');
-      setCostCenterTypeId(selectedCostCenter.costCenterTypeId);
-      setNodeTypeId('DETAIL');
-      setParentCostCenterFk(selectedCostCenter.id);
-      setNotes('');
-    } else if (selectedCostCenter) {
-      setNameEn(selectedCostCenter.nameEn);
-      setNameAr(selectedCostCenter.nameAr);
-      setCostCenterTypeId(selectedCostCenter.costCenterTypeId);
-      setNodeTypeId(selectedCostCenter.nodeTypeId);
-      setParentCostCenterFk(selectedCostCenter.parentCostCenterFk || null);
-      setNotes(selectedCostCenter.notes || '');
-      setIsCreatingChild(false);
-      setIsCreatingRoot(false);
-    }
-  }, [selectedCostCenter, isCreatingChild, isCreatingRoot]);
+  const isEditMode = !isCreatingRoot && !isCreatingChild && !!selectedCostCenter;
+  const form = useForm<CostCenterFormValues>({
+    resolver: zodResolver(isEditMode ? costCenterUpdateFormSchema : costCenterFormSchema) as unknown as Resolver<CostCenterFormValues>,
+    defaultValues: { nameEn: '', nameAr: '', costCenterTypeId: 'DIRECT', nodeTypeId: 'DETAIL', parentCostCenterFk: null, notes: '' },
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
+  });
 
   const toggleExpand = (id: string) => {
     setExpandedNodeIds((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -74,6 +72,14 @@ export const CostCentersPage: React.FC = () => {
     setIsCreatingRoot(false);
     setIsCreatingChild(false);
     setSelectedCostCenter(node);
+    form.reset({
+      nameEn: node.nameEn,
+      nameAr: node.nameAr,
+      costCenterTypeId: node.costCenterTypeId,
+      nodeTypeId: node.nodeTypeId,
+      parentCostCenterFk: node.parentCostCenterFk || null,
+      notes: node.notes || '',
+    });
   };
 
   const handleStartAddChild = (parent: CostCenterNode) => {
@@ -81,26 +87,39 @@ export const CostCentersPage: React.FC = () => {
     setIsCreatingChild(true);
     setIsCreatingRoot(false);
     setExpandedNodeIds((prev) => ({ ...prev, [parent.id]: true }));
+    form.reset({
+      nameEn: '',
+      nameAr: '',
+      costCenterTypeId: parent.costCenterTypeId,
+      nodeTypeId: 'DETAIL',
+      parentCostCenterFk: parent.id,
+      notes: '',
+    });
   };
 
   const handleStartAddRoot = () => {
     setSelectedCostCenter(null);
     setIsCreatingRoot(true);
     setIsCreatingChild(false);
+    form.reset({
+      nameEn: '',
+      nameAr: '',
+      costCenterTypeId: 'SHARED',
+      nodeTypeId: 'SUMMARY',
+      parentCostCenterFk: null,
+      notes: '',
+    });
   };
 
-  const handleSaveForm = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onValid = (values: CostCenterFormValues) => {
+    if (!canSaveForm) return;
     const isEdit = !isCreatingChild && !isCreatingRoot;
     saveCostCenter({
       id: isEdit ? selectedCostCenter?.id : undefined,
-      nameEn,
-      nameAr,
+      ...values,
       branchFk: costCenterBranchFilter,
-      parentCostCenterFk,
-      costCenterTypeId,
-      nodeTypeId,
-      notes,
+      costCenterTypeId: values.costCenterTypeId as CostCenterNode['costCenterTypeId'],
+      nodeTypeId: values.nodeTypeId as CostCenterNode['nodeTypeId'],
     });
     setIsCreatingChild(false);
     setIsCreatingRoot(false);
@@ -108,6 +127,7 @@ export const CostCentersPage: React.FC = () => {
   };
 
   const handleConfirmDeactivate = () => {
+    if (!canEdit) return;
     executeConfirmAction();
     showToast(t('costCenterDeactivatedSuccess'), 'success');
   };
@@ -190,7 +210,7 @@ export const CostCentersPage: React.FC = () => {
           </Badge>
 
           <div style={{ display: 'inline-flex', gap: '4px' }} onClick={(e) => e.stopPropagation()}>
-            {node.nodeTypeId === 'SUMMARY' && (
+            {node.nodeTypeId === 'SUMMARY' && canCreate && (
               <IconButton
                 icon="ti ti-plus"
                 label={t('addChild')}
@@ -199,14 +219,16 @@ export const CostCentersPage: React.FC = () => {
                 onClick={() => handleStartAddChild(node)}
               />
             )}
-            <IconButton
-              icon="ti ti-edit"
-              label={t('edit')}
-              variant="ghost"
-              size="sm"
-              onClick={() => handleSelectNode(node)}
-            />
-            {node.isActive && (
+            {canEdit && (
+              <IconButton
+                icon="ti ti-edit"
+                label={t('edit')}
+                variant="ghost"
+                size="sm"
+                onClick={() => handleSelectNode(node)}
+              />
+            )}
+            {node.isActive && canEdit && (
               <IconButton
                 icon="ti ti-ban"
                 label={t('deactivate')}
@@ -265,15 +287,17 @@ export const CostCentersPage: React.FC = () => {
             />
           </div>
           <div style={{ marginInlineStart: 'auto', display: 'flex', gap: '8px' }}>
-            <Button
-              variant="primary"
-              size="md"
-              iconLeft={<i className="ti ti-folder-plus" />}
-              onClick={handleStartAddRoot}
-              disabled={!costCenterBranchFilter}
-            >
-              {t('addRoot')}
-            </Button>
+            {canCreate && (
+              <Button
+                variant="primary"
+                size="md"
+                iconLeft={<i className="ti ti-folder-plus" />}
+                onClick={handleStartAddRoot}
+                disabled={!costCenterBranchFilter}
+              >
+                {t('addRoot')}
+              </Button>
+            )}
           </div>
         </div>
       </Card>
@@ -333,7 +357,7 @@ export const CostCentersPage: React.FC = () => {
                 Select a cost center node from the tree on the left or click <strong>+ Add Root Node</strong> to begin.
               </div>
             ) : (
-              <form onSubmit={handleSaveForm} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <form onSubmit={form.handleSubmit(onValid)} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {selectedCostCenter && !isCreatingChild && !isCreatingRoot && (
                   <Input
                     label={t('code')}
@@ -343,47 +367,96 @@ export const CostCentersPage: React.FC = () => {
                   />
                 )}
 
-                <Input
-                  label={`${t('nameEn')} *`}
-                  value={nameEn}
-                  onChange={(e) => setNameEn(e.target.value)}
-                  required
+                <Controller
+                  control={form.control}
+                  name="nameEn"
+                  render={({ field, fieldState }) => (
+                    <Input
+                      label={`${t('nameEn')} *`}
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                      error={fieldState.error?.message}
+                      disabled={!canSaveForm}
+                      required
+                    />
+                  )}
                 />
 
-                <Input
-                  label={`${t('nameAr')} *`}
-                  value={nameAr}
-                  onChange={(e) => setNameAr(e.target.value)}
-                  required
+                <Controller
+                  control={form.control}
+                  name="nameAr"
+                  render={({ field, fieldState }) => (
+                    <Input
+                      label={`${t('nameAr')} *`}
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                      error={fieldState.error?.message}
+                      disabled={!canSaveForm}
+                      required
+                    />
+                  )}
                 />
 
-                <Select
-                  label={`${t('costCenterType')} *`}
-                  options={ccTypeOptions}
-                  value={costCenterTypeId}
-                  onChange={(e) => setCostCenterTypeId(e.target.value as CostCenterNode['costCenterTypeId'])}
+                <Controller
+                  control={form.control}
+                  name="costCenterTypeId"
+                  render={({ field, fieldState }) => (
+                    <Select
+                      label={`${t('costCenterType')} *`}
+                      options={ccTypeOptions}
+                      value={field.value ?? ''}
+                      disabled={!canSaveForm}
+                      onChange={(e) => field.onChange(e.target.value as CostCenterNode['costCenterTypeId'])}
+                      onBlur={field.onBlur}
+                      onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                      error={fieldState.error?.message}
+                    />
+                  )}
                 />
 
-                <Select
-                  label={`${t('nodeType')} *`}
-                  options={[
-                    { value: 'SUMMARY', label: t('summaryNode') },
-                    { value: 'DETAIL', label: t('detailNode') },
-                  ]}
-                  value={nodeTypeId}
-                  disabled={!isCreatingRoot && !isCreatingChild && !!selectedCostCenter}
-                  helperText={!isCreatingRoot && !isCreatingChild ? t('nodeTypeLockedHint') : undefined}
-                  onChange={(e) => setNodeTypeId(e.target.value as 'SUMMARY' | 'DETAIL')}
+                <Controller
+                  control={form.control}
+                  name="nodeTypeId"
+                  render={({ field, fieldState }) => (
+                    <Select
+                      label={`${t('nodeType')} *`}
+                      options={[
+                        { value: 'SUMMARY', label: t('summaryNode') },
+                        { value: 'DETAIL', label: t('detailNode') },
+                      ]}
+                      value={field.value ?? ''}
+                      disabled={(!isCreatingRoot && !isCreatingChild && !!selectedCostCenter) || !canSaveForm}
+                      helperText={!isCreatingRoot && !isCreatingChild ? t('nodeTypeLockedHint') : undefined}
+                      onChange={(e) => field.onChange(e.target.value as 'SUMMARY' | 'DETAIL')}
+                      onBlur={field.onBlur}
+                      onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                      error={fieldState.error?.message}
+                    />
+                  )}
                 />
 
-                <Input
-                  label={t('notes')}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
+                <Controller
+                  control={form.control}
+                  name="notes"
+                  render={({ field, fieldState }) => (
+                    <Input
+                      label={t('notes')}
+                      value={field.value ?? ''}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      onBlur={field.onBlur}
+                      error={fieldState.error?.message}
+                      disabled={!canSaveForm}
+                    />
+                  )}
                 />
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                   <Button
+                    type="button"
                     variant="secondary"
                     onClick={() => {
                       setIsCreatingChild(false);
@@ -393,9 +466,11 @@ export const CostCentersPage: React.FC = () => {
                   >
                     {t('cancel')}
                   </Button>
-                  <Button variant="primary" type="submit">
-                    {t('save')}
-                  </Button>
+                  {canSaveForm && (
+                    <Button variant="primary" type="submit" loading={form.formState.isSubmitting}>
+                      {t('save')}
+                    </Button>
+                  )}
                 </div>
               </form>
             )}

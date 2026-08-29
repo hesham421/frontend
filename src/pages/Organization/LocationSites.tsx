@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useForm, Controller, type Resolver } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
+import { usePermission } from '../../auth/permissions';
 import { Breadcrumb, Drawer, EmptyState } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
 import { Card, Badge } from '../../components/ui/DataDisplay';
@@ -8,6 +12,16 @@ import { Input, Select } from '../../components/ui/FormControls';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
 import { LocationSite } from '../../data/mockData';
+import { createLocationSiteSchema, updateLocationSiteSchema } from '../../locationSites/locationSites.schema';
+
+// branchFk is z.number() in createLocationSiteSchema (real API contract), but
+// this page's mock store and its <Select> both deal in string ids - override
+// just that field for this mock-store-bound form (locationSites.schema.ts
+// itself is out of scope, it correctly describes the real API).
+const locationSiteFormSchema = createLocationSiteSchema.extend({
+  branchFk: z.string().min(1, 'Branch is required.'),
+});
+type LocationSiteFormValues = z.infer<typeof locationSiteFormSchema>;
 
 export const LocationSitesPage: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -35,44 +49,61 @@ export const LocationSitesPage: React.FC = () => {
     executeConfirmAction,
   } = useOrganizationStore();
 
-  const [nameEn, setNameEn] = useState('');
-  const [nameAr, setNameAr] = useState('');
-  const [branchFk, setBranchFk] = useState('br-1');
-  const [siteTypeId, setSiteTypeId] = useState<LocationSite['siteTypeId']>('OFFICE');
-  const [notes, setNotes] = useState('');
+  const { can } = usePermission();
+  const canCreate = can('PERM_LOCATION_SITE_CREATE');
+  const canEdit = can('PERM_LOCATION_SITE_UPDATE');
+  // Editing an existing location site needs UPDATE; the create-drawer branch needs CREATE.
+  const canSaveDrawer = selectedLocationSite ? canEdit : canCreate;
+
+  const isEditMode = !!selectedLocationSite;
+  const form = useForm<LocationSiteFormValues>({
+    resolver: zodResolver(isEditMode ? updateLocationSiteSchema : locationSiteFormSchema) as unknown as Resolver<LocationSiteFormValues>,
+    defaultValues: {
+      nameEn: '',
+      nameAr: '',
+      branchFk: 'br-1',
+      siteTypeId: 'OFFICE',
+      notes: '',
+    },
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
+  });
 
   const handleOpenCreate = () => {
-    setNameEn('');
-    setNameAr('');
-    setBranchFk(branches[0]?.id || 'br-1');
-    setSiteTypeId('OFFICE');
-    setNotes('');
+    form.reset({
+      nameEn: '',
+      nameAr: '',
+      branchFk: branches[0]?.id || 'br-1',
+      siteTypeId: 'OFFICE',
+      notes: '',
+    });
     openLocationDrawer(null);
   };
 
   const handleOpenEdit = (loc: LocationSite) => {
-    setNameEn(loc.nameEn);
-    setNameAr(loc.nameAr);
-    setBranchFk(loc.branchFk);
-    setSiteTypeId(loc.siteTypeId);
-    setNotes(loc.notes || '');
+    form.reset({
+      nameEn: loc.nameEn,
+      nameAr: loc.nameAr,
+      branchFk: loc.branchFk,
+      siteTypeId: loc.siteTypeId,
+      notes: loc.notes || '',
+    });
     openLocationDrawer(loc);
   };
 
-  const handleSave = () => {
+  const onValid = (values: LocationSiteFormValues) => {
+    if (!canSaveDrawer) return;
     const isEdit = !!selectedLocationSite;
     saveLocationSite({
       id: selectedLocationSite?.id,
-      nameEn,
-      nameAr,
-      branchFk,
-      siteTypeId,
-      notes,
+      ...values,
+      siteTypeId: values.siteTypeId as LocationSite['siteTypeId'],
     });
     showToast(t(isEdit ? 'locationSiteSavedSuccess' : 'locationSiteCreatedSuccess'), 'success');
   };
 
   const handleConfirmDeactivate = () => {
+    if (!canEdit) return;
     executeConfirmAction();
     showToast(t('locationSiteDeactivatedSuccess'), 'success');
   };
@@ -137,9 +168,11 @@ export const LocationSitesPage: React.FC = () => {
             {t('orgLocationsTitle')}
           </h1>
         </div>
-        <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
-          {t('new')}
-        </Button>
+        {canCreate && (
+          <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+            {t('new')}
+          </Button>
+        )}
       </div>
 
       {/* 2. Filter Bar */}
@@ -198,7 +231,7 @@ export const LocationSitesPage: React.FC = () => {
             icon="ti ti-building-off"
             title={t('noRecordsFound')}
             description={t('noRecordsDesc')}
-            action={{ label: t('new'), onClick: handleOpenCreate }}
+            action={canCreate ? { label: t('new'), onClick: handleOpenCreate } : undefined}
           />
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -264,14 +297,16 @@ export const LocationSitesPage: React.FC = () => {
                       </td>
                       <td style={{ padding: '14px 18px', textAlign: 'end' }}>
                         <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
-                          <IconButton
-                            icon="ti ti-edit"
-                            label={t('edit')}
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleOpenEdit(loc)}
-                          />
-                          {loc.isActive && (
+                          {canEdit && (
+                            <IconButton
+                              icon="ti ti-edit"
+                              label={t('edit')}
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleOpenEdit(loc)}
+                            />
+                          )}
+                          {loc.isActive && canEdit && (
                             <IconButton
                               icon="ti ti-ban"
                               label={t('deactivate')}
@@ -292,62 +327,115 @@ export const LocationSitesPage: React.FC = () => {
       </Card>
 
       {/* 5. Create / Edit Drawer */}
-      <Drawer
-        isOpen={isLocationDrawerOpen}
-        onClose={closeLocationDrawer}
-        title={selectedLocationSite ? `${t('edit')}: ${lang === 'ar' ? selectedLocationSite.nameAr : selectedLocationSite.nameEn}` : t('new')}
-        width="md"
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={closeLocationDrawer}>
-              {t('cancel')}
-            </Button>
-            <Button variant="primary" onClick={handleSave}>
-              {t('save')}
-            </Button>
-          </div>
-        }
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {selectedLocationSite && (
-            <Input
-              label={t('code')}
-              value={selectedLocationSite.locationSiteCode}
-              disabled
-              helperText={t('readOnlyCodeHint')}
+      <form onSubmit={form.handleSubmit(onValid)} noValidate>
+        <Drawer
+          isOpen={isLocationDrawerOpen}
+          onClose={closeLocationDrawer}
+          title={selectedLocationSite ? `${t('edit')}: ${lang === 'ar' ? selectedLocationSite.nameAr : selectedLocationSite.nameEn}` : t('new')}
+          width="md"
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <Button type="button" variant="secondary" onClick={closeLocationDrawer}>
+                {t('cancel')}
+              </Button>
+              {canSaveDrawer && (
+                <Button type="submit" variant="primary" loading={form.formState.isSubmitting}>
+                  {t('save')}
+                </Button>
+              )}
+            </div>
+          }
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {selectedLocationSite && (
+              <Input
+                label={t('code')}
+                value={selectedLocationSite.locationSiteCode}
+                disabled
+                helperText={t('readOnlyCodeHint')}
+              />
+            )}
+            <Controller
+              control={form.control}
+              name="nameEn"
+              render={({ field, fieldState }) => (
+                <Input
+                  label={`${t('nameEn')} *`}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                  required
+                />
+              )}
             />
-          )}
-          <Input
-            label={`${t('nameEn')} *`}
-            value={nameEn}
-            onChange={(e) => setNameEn(e.target.value)}
-            required
-          />
-          <Input
-            label={`${t('nameAr')} *`}
-            value={nameAr}
-            onChange={(e) => setNameAr(e.target.value)}
-            required
-          />
-          <Select
-            label={`${t('branch')} *`}
-            options={branchOptions.filter((opt) => opt.value !== 'ALL')}
-            value={branchFk}
-            onChange={(e) => setBranchFk(e.target.value)}
-          />
-          <Select
-            label={`${t('siteType')} *`}
-            options={siteTypeOptions.filter((opt) => opt.value !== 'ALL')}
-            value={siteTypeId}
-            onChange={(e) => setSiteTypeId(e.target.value as LocationSite['siteTypeId'])}
-          />
-          <Input
-            label={t('notes')}
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </div>
-      </Drawer>
+            <Controller
+              control={form.control}
+              name="nameAr"
+              render={({ field, fieldState }) => (
+                <Input
+                  label={`${t('nameAr')} *`}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                  required
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="branchFk"
+              render={({ field, fieldState }) => (
+                <Select
+                  label={`${t('branch')} *`}
+                  options={branchOptions.filter((opt) => opt.value !== 'ALL')}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="siteTypeId"
+              render={({ field, fieldState }) => (
+                <Select
+                  label={`${t('siteType')} *`}
+                  options={siteTypeOptions.filter((opt) => opt.value !== 'ALL')}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value as LocationSite['siteTypeId'])}
+                  onBlur={field.onBlur}
+                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="notes"
+              render={({ field, fieldState }) => (
+                <Input
+                  label={t('notes')}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                />
+              )}
+            />
+          </div>
+        </Drawer>
+      </form>
 
       {/* 6. Deactivation Dialog */}
       <ConfirmDialog

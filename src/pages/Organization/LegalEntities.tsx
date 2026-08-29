@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useForm, Controller, type Resolver } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useLanguage } from '../../context/LanguageContext';
 import { useOrganizationStore } from '../../stores/useOrganizationStore';
 import { useNavigationStore } from '../../stores/useNavigationStore';
+import { usePermission } from '../../auth/permissions';
 import { Breadcrumb, Drawer, EmptyState, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
 import { Card, Badge } from '../../components/ui/DataDisplay';
@@ -9,6 +12,11 @@ import { Input, Select } from '../../components/ui/FormControls';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
 import { LegalEntity } from '../../data/mockData';
+import {
+  createLegalEntitySchema,
+  updateLegalEntitySchema,
+  type CreateLegalEntityFormValues,
+} from '../../legalEntities/legalEntities.schema';
 
 export const LegalEntitiesPage: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -38,40 +46,43 @@ export const LegalEntitiesPage: React.FC = () => {
     executeConfirmAction,
   } = useOrganizationStore();
 
-  const [nameEn, setNameEn] = useState('');
-  const [nameAr, setNameAr] = useState('');
-  const [entityTypeId, setEntityTypeId] = useState<LegalEntity['entityTypeId']>('HEAD_OFFICE');
-  const [notes, setNotes] = useState('');
+  const { can } = usePermission();
+  const canCreate = can('PERM_LEGAL_ENTITY_CREATE');
+  const canEdit = can('PERM_LEGAL_ENTITY_UPDATE');
+  // Editing an existing entity needs UPDATE; the create-drawer branch needs CREATE.
+  const canSaveDrawer = selectedLegalEntity ? canEdit : canCreate;
+
+  const isEditMode = !!selectedLegalEntity;
+  const form = useForm<CreateLegalEntityFormValues>({
+    resolver: zodResolver(isEditMode ? updateLegalEntitySchema : createLegalEntitySchema) as Resolver<CreateLegalEntityFormValues>,
+    defaultValues: { nameEn: '', nameAr: '', entityTypeId: 'HEAD_OFFICE', notes: '' },
+    mode: 'onTouched',
+    reValidateMode: 'onChange',
+  });
 
   const handleOpenCreate = () => {
-    setNameEn('');
-    setNameAr('');
-    setEntityTypeId('HEAD_OFFICE');
-    setNotes('');
+    form.reset({ nameEn: '', nameAr: '', entityTypeId: 'HEAD_OFFICE', notes: '' });
     openEntityDrawer(null);
   };
 
   const handleOpenEdit = (entity: LegalEntity) => {
-    setNameEn(entity.nameEn);
-    setNameAr(entity.nameAr);
-    setEntityTypeId(entity.entityTypeId);
-    setNotes(entity.notes || '');
+    form.reset({ nameEn: entity.nameEn, nameAr: entity.nameAr, entityTypeId: entity.entityTypeId, notes: entity.notes || '' });
     openEntityDrawer(entity);
   };
 
-  const handleSave = () => {
+  const onValid = (values: CreateLegalEntityFormValues) => {
+    if (!canSaveDrawer) return;
     const isEdit = !!selectedLegalEntity;
     saveLegalEntity({
       id: selectedLegalEntity?.id,
-      nameEn,
-      nameAr,
-      entityTypeId,
-      notes,
+      ...values,
+      entityTypeId: values.entityTypeId as LegalEntity['entityTypeId'],
     });
     showToast(t(isEdit ? 'legalEntitySavedSuccess' : 'legalEntityCreatedSuccess'), 'success');
   };
 
   const handleConfirmDeactivate = () => {
+    if (!canEdit) return;
     executeConfirmAction();
     showToast(t('legalEntityDeactivatedSuccess'), 'success');
   };
@@ -114,7 +125,7 @@ export const LegalEntitiesPage: React.FC = () => {
     { value: 'HEAD_OFFICE', label: 'Head Office (المقر الرئيسي)' },
     { value: 'BRANCH_OFFICE', label: 'Branch Office (فرع رئيسي)' },
     { value: 'SUBSIDIARY', label: 'Subsidiary (شركة تابعة)' },
-    { value: 'REP_OFFICE', label: 'Representative Office (مكتب تمثيل)' },
+    { value: 'REPRESENTATIVE_OFFICE', label: 'Representative Office (مكتب تمثيل)' },
   ];
 
   const statusOptions = [
@@ -147,9 +158,11 @@ export const LegalEntitiesPage: React.FC = () => {
             {t('orgEntitiesTitle')}
           </h1>
         </div>
-        <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
-          {t('new')}
-        </Button>
+        {canCreate && (
+          <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+            {t('new')}
+          </Button>
+        )}
       </div>
 
       {/* 2. Filter Bar */}
@@ -200,7 +213,7 @@ export const LegalEntitiesPage: React.FC = () => {
             icon="ti ti-building-off"
             title={t('noRecordsFound')}
             description={t('noRecordsDesc')}
-            action={{ label: t('new'), onClick: handleOpenCreate }}
+            action={canCreate ? { label: t('new'), onClick: handleOpenCreate } : undefined}
           />
         ) : (
           <div style={{ overflowX: 'auto' }}>
@@ -266,14 +279,16 @@ export const LegalEntitiesPage: React.FC = () => {
                         >
                           {t('viewBranches')}
                         </Button>
-                        <IconButton
-                          icon="ti ti-edit"
-                          label={t('edit')}
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenEdit(e)}
-                        />
-                        {e.isActive && (
+                        {canEdit && (
+                          <IconButton
+                            icon="ti ti-edit"
+                            label={t('edit')}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleOpenEdit(e)}
+                          />
+                        )}
+                        {e.isActive && canEdit && (
                           <IconButton
                             icon="ti ti-ban"
                             label={t('deactivate')}
@@ -293,56 +308,99 @@ export const LegalEntitiesPage: React.FC = () => {
       </Card>
 
       {/* 5. Create / Edit Drawer */}
-      <Drawer
-        isOpen={isEntityDrawerOpen}
-        onClose={closeEntityDrawer}
-        title={selectedLegalEntity ? `${t('edit')}: ${lang === 'ar' ? selectedLegalEntity.nameAr : selectedLegalEntity.nameEn}` : t('new')}
-        width="md"
-        footer={
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-            <Button variant="secondary" onClick={closeEntityDrawer}>
-              {t('cancel')}
-            </Button>
-            <Button variant="primary" onClick={handleSave}>
-              {t('save')}
-            </Button>
-          </div>
-        }
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {selectedLegalEntity && (
-            <Input
-              label={t('code')}
-              value={selectedLegalEntity.legalEntityCode}
-              disabled
-              helperText={t('readOnlyCodeHint')}
+      <form onSubmit={form.handleSubmit(onValid)} noValidate>
+        <Drawer
+          isOpen={isEntityDrawerOpen}
+          onClose={closeEntityDrawer}
+          title={selectedLegalEntity ? `${t('edit')}: ${lang === 'ar' ? selectedLegalEntity.nameAr : selectedLegalEntity.nameEn}` : t('new')}
+          width="md"
+          footer={
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <Button type="button" variant="secondary" onClick={closeEntityDrawer}>
+                {t('cancel')}
+              </Button>
+              {canSaveDrawer && (
+                <Button type="submit" variant="primary" loading={form.formState.isSubmitting}>
+                  {t('save')}
+                </Button>
+              )}
+            </div>
+          }
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {selectedLegalEntity && (
+              <Input
+                label={t('code')}
+                value={selectedLegalEntity.legalEntityCode}
+                disabled
+                helperText={t('readOnlyCodeHint')}
+              />
+            )}
+            <Controller
+              control={form.control}
+              name="nameEn"
+              render={({ field, fieldState }) => (
+                <Input
+                  label={`${t('nameEn')} *`}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                  required
+                />
+              )}
             />
-          )}
-          <Input
-            label={`${t('nameEn')} *`}
-            value={nameEn}
-            onChange={(e) => setNameEn(e.target.value)}
-            required
-          />
-          <Input
-            label={`${t('nameAr')} *`}
-            value={nameAr}
-            onChange={(e) => setNameAr(e.target.value)}
-            required
-          />
-          <Select
-            label={`${t('entityType')} *`}
-            options={entityTypeOptions.filter((opt) => opt.value !== 'ALL')}
-            value={entityTypeId}
-            onChange={(e) => setEntityTypeId(e.target.value as LegalEntity['entityTypeId'])}
-          />
-          <Input
-            label={t('notes')}
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </div>
-      </Drawer>
+            <Controller
+              control={form.control}
+              name="nameAr"
+              render={({ field, fieldState }) => (
+                <Input
+                  label={`${t('nameAr')} *`}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                  required
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="entityTypeId"
+              render={({ field, fieldState }) => (
+                <Select
+                  label={`${t('entityType')} *`}
+                  options={entityTypeOptions.filter((opt) => opt.value !== 'ALL')}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value as LegalEntity['entityTypeId'])}
+                  onBlur={field.onBlur}
+                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="notes"
+              render={({ field, fieldState }) => (
+                <Input
+                  label={t('notes')}
+                  value={field.value ?? ''}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                  disabled={!canSaveDrawer}
+                />
+              )}
+            />
+          </div>
+        </Drawer>
+      </form>
 
       {/* 6. Cascade-blocked Warning / Deactivation Dialog */}
       <ConfirmDialog

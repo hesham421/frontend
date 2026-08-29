@@ -86,7 +86,13 @@ export const App: React.FC = () => {
     );
   }
 
-  if (!isAuthenticated) {
+  // A password-reset or activation link (`?token=...`) must land on that
+  // flow even if this browser still has a valid session from an earlier
+  // login — otherwise the token is silently discarded and the user is
+  // bounced straight to the dashboard with no way to actually use the link.
+  const hasEmailToken = new URLSearchParams(window.location.search).has('token');
+
+  if (!isAuthenticated || hasEmailToken) {
     return <Login onLogin={login} />;
   }
 
@@ -117,20 +123,34 @@ export const App: React.FC = () => {
         return <PagesRegistryPage />;
 
       // Module 2: Organization
+      // F4/SCR-ORG-001: PERM_LEGAL_ENTITY_VIEW is a CONFIRMED real literal
+      // (legalEntities/hooks.ts' useLegalEntitiesFacade already uses it).
       case 'org-entities':
-        return <LegalEntitiesPage />;
+        return can('PERM_LEGAL_ENTITY_VIEW') ? <LegalEntitiesPage /> : <Unauthorized />;
+      // F4/SCR-ORG-002: PERM_BRANCH_VIEW is a CONFIRMED real literal
+      // (branches/hooks.ts' useBranchesFacade already uses it).
       case 'org-branches':
-        return <BranchesPage />;
+        return can('PERM_BRANCH_VIEW') ? <BranchesPage /> : <Unauthorized />;
+      // F4/SCR-ORG-003: PERM_REGION_VIEW is a CONFIRMED real literal
+      // (regions/hooks.ts' useRegionsFacade already uses it).
       case 'org-regions':
-        return <RegionsPage />;
+        return can('PERM_REGION_VIEW') ? <RegionsPage /> : <Unauthorized />;
+      // F4/SCR-ORG-004: PERM_DEPARTMENT_VIEW is a CONFIRMED real literal
+      // (departments/hooks.ts' useDepartmentsFacade already uses it).
       case 'org-departments':
-        return <DepartmentsPage />;
+        return can('PERM_DEPARTMENT_VIEW') ? <DepartmentsPage /> : <Unauthorized />;
+      // F4/SCR-ORG-005: PERM_COST_CENTER_VIEW is a CONFIRMED real literal
+      // (costCenters/hooks.ts' useCostCentersFacade already uses it).
       case 'org-cost-centers':
-        return <CostCentersPage />;
+        return can('PERM_COST_CENTER_VIEW') ? <CostCentersPage /> : <Unauthorized />;
+      // F4/SCR-ORG-006: PERM_PROFIT_CENTER_VIEW is a CONFIRMED real literal
+      // (profitCenters/hooks.ts' useProfitCentersFacade already uses it).
       case 'org-profit-centers':
-        return <ProfitCentersPage />;
+        return can('PERM_PROFIT_CENTER_VIEW') ? <ProfitCentersPage /> : <Unauthorized />;
+      // F4/SCR-ORG-007: PERM_LOCATION_SITE_VIEW is a CONFIRMED real literal
+      // (locationSites/hooks.ts' useLocationSitesFacade already uses it).
       case 'org-locations':
-        return <LocationSitesPage />;
+        return can('PERM_LOCATION_SITE_VIEW') ? <LocationSitesPage /> : <Unauthorized />;
 
       // Module 3: Master Data
       // api-docs/index.md documents MASTER_LOOKUP_VIEW as a real required

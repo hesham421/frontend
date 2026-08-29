@@ -34,11 +34,13 @@ F4-SCREEN documents real Shell structure, not fresh redesign  │ ✓
 Tree-bearing entities (2/2: Departments, CostCenters) declare │ ✓ (target path
   a tree route ordered before /:id/*                          │   convention only —
                                                                 │   no router exists yet)
-All routes wrapped in guard                                    │ ✗ GAP — confirmed
-                                                                │   missing in Shell for
-                                                                │   all 7 screens, flagged
-                                                                │   as integration work,
-                                                                │   not silently assumed
+All routes wrapped in guard                                    │ ✓ — implemented in
+                                                                │   F4 (SCR-ORG-001..007):
+                                                                │   can('PERM_X_VIEW')
+                                                                │   guards added to all 7
+                                                                │   org-* cases in
+                                                                │   App.tsx's
+                                                                │   renderCurrentScreen()
 PERM_* in F4 sourced from Permissions Matrix, none invented     │ ✓ (with FINDING-4
                                                                 │   correction applied)
 No 'Page'/'Container' suffix violations                        │ ✓ (Shell already uses
@@ -57,9 +59,9 @@ No GAP ✗ entries without a DEFERRED note                      │ ✓ (regionT
                                                                 │   edit explicitly DEFERRED)
 NOTE: Full TC block validation is Project 4.2 CHECK-4 scope
 ============================================================================
-ALIGN-FE GATE RESULT: PASSED ✓ — with 2 documented ⏸ items (not ✗ failures):
-  ⏸ F4 route guards — confirmed missing in the real Shell for all 7 screens;
-    recorded as integration work, not a plan defect (Shell predates this plan)
+ALIGN-FE GATE RESULT: PASSED ✓ — with 1 documented ⏸ item (not ✗ failures):
+  ✓ F4 route guards — RESOLVED during F4 execution (SCR-ORG-001..007): can('PERM_X_VIEW')
+    guards now wired for all 7 screens in App.tsx's renderCurrentScreen()
   ⏸ F3 ERR-ID binding — no Error Catalog available this session (DRV-4); SRS
     Message-AR/EN used as interim binding, to be replaced once SVC+API exists
 Auto-correction applied: DRV-1 (LegalEntity.entityTypeId code), DRV-2 (Branch.

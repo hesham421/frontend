@@ -2,80 +2,80 @@
   "module": "ORG",
   "generated_at": "2026-08-29",
   "ui_shell_complete_confirmed": true,
-  "current_phase": "F1",
-  "current_sub": "SCR-ORG-001",
+  "current_phase": "ALIGN-FE",
+  "current_sub": "ALIGN-FE",
   "api_docs_path": "governance/modules/ORG/api-docs/",
   "phases": [
     {
       "id": "F1",
-      "status": "PENDING",
+      "status": "COMPLETE",
       "subs": [
-        { "id": "SCR-ORG-001", "status": "PENDING" },
-        { "id": "SCR-ORG-002", "status": "PENDING" },
-        { "id": "SCR-ORG-003", "status": "PENDING" },
-        { "id": "SCR-ORG-004", "status": "PENDING" },
-        { "id": "SCR-ORG-005", "status": "PENDING" },
-        { "id": "SCR-ORG-006", "status": "PENDING" },
-        { "id": "SCR-ORG-007", "status": "PENDING" }
+        { "id": "SCR-ORG-001", "status": "COMPLETE" },
+        { "id": "SCR-ORG-002", "status": "COMPLETE" },
+        { "id": "SCR-ORG-003", "status": "COMPLETE" },
+        { "id": "SCR-ORG-004", "status": "COMPLETE" },
+        { "id": "SCR-ORG-005", "status": "COMPLETE" },
+        { "id": "SCR-ORG-006", "status": "COMPLETE" },
+        { "id": "SCR-ORG-007", "status": "COMPLETE" }
       ]
     },
     {
       "id": "F2",
-      "status": "PENDING",
+      "status": "COMPLETE",
       "subs": [
-        { "id": "SCR-ORG-001", "status": "PENDING" },
-        { "id": "SCR-ORG-002", "status": "PENDING" },
-        { "id": "SCR-ORG-003", "status": "PENDING" },
-        { "id": "SCR-ORG-004", "status": "PENDING" },
-        { "id": "SCR-ORG-005", "status": "PENDING" },
-        { "id": "SCR-ORG-006", "status": "PENDING" },
-        { "id": "SCR-ORG-007", "status": "PENDING" }
+        { "id": "SCR-ORG-001", "status": "COMPLETE" },
+        { "id": "SCR-ORG-002", "status": "COMPLETE" },
+        { "id": "SCR-ORG-003", "status": "COMPLETE" },
+        { "id": "SCR-ORG-004", "status": "COMPLETE" },
+        { "id": "SCR-ORG-005", "status": "COMPLETE" },
+        { "id": "SCR-ORG-006", "status": "COMPLETE" },
+        { "id": "SCR-ORG-007", "status": "COMPLETE" }
       ]
     },
     {
       "id": "F3",
-      "status": "PENDING",
+      "status": "COMPLETE",
       "subs": [
-        { "id": "SCR-ORG-001", "status": "PENDING" },
-        { "id": "SCR-ORG-002", "status": "PENDING" },
-        { "id": "SCR-ORG-003", "status": "PENDING" },
-        { "id": "SCR-ORG-004", "status": "PENDING" },
-        { "id": "SCR-ORG-005", "status": "PENDING" },
-        { "id": "SCR-ORG-006", "status": "PENDING" },
-        { "id": "SCR-ORG-007", "status": "PENDING" }
+        { "id": "SCR-ORG-001", "status": "COMPLETE" },
+        { "id": "SCR-ORG-002", "status": "COMPLETE" },
+        { "id": "SCR-ORG-003", "status": "COMPLETE" },
+        { "id": "SCR-ORG-004", "status": "COMPLETE" },
+        { "id": "SCR-ORG-005", "status": "COMPLETE" },
+        { "id": "SCR-ORG-006", "status": "COMPLETE" },
+        { "id": "SCR-ORG-007", "status": "COMPLETE" }
       ]
     },
     {
       "id": "F4",
-      "status": "PENDING",
+      "status": "COMPLETE",
       "subs": [
-        { "id": "SCR-ORG-001", "status": "PENDING" },
-        { "id": "SCR-ORG-002", "status": "PENDING" },
-        { "id": "SCR-ORG-003", "status": "PENDING" },
-        { "id": "SCR-ORG-004", "status": "PENDING" },
-        { "id": "SCR-ORG-005", "status": "PENDING" },
-        { "id": "SCR-ORG-006", "status": "PENDING" },
-        { "id": "SCR-ORG-007", "status": "PENDING" }
+        { "id": "SCR-ORG-001", "status": "COMPLETE" },
+        { "id": "SCR-ORG-002", "status": "COMPLETE" },
+        { "id": "SCR-ORG-003", "status": "COMPLETE" },
+        { "id": "SCR-ORG-004", "status": "COMPLETE" },
+        { "id": "SCR-ORG-005", "status": "COMPLETE" },
+        { "id": "SCR-ORG-006", "status": "COMPLETE" },
+        { "id": "SCR-ORG-007", "status": "COMPLETE" }
       ]
     },
     {
       "id": "SEC-FE",
-      "status": "PENDING",
+      "status": "COMPLETE",
       "subs": [
-        { "id": "SCR-ORG-001", "status": "PENDING" },
-        { "id": "SCR-ORG-002", "status": "PENDING" },
-        { "id": "SCR-ORG-003", "status": "PENDING" },
-        { "id": "SCR-ORG-004", "status": "PENDING" },
-        { "id": "SCR-ORG-005", "status": "PENDING" },
-        { "id": "SCR-ORG-006", "status": "PENDING" },
-        { "id": "SCR-ORG-007", "status": "PENDING" }
+        { "id": "SCR-ORG-001", "status": "COMPLETE" },
+        { "id": "SCR-ORG-002", "status": "COMPLETE" },
+        { "id": "SCR-ORG-003", "status": "COMPLETE" },
+        { "id": "SCR-ORG-004", "status": "COMPLETE" },
+        { "id": "SCR-ORG-005", "status": "COMPLETE" },
+        { "id": "SCR-ORG-006", "status": "COMPLETE" },
+        { "id": "SCR-ORG-007", "status": "COMPLETE" }
       ]
     },
     {
       "id": "ALIGN-FE",
-      "status": "PENDING",
+      "status": "COMPLETE",
       "subs": [
-        { "id": "ALIGN-FE", "status": "PENDING" }
+        { "id": "ALIGN-FE", "status": "COMPLETE" }
       ]
     }
   ],
@@ -88,5 +88,20 @@
     "subs": []
   },
   "blocked": [],
-  "api_doc_gaps": []
+  "api_doc_gaps": [
+    {
+      "phase": "F1",
+      "sub": "SCR-ORG-004",
+      "field": "DepartmentNode.branchCode",
+      "description": "Spec/task instructed adding a denormalized branchCode display field (mirroring Branch/Region pattern), but department-management.md's documented DepartmentResponse/DepartmentTreeNodeResponse shapes across all 7 endpoints do not list a branchCode field.",
+      "resolution": "resolved — backend mapping gap fixed (branch.getBranchCode() now wired into DepartmentMapper/CostCenterMapper; api-docs updated to document branchCode on flat responses)"
+    },
+    {
+      "phase": "F1",
+      "sub": "SCR-ORG-005",
+      "field": "CostCenterNode.branchCode",
+      "description": "Spec/task instructed adding a denormalized branchCode display field (mirroring Branch/Region/Department pattern), but cost-center-management.md's documented CostCenterResponse shape (returned identically by GET/PUT/deactivate/activate/POST create/POST search) and the separate CostCenterTreeNodeResponse shape (GET /cost-centers/tree, API-ORG-027) do not list a branchCode field.",
+      "resolution": "resolved — backend mapping gap fixed (branch.getBranchCode() now wired into DepartmentMapper/CostCenterMapper; api-docs updated to document branchCode on flat responses)"
+    }
+  ]
 }

@@ -42,6 +42,7 @@ Shape: `DepartmentResponse`
 | nameAr | string | No |  | Arabic name - الاسم بالعربية |
 | nameEn | string | No |  | English name - الاسم بالإنجليزية |
 | branchFk | integer (int64) | No |  | Parent Branch ID - معرف الفرع الأب |
+| branchCode | string | No |  | Parent Branch business code - رمز الفرع الأب |
 | parentDepartmentFk | integer (int64) | No |  | Parent Department ID — null for a root node - معرف القسم الأب |
 | nodeTypeId | string | No |  | Node type (LOV-ORG-003: SUMMARY, DETAIL) - نوع العقدة |
 | isActive | boolean | No |  | Active status - حالة التفعيل |
@@ -113,6 +114,7 @@ Shape: `DepartmentResponse`
 | nameAr | string | No |  | Arabic name - الاسم بالعربية |
 | nameEn | string | No |  | English name - الاسم بالإنجليزية |
 | branchFk | integer (int64) | No |  | Parent Branch ID - معرف الفرع الأب |
+| branchCode | string | No |  | Parent Branch business code - رمز الفرع الأب |
 | parentDepartmentFk | integer (int64) | No |  | Parent Department ID — null for a root node - معرف القسم الأب |
 | nodeTypeId | string | No |  | Node type (LOV-ORG-003: SUMMARY, DETAIL) - نوع العقدة |
 | isActive | boolean | No |  | Active status - حالة التفعيل |
@@ -163,6 +165,7 @@ Shape: `DepartmentResponse`
 | nameAr | string | No |  | Arabic name - الاسم بالعربية |
 | nameEn | string | No |  | English name - الاسم بالإنجليزية |
 | branchFk | integer (int64) | No |  | Parent Branch ID - معرف الفرع الأب |
+| branchCode | string | No |  | Parent Branch business code - رمز الفرع الأب |
 | parentDepartmentFk | integer (int64) | No |  | Parent Department ID — null for a root node - معرف القسم الأب |
 | nodeTypeId | string | No |  | Node type (LOV-ORG-003: SUMMARY, DETAIL) - نوع العقدة |
 | isActive | boolean | No |  | Active status - حالة التفعيل |
@@ -212,6 +215,7 @@ Shape: `DepartmentResponse`
 | nameAr | string | No |  | Arabic name - الاسم بالعربية |
 | nameEn | string | No |  | English name - الاسم بالإنجليزية |
 | branchFk | integer (int64) | No |  | Parent Branch ID - معرف الفرع الأب |
+| branchCode | string | No |  | Parent Branch business code - رمز الفرع الأب |
 | parentDepartmentFk | integer (int64) | No |  | Parent Department ID — null for a root node - معرف القسم الأب |
 | nodeTypeId | string | No |  | Node type (LOV-ORG-003: SUMMARY, DETAIL) - نوع العقدة |
 | isActive | boolean | No |  | Active status - حالة التفعيل |
@@ -282,6 +286,7 @@ Shape: `DepartmentResponse`
 | nameAr | string | No |  | Arabic name - الاسم بالعربية |
 | nameEn | string | No |  | English name - الاسم بالإنجليزية |
 | branchFk | integer (int64) | No |  | Parent Branch ID - معرف الفرع الأب |
+| branchCode | string | No |  | Parent Branch business code - رمز الفرع الأب |
 | parentDepartmentFk | integer (int64) | No |  | Parent Department ID — null for a root node - معرف القسم الأب |
 | nodeTypeId | string | No |  | Node type (LOV-ORG-003: SUMMARY, DETAIL) - نوع العقدة |
 | isActive | boolean | No |  | Active status - حالة التفعيل |
@@ -342,6 +347,7 @@ Shape: `paginated list of DepartmentResponse (see Pagination Envelope in index.m
 | nameAr | string | No |  | Arabic name - الاسم بالعربية |
 | nameEn | string | No |  | English name - الاسم بالإنجليزية |
 | branchFk | integer (int64) | No |  | Parent Branch ID - معرف الفرع الأب |
+| branchCode | string | No |  | Parent Branch business code - رمز الفرع الأب |
 | parentDepartmentFk | integer (int64) | No |  | Parent Department ID — null for a root node - معرف القسم الأب |
 | nodeTypeId | string | No |  | Node type (LOV-ORG-003: SUMMARY, DETAIL) - نوع العقدة |
 | isActive | boolean | No |  | Active status - حالة التفعيل |
