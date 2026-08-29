@@ -111,7 +111,7 @@ module not yet listed above, rather than guessing where it goes.
 1. Check `frontend/testsprite_tests/` for leftover `.py` files,
    `standard_prd.json`, `testsprite_frontend_test_plan.json`, or report
    files from a previous run that were never archived. If any exist,
-   archive them first, exactly as in §5 of the backend's
+   archive them first, exactly as in §6 of the backend's
    `TESTSPRITE-GOVERNANCE.md` (same procedure, frontend paths) — classify
    each `.py` by §3, `git mv` it into its module's `testsprite/tests/`, and
    move the PRD/plan/report trio into a new
@@ -139,8 +139,12 @@ module not yet listed above, rather than guessing where it goes.
 
 **Never**:
 - Hand-edit a `.py` file already archived under
-  `governance/modules/<MOD>/testsprite/tests/` — regenerate through
-  TestSprite and re-archive instead.
+  `governance/modules/<MOD>/testsprite/tests/` to change what flow it
+  tests, or to make a genuinely new flow pass — regenerate through
+  TestSprite and re-archive instead. The one sanctioned exception —
+  keeping an existing test's locators/assertions in sync after a real UI
+  change so it keeps passing — is §5, not a loophole to rewrite flows by
+  hand.
 - Leave a run's PRD/plan/report at the root of `testsprite_tests/` once the
   run is closed out.
 - Invent a different folder shape than §2 without a human decision, per
@@ -148,11 +152,57 @@ module not yet listed above, rather than guessing where it goes.
 
 ---
 
-## 5. Related
+## 5. Keeping archived tests in sync with code changes
 
-- Ready prompts: `governance/testsprite/prompts/start-tests.md` (fresh run)
-  and `governance/testsprite/prompts/rerun-tests.md` (re-execute already
-  generated tests, no regeneration).
+The whole point of §2's durable archive is that any test in it can be
+re-run at any time (`governance/testsprite/prompts/rerun-tests.md`) and
+still mean something. A UI change that quietly breaks an archived test's
+locators or assertions — without anyone touching the test — defeats that.
+
+**Before finishing any frontend code change**, check whether it touches
+something an archived test exercises:
+
+1. Identify the module the change belongs to (per §3's screen/flow table).
+2. Search that module's `governance/modules/<MOD>/testsprite/tests/*.py`
+   for the element id, role/name, label text, or route the change affects
+   (`grep -rl` for the id/text is enough — these are small, flat,
+   self-contained scripts using `page.locator(...)`, `get_by_role(...)`,
+   `to_contain_text(...)`, etc.).
+3. If nothing matches, there's nothing to do.
+4. If a test matches and your change alters what it locates or asserts —
+   a renamed `id`/label, a changed button/role name, moved or restructured
+   markup a locator's xpath depends on, changed copy a `to_contain_text`
+   check asserts on, an added/removed step in the flow (e.g. a new confirm
+   dialog) — **update that test file's locator/assertion in the same
+   change**, minimally, to match the new UI. This is a direct edit to the
+   archived `.py` file — allowed specifically for this case, unlike the
+   general "never hand-edit" rule in §4.
+5. Re-run the updated test (via `rerun-tests.md`, scoped to that file or
+   module, with both the backend and the dev server running) against the
+   changed UI before considering the code change done. A patched-but-never-
+   executed test is not verified.
+6. If the change is big enough that patching would mean rewriting the
+   scenario's actual flow (not just updated selectors) — e.g. the screen's
+   purpose changed, a multi-step flow gained/lost a step, navigation was
+   restructured — prefer regenerating that scenario through TestSprite
+   (`start-tests.md`) over hand-authoring a new flow. Say so instead of
+   forcing a hand patch.
+
+Never ship a UI change that leaves an archived test targeting an element
+or asserting text that no longer exists — either fix the test in the same
+change or flag it explicitly as a known, intentional break for the human
+to resolve. Silently leaving it to fail on the next re-run is not
+acceptable.
+
+---
+
+## 6. Related
+
+- Ready prompts: `governance/testsprite/prompts/start-tests.md` (fresh
+  run), `governance/testsprite/prompts/rerun-tests.md` (re-execute already
+  generated tests, no regeneration), and
+  `governance/testsprite/prompts/fix-bugs.md` (diagnose → fix → re-run
+  loop for failures reported by either of the above, per §5's sync rule).
 - Backend's mirrored doc and full cleanup event log:
   `backend/governance/testsprite/TESTSPRITE-GOVERNANCE.md`.
 - Module ownership authority: `backend/governance/master-registry.md`.

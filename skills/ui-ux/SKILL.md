@@ -224,6 +224,41 @@ screens, which were not re-reviewed and were deliberately left alone)
   enough that scrolling-and-reading beats typing a few letters; both confirmed instances needed
   one immediately.
 
+## Choosing a create/edit container: Drawer vs. full page vs. tree master-detail
+
+Three container patterns now coexist in this codebase, on purpose — the mistake that shipped
+before this pass (Users/Roles/Permissions in `Dialog`, Page Registry in `Drawer`, no
+documented reason for the split) was picking a container per screen instead of per content
+shape. Match the content, not the screen's module:
+
+- **Side `Drawer`** — the default for a single-entity form with a bounded field count and no
+  repeating child rows (name, code, a few selects, a description, an active toggle). This is
+  now the unified choice across all 4 Security screens (`Users.tsx`, `Roles.tsx`,
+  `Permissions.tsx`, `Pages.tsx`) — match it for any new simple-entity CRUD screen rather than
+  reaching for `Dialog` again. A record-picker or matrix that grows past a handful of rows
+  still gets its own separate `Drawer` launched from this one (see "Modal / dialog standards"
+  above) rather than inflating the entity Drawer itself.
+- **Full page** — for a document-style entity: a header section plus one or more repeating
+  line-item tables (add row / remove row) and a computed total, the shape `AccountForm.tsx`
+  already established for Chart of Accounts entry. A Drawer cannot fit an editable line-items
+  grid without becoming its own scroll-within-a-scroll problem; don't try. If a future entity
+  needs this shape (an invoice, a purchase order), give it its own page like `AccountForm.tsx`,
+  not a wide `Dialog`/`Drawer`. Within that full page, a supporting `Drawer` is still the right
+  tool for a secondary lookup — e.g. an advanced product search with filters, opened from a
+  line-item's field — because that lookup is itself a small, bounded, single-purpose
+  interaction; it just isn't the primary edit surface.
+- **Tree master-detail (custom, not a Drawer/Dialog at all)** — for genuinely hierarchical
+  parent-child data, the inline two-column layout `Departments.tsx`/`CostCenters.tsx` already
+  use (tree on the left, the selected node's form permanently visible on the right) beats any
+  overlay, because the user needs the tree's context visible while editing. Don't convert this
+  to a Drawer for consistency's sake — the inconsistency here is intentional and content-driven,
+  not an oversight.
+
+Decide by content shape, in this order: hierarchical parent-child data → tree master-detail;
+repeating line items with a computed total → full page; otherwise → `Drawer`. If a screen
+doesn't cleanly fit one of the three, that's a signal to look at what it actually contains
+before picking, not to invent a fourth container.
+
 ## Message / feedback standards
 
 - Every user-facing string answers "what happened" and, when relevant, "what should I do

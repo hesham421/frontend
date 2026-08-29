@@ -6,7 +6,7 @@ import { createRoleSchema, excludeSelfFromCopySources, type CrudPermission } fro
 import type { RoleDto } from '../../roles/rolesApi';
 import { useActivePages } from '../../pageRegistry/hooks';
 import { mapApiError } from '../../lib/errors/mapApiError';
-import { Breadcrumb, Dialog, Alert } from '../../components/ui/OverlaysAndFeedback';
+import { Breadcrumb, Drawer, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
 import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select, Switch } from '../../components/ui/FormControls';
@@ -49,7 +49,7 @@ export const RolesPage: React.FC = () => {
   } = useRoleManagementFacade();
   const activePages = useActivePages();
   const { can } = usePermission();
-  const canOpenDataScope = can('ROLE_VIEW');
+  const canOpenDataScope = can('PERM_ROLE_VIEW');
   // Editing an existing role needs UPDATE; the create-dialog branch needs CREATE.
   const canSaveRoleDialog = selectedRole ? canEdit : canCreate;
 
@@ -330,8 +330,8 @@ export const RolesPage: React.FC = () => {
         )}
       </Card>
 
-      {/* 4. Role & Permission Matrix Dialog */}
-      <Dialog
+      {/* 4. Role & Permission Matrix Drawer */}
+      <Drawer
         isOpen={isRoleDialogOpen}
         onClose={() => setIsRoleDialogOpen(false)}
         title={selectedRole ? `${t('edit')}: ${selectedRole.roleName}` : t('new')}
@@ -409,7 +409,7 @@ export const RolesPage: React.FC = () => {
             disabled={!canSaveRoleDialog}
           />
         </div>
-      </Dialog>
+      </Drawer>
 
       {/* 5. Data Scope & Permission Matrix Drawers */}
       <DataScopeDrawer

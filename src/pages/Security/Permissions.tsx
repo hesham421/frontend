@@ -4,7 +4,7 @@ import { usePermissionRegistryFacade } from '../../permissions/hooks';
 import { PERMISSION_TYPES, type PermissionType } from '../../permissions/permissionType';
 import type { PermissionDto } from '../../permissions/permissionsApi';
 import { mapApiError } from '../../lib/errors/mapApiError';
-import { Breadcrumb, Dialog, Alert } from '../../components/ui/OverlaysAndFeedback';
+import { Breadcrumb, Drawer, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
 import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select } from '../../components/ui/FormControls';
@@ -227,8 +227,8 @@ export const PermissionsPage: React.FC = () => {
         )}
       </Card>
 
-      {/* 4. Create / Edit Dialog (No Delete button — no real delete endpoint) */}
-      <Dialog
+      {/* 4. Create / Edit Drawer (No Delete button — no real delete endpoint) */}
+      <Drawer
         isOpen={isPermDialogOpen}
         onClose={() => setIsPermDialogOpen(false)}
         title={selectedPerm ? `${t('edit')}: ${selectedPerm.name}` : t('new')}
@@ -267,7 +267,7 @@ export const PermissionsPage: React.FC = () => {
           />
           {selectedPerm && <Alert variant="info" message={t('readOnlyCodeHint')} />}
         </div>
-      </Dialog>
+      </Drawer>
     </div>
   );
 };

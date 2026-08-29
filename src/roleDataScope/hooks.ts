@@ -96,9 +96,12 @@ export function useDataAccessLevelOptions(): readonly DataAccessLevel[] {
  * allowedBranches[] — nothing to consume.
  *
  * SEC-IMPL-RULE-2: canView/canCreate/canEdit/canDelete are the real,
- * confirmed ROLE_VIEW/CREATE/UPDATE/DELETE authorities, reused from the
- * Role entity's own permission family (security-datascope-role-branches.md
- * — this screen has no PERM_DATASCOPE_* family of its own, per F4).
+ * confirmed PERM_ROLE_VIEW/CREATE/UPDATE/DELETE authorities, reused from
+ * the Role entity's own permission family (security-datascope-role-branches.md
+ * — this screen has no PERM_DATASCOPE_* family of its own, per F4). Verified
+ * against the live backend's issued JWT authorities, 2026-08-29 — every
+ * authority is PERM_-prefixed; the bare ROLE_* literals this used to check
+ * never match anything and silently hid every Data Scope control.
  */
 export function useRoleDataScopeFacade(roleId: number | undefined, branchId: number | undefined) {
   const scopeQuery = useRoleBranch(roleId, branchId);
@@ -106,10 +109,10 @@ export function useRoleDataScopeFacade(roleId: number | undefined, branchId: num
   const updateMutation = useUpdateRoleBranch();
   const deleteMutation = useDeleteRoleBranch();
   const { can } = usePermission();
-  const canView = can('ROLE_VIEW');
-  const canCreate = can('ROLE_CREATE');
-  const canEdit = can('ROLE_UPDATE');
-  const canDelete = can('ROLE_DELETE');
+  const canView = can('PERM_ROLE_VIEW');
+  const canCreate = can('PERM_ROLE_CREATE');
+  const canEdit = can('PERM_ROLE_UPDATE');
+  const canDelete = can('PERM_ROLE_DELETE');
 
   const isLoading = scopeQuery.isLoading || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
 

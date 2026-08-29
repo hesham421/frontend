@@ -195,7 +195,10 @@ export type RoleStatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
  * useCopyFromRole. No toasts, dialogs, or navigation here (R.3.11).
  *
  * SEC-IMPL-RULE-2: canCreate/canEdit/canDelete use the real, confirmed
- * ROLE_CREATE/ROLE_UPDATE/ROLE_DELETE authorities (roleaccesscontrol.md).
+ * PERM_ROLE_CREATE/PERM_ROLE_UPDATE/PERM_ROLE_DELETE authorities (verified
+ * against the live backend's issued JWT authorities, 2026-08-29 — every
+ * authority is PERM_-prefixed; the bare ROLE_* literals this used to check
+ * never match anything and silently hid every Roles CRUD control).
  * canView is NOT exposed — Roles' own pageCode is unconfirmed
  * (OQ-SEC-FE-003), so the PERM_ROLE_* screen-gating literal cannot be
  * constructed without inventing it; the App.tsx switch-case guard for
@@ -204,9 +207,9 @@ export type RoleStatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
 export function useRoleManagementFacade() {
   const [searchFilters, setSearchFiltersState] = useState<RoleSearchFilters>(DEFAULT_FILTERS);
   const { can } = usePermission();
-  const canCreate = can('ROLE_CREATE');
-  const canEdit = can('ROLE_UPDATE');
-  const canDelete = can('ROLE_DELETE');
+  const canCreate = can('PERM_ROLE_CREATE');
+  const canEdit = can('PERM_ROLE_UPDATE');
+  const canDelete = can('PERM_ROLE_DELETE');
   // GAP (API-SEC-026): allowed server filter fields are roleName only — no
   // `active` filter exists server-side. Applied CLIENT-SIDE on the loaded
   // page only, per the documented limitation (not a true full-dataset filter).

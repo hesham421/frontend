@@ -113,9 +113,13 @@ const DEFAULT_FILTERS: PageSearchFilters = { filters: [], sorts: [], page: 0, si
  * (R.3.11).
  *
  * SEC-IMPL-RULE-2/3: canCreate/canEdit/canDelete use the real, confirmed
- * PAGE_CREATE/PAGE_UPDATE/PAGE_DELETE authorities (pagemanagement.md).
- * canEdit also covers reactivate (PAGE_UPDATE); canDelete specifically
- * covers deactivate (PAGE_DELETE — distinct from update, confirmed literal).
+ * PERM_PAGE_CREATE/PERM_PAGE_UPDATE/PERM_PAGE_DELETE authorities (verified
+ * against the live backend's issued JWT authorities, 2026-08-29 — every
+ * authority is PERM_-prefixed; the bare PAGE_* literals this used to check
+ * never match anything and silently hid the Create button and every Save
+ * control on this screen).
+ * canEdit also covers reactivate (PERM_PAGE_UPDATE); canDelete specifically
+ * covers deactivate (PERM_PAGE_DELETE — distinct from update).
  * canView is NOT exposed here — that's the still-unconfirmed PERM_PAGE_*
  * frontend screen-gating literal (OQ-SEC-FE-003), a different concept from
  * the real PAGE_VIEW authority that guards the read/search endpoints.
@@ -123,9 +127,9 @@ const DEFAULT_FILTERS: PageSearchFilters = { filters: [], sorts: [], page: 0, si
 export function usePageRegistryFacade() {
   const [searchFilters, setSearchFiltersState] = useState<PageSearchFilters>(DEFAULT_FILTERS);
   const { can } = usePermission();
-  const canCreate = can('PAGE_CREATE');
-  const canEdit = can('PAGE_UPDATE');
-  const canDelete = can('PAGE_DELETE');
+  const canCreate = can('PERM_PAGE_CREATE');
+  const canEdit = can('PERM_PAGE_UPDATE');
+  const canDelete = can('PERM_PAGE_DELETE');
   const [selectedPage, setSelectedPage] = useState<PageResponse | null>(null);
 
   const search = useSearchPages();

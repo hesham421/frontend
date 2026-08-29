@@ -5,7 +5,7 @@ import { usePermission } from '../../auth/permissions';
 import type { UserDto } from '../../users/usersApi';
 import { createUserSchema } from '../../users/users.schema';
 import { mapApiError } from '../../lib/errors/mapApiError';
-import { Breadcrumb, Dialog, Alert } from '../../components/ui/OverlaysAndFeedback';
+import { Breadcrumb, Drawer, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
 import { Card, Badge, Avatar } from '../../components/ui/DataDisplay';
 import { Input, Select, Switch } from '../../components/ui/FormControls';
@@ -44,8 +44,8 @@ export const UsersPage: React.FC = () => {
     deleteUser,
   } = useUserManagementFacade();
   const { can } = usePermission();
-  const canOpenProfile = can('USER_PROFILE_VIEW');
-  const canOpenDataScope = can('ROLE_VIEW');
+  const canOpenProfile = can('PERM_USER_PROFILE_VIEW');
+  const canOpenDataScope = can('PERM_ROLE_VIEW');
   // Editing an existing user needs UPDATE; the create-dialog branch needs CREATE.
   const canSaveUserDialog = selectedUser ? canEdit : canCreate;
 
@@ -291,8 +291,8 @@ export const UsersPage: React.FC = () => {
         )}
       </Card>
 
-      {/* 4. Create / Edit Dialog */}
-      <Dialog
+      {/* 4. Create / Edit Drawer */}
+      <Drawer
         isOpen={isUserDialogOpen}
         onClose={() => setIsUserDialogOpen(false)}
         title={selectedUser ? `${t('edit')}: ${selectedUser.username}` : t('new')}
@@ -413,7 +413,7 @@ export const UsersPage: React.FC = () => {
             disabled={!canSaveUserDialog}
           />
         </div>
-      </Dialog>
+      </Drawer>
 
       {/* 5. Profile, DataScope & Role Assignment Drawers */}
       <UserProfileDrawer

@@ -70,20 +70,22 @@ export function useUpdateUserProfile() {
  * auto-created alongside a User (governance note under API-SEC-040).
  *
  * SEC-IMPL-RULE-2: canView/canCreate/canEdit are the three distinct, real,
- * confirmed literals (USER_PROFILE_VIEW/CREATE/UPDATE — security-datascope-
+ * confirmed literals (PERM_USER_PROFILE_VIEW/CREATE/UPDATE — security-datascope-
  * user-profiles.md) — create and update are genuinely separate endpoints
  * with separate permissions, so callers must branch on `profile ? canEdit
  * : canCreate`, matching saveProfile's own hasProfile branch, never a
- * single canEdit flag for both.
+ * single canEdit flag for both. Verified against the live backend's issued
+ * JWT authorities, 2026-08-29 — every authority is PERM_-prefixed; the bare
+ * USER_PROFILE_* literals this used to check never matched anything.
  */
 export function useUserProfileFacade(userId: number | undefined) {
   const profileQuery = useUserProfile(userId);
   const createMutation = useCreateUserProfile();
   const updateMutation = useUpdateUserProfile();
   const { can } = usePermission();
-  const canView = can('USER_PROFILE_VIEW');
-  const canCreate = can('USER_PROFILE_CREATE');
-  const canEdit = can('USER_PROFILE_UPDATE');
+  const canView = can('PERM_USER_PROFILE_VIEW');
+  const canCreate = can('PERM_USER_PROFILE_CREATE');
+  const canEdit = can('PERM_USER_PROFILE_UPDATE');
 
   const isLoading = profileQuery.isLoading || createMutation.isPending || updateMutation.isPending;
 

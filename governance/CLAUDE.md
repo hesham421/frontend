@@ -55,6 +55,17 @@ the two ready prompts (`start-tests.md` / `rerun-tests.md`) are documented
 in `governance/testsprite/TESTSPRITE-GOVERNANCE.md` — read it before
 running TestSprite or touching anything under `testsprite_tests/`.
 
+**Before finishing any UI code change**, check whether it touches an
+element or flow an archived test already covers (renamed id/label, changed
+button role/name, restructured markup a locator depends on, changed copy a
+`to_contain_text` check asserts on, an added/removed step in the flow).
+Search `governance/modules/[MODULE]/testsprite/tests/` for the module the
+change belongs to. If a test matches, update its locator/assertion in the
+same change and re-run it before considering the change done — don't leave
+an archived test silently broken for the next re-run. This is the one
+sanctioned exception to "never hand-edit a generated test"; full procedure
+in `governance/testsprite/TESTSPRITE-GOVERNANCE.md` §5.
+
 ---
 
 ## Code Comments — No Banners, No Oversized Javadoc/JSDoc
