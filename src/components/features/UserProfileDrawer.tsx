@@ -18,7 +18,7 @@ export interface UserProfileDrawerProps {
 }
 
 export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, onClose, user }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { showToast } = useToast();
   const branches = useOrganizationStore((state) => state.branches);
   const { profile, canCreate, canEdit, isLoading, saveProfile } = useUserProfileFacade(user?.id);
@@ -50,7 +50,11 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
   }, [profile, user]);
 
   const handleSave = async () => {
-    if (!user?.id || branchId == null) return;
+    if (!user?.id) return;
+    if (branchId == null) {
+      setErrorMessage(t('assignedBranchRequired'));
+      return;
+    }
     setErrorMessage(null);
     try {
       await saveProfile({
@@ -67,9 +71,16 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
     }
   };
 
-  const activeBranches = branches
-    .filter((b) => b.isActive || branchIdToNumber(b.id) === branchId)
-    .map((b) => ({ value: String(branchIdToNumber(b.id)), label: `${b.nameEn} (${b.branchCode})` }));
+  // A leading placeholder is required: without it, a Select whose value doesn't
+  // match any option (branchId unset) falls back to the browser's native
+  // first-option-selected rendering — visually implying a branch is chosen
+  // when the underlying state is still empty, masking why Save silently fails.
+  const activeBranches = [
+    { value: '', label: t('selectBranchPlaceholder') },
+    ...branches
+      .filter((b) => b.isActive || branchIdToNumber(b.id) === branchId)
+      .map((b) => ({ value: String(branchIdToNumber(b.id)), label: `${lang === 'ar' ? b.nameAr : b.nameEn} (${b.branchCode})` })),
+  ];
 
   const langOptions = [
     { value: 'ar', label: 'العربية (Arabic)' },

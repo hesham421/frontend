@@ -88,7 +88,7 @@ export const ProfitCentersPage: React.FC = () => {
 
   const entityOptions = [
     { value: 'ALL', label: t('all') },
-    ...legalEntities.map((e) => ({ value: e.id, label: `${e.nameEn} (${e.legalEntityCode})` })),
+    ...legalEntities.map((e) => ({ value: e.id, label: `${lang === 'ar' ? e.nameAr : e.nameEn} (${e.legalEntityCode})` })),
   ];
 
   const statusOptions = [
@@ -263,7 +263,7 @@ export const ProfitCentersPage: React.FC = () => {
       <Drawer
         isOpen={isProfitDrawerOpen}
         onClose={closeProfitDrawer}
-        title={selectedProfitCenter ? `${t('edit')}: ${selectedProfitCenter.nameEn}` : t('new')}
+        title={selectedProfitCenter ? `${t('edit')}: ${lang === 'ar' ? selectedProfitCenter.nameAr : selectedProfitCenter.nameEn}` : t('new')}
         width="md"
         footer={
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>

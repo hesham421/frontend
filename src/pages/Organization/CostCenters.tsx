@@ -114,7 +114,7 @@ export const CostCentersPage: React.FC = () => {
 
   const branchOptions = [
     { value: '', label: `-- ${t('assignedBranch')} --` },
-    ...branches.map((b) => ({ value: b.id, label: `${b.nameEn} (${b.branchCode})` })),
+    ...branches.map((b) => ({ value: b.id, label: `${lang === 'ar' ? b.nameAr : b.nameEn} (${b.branchCode})` })),
   ];
 
   const ccTypeOptions = [

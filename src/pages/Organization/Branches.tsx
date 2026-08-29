@@ -125,7 +125,7 @@ export const BranchesPage: React.FC = () => {
 
   const entityOptions = [
     { value: 'ALL', label: t('all') },
-    ...legalEntities.map((e) => ({ value: e.id, label: `${e.nameEn} (${e.legalEntityCode})` })),
+    ...legalEntities.map((e) => ({ value: e.id, label: `${lang === 'ar' ? e.nameAr : e.nameEn} (${e.legalEntityCode})` })),
   ];
 
   const branchTypeOptions = [
@@ -345,7 +345,7 @@ export const BranchesPage: React.FC = () => {
       <Drawer
         isOpen={isBranchDrawerOpen}
         onClose={closeBranchDrawer}
-        title={selectedBranch ? `${t('edit')}: ${selectedBranch.nameEn}` : t('new')}
+        title={selectedBranch ? `${t('edit')}: ${lang === 'ar' ? selectedBranch.nameAr : selectedBranch.nameEn}` : t('new')}
         width="md"
         footer={
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>

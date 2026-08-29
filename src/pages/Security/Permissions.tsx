@@ -11,20 +11,15 @@ import { Input, Select } from '../../components/ui/FormControls';
 import { Table, type TableColumn } from '../../components/ui/Table';
 import { Pagination } from '../../components/ui/Pagination';
 import { useToast } from '../../components/ui/Toast';
+import { getModuleLabel } from '../../data/moduleLabels';
 
 // API-SEC-029 allowed search fields: name, module. `module` is a real
 // server-side filter (joined via the page's module) even though it is not
 // a field on PermissionDto itself — search-only, never a create/edit field.
-const MODULE_FILTERS = [
-  { value: 'SEC', label: 'SEC (Security)' },
-  { value: 'ORG', label: 'ORG (Organization)' },
-  { value: 'FILE', label: 'FILE (File Service)' },
-  { value: 'NOTIF', label: 'NOTIF (Notifications)' },
-  { value: 'FIN', label: 'FIN (Finance)' },
-];
+const MODULE_FILTER_CODES = ['SEC', 'ORG', 'FILE', 'NOTIF', 'FIN'];
 
 export const PermissionsPage: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { showToast } = useToast();
   const {
     permissionList,
@@ -95,11 +90,14 @@ export const PermissionsPage: React.FC = () => {
     }
   };
 
-  const moduleFilterOptions = [{ value: 'ALL', label: t('all') }, ...MODULE_FILTERS];
+  const moduleFilterOptions = [
+    { value: 'ALL', label: t('all') },
+    ...MODULE_FILTER_CODES.map((code) => ({ value: code, label: getModuleLabel(code, t) })),
+  ];
   const permTypeOptions = PERMISSION_TYPES.map((v) => ({ value: v, label: v }));
   const pageSelectOptions = [
-    { value: '', label: '-- None / Global --' },
-    ...pageOptions.map((p) => ({ value: String(p.id), label: `${p.nameEn} (${p.pageCode})` })),
+    { value: '', label: t('noneGlobalOption') },
+    ...pageOptions.map((p) => ({ value: String(p.id), label: `${lang === 'ar' ? p.nameAr : p.nameEn} (${p.pageCode})` })),
   ];
 
   const permissionColumns: TableColumn<PermissionDto>[] = [
@@ -126,7 +124,11 @@ export const PermissionsPage: React.FC = () => {
       header: t('colTargetPage'),
       render: (p) => {
         const targetPage = pageOptions.find((s) => s.id === p.pageId);
-        return <span style={{ fontSize: '13px', color: 'var(--text-body, #354456)' }}>{targetPage ? targetPage.nameEn : '—'}</span>;
+        return (
+          <span style={{ fontSize: '13px', color: 'var(--text-body, #354456)' }}>
+            {targetPage ? (lang === 'ar' ? targetPage.nameAr : targetPage.nameEn) : '—'}
+          </span>
+        );
       },
     },
     {

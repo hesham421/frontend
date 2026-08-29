@@ -2,6 +2,14 @@ import { create } from 'zustand';
 
 export type Language = 'en' | 'ar';
 
+const LANGUAGE_STORAGE_KEY = 'avelynq_lang';
+const DEFAULT_LANGUAGE: Language = 'ar';
+
+function getInitialLanguage(): Language {
+  const saved = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  return saved === 'en' || saved === 'ar' ? saved : DEFAULT_LANGUAGE;
+}
+
 export interface LanguageState {
   lang: Language;
   dir: 'ltr' | 'rtl';
@@ -64,6 +72,7 @@ const translations: Record<Language, Record<string, string>> = {
     groupGeneral: 'GENERAL',
     groupSecurity: 'SECURITY & RBAC',
     groupOrganization: 'ORGANIZATION',
+    groupMasterData: 'MASTER DATA',
     groupNotifications: 'NOTIFICATIONS',
     groupSystem: 'SYSTEM CONTROL',
 
@@ -79,6 +88,7 @@ const translations: Record<Language, Record<string, string>> = {
     navCostCenters: 'Cost Centers Tree',
     navProfitCenters: 'Profit Centers',
     navLocationSites: 'Location Sites',
+    navMasterLookups: 'Master Lookups',
     navNotificationInbox: 'Notification Inbox',
     navNotificationTemplates: 'Notification Templates',
     navNotificationChannels: 'Channel Configuration',
@@ -104,6 +114,16 @@ const translations: Record<Language, Record<string, string>> = {
     active: 'Active',
     inactive: 'Inactive',
     all: 'All',
+    noneGlobalOption: '-- None / Global --',
+    noneRootMenuOption: '-- None (Root Menu) --',
+    moduleSecurity: 'Security',
+    moduleOrganization: 'Organization',
+    moduleFileService: 'File Service',
+    moduleNotifications: 'Notifications',
+    moduleFinance: 'Finance',
+    moduleHR: 'Human Resources',
+    moduleInventory: 'Inventory',
+    moduleSystemCore: 'System Core',
     enabled: 'Enabled',
     disabled: 'Disabled',
     details: 'Details',
@@ -175,6 +195,8 @@ const translations: Record<Language, Record<string, string>> = {
     employeeId: 'Employee ID',
     preferredLang: 'Preferred Language',
     assignedBranch: 'Assigned Branch',
+    assignedBranchRequired: 'Select an assigned branch before saving.',
+    selectBranchPlaceholder: '-- Select Branch --',
     dataAccessLevel: 'Data Access Level',
     branchOnly: 'Branch Only',
     branchAndChildren: 'Branch & Child Units',
@@ -214,6 +236,17 @@ const translations: Record<Language, Record<string, string>> = {
     nodeTypeLockedHint: 'Node type cannot be altered once created.',
     cascadeDeactivateWarning: 'Cannot deactivate entity: active branch dependencies exist.',
     cascadeBranchWarning: 'Deactivating this branch affects associated departments and locations.',
+
+    // Master Data Module Specific
+    mdMasterLookupsTitle: 'Master Lookup Management',
+    mdMasterLookupsBreadcrumb: 'Master Data / Master Lookups',
+    lookupKey: 'Lookup Key',
+    lookupDetails: 'Lookup Values',
+    manageValues: 'Manage Values',
+    detailsCount: 'Values',
+    extraValue: 'Extra Value',
+    sortOrder: 'Sort Order',
+    cannotDeleteInUse: 'This record is used elsewhere and cannot be deleted.',
 
     // File Service Specific
     fileAttachments: 'File Attachments & Documents',
@@ -281,6 +314,14 @@ const translations: Record<Language, Record<string, string>> = {
     errUsernameAlreadyExists: 'This username is already taken. Please choose another.',
     errActivationTokenInvalid: 'This activation code is invalid or has expired. Please request a new one.',
     errResetTokenInvalid: 'This reset code is invalid or has expired. Please request a new one.',
+    errMasterLookupKeyDuplicate: 'A master lookup with this key already exists. Choose a different key.',
+    errMasterLookupInUse: 'This master lookup is in use and cannot be deleted.',
+    errMasterLookupActiveDetailsExist: 'This master lookup has active values and cannot be deactivated.',
+    errMasterLookupDetailsExist: 'This master lookup has values and cannot be deleted.',
+    errMasterLookupInactive: 'This master lookup is inactive.',
+    errLookupDetailCodeDuplicate: 'A lookup value with this code already exists. Choose a different code.',
+    errLookupDetailInUse: 'This lookup value is in use and cannot be deleted.',
+    errLookupValueInvalid: 'This lookup value is invalid.',
     userCreatedRoleAssignFailed: 'User created, but role assignment failed. Edit the user to assign roles.',
     dataScopeSavedSuccess: 'Data scope saved successfully.',
     dataScopeDeletedSuccess: 'Data scope removed successfully.',
@@ -328,6 +369,16 @@ const translations: Record<Language, Record<string, string>> = {
     locationSiteSavedSuccess: 'Location site saved successfully.',
     locationSiteCreatedSuccess: 'Location site created successfully.',
     locationSiteDeactivatedSuccess: 'Location site deactivated successfully.',
+    masterLookupSavedSuccess: 'Master lookup saved successfully.',
+    masterLookupCreatedSuccess: 'Master lookup created successfully.',
+    masterLookupActivatedSuccess: 'Master lookup activated successfully.',
+    masterLookupDeactivatedSuccess: 'Master lookup deactivated successfully.',
+    masterLookupDeletedSuccess: 'Master lookup deleted successfully.',
+    lookupDetailSavedSuccess: 'Lookup value saved successfully.',
+    lookupDetailCreatedSuccess: 'Lookup value created successfully.',
+    lookupDetailActivatedSuccess: 'Lookup value activated successfully.',
+    lookupDetailDeactivatedSuccess: 'Lookup value deactivated successfully.',
+    lookupDetailDeletedSuccess: 'Lookup value deleted successfully.',
     notificationTemplateSavedSuccess: 'Notification template saved successfully.',
     notificationTemplateCreatedSuccess: 'Notification template created successfully.',
     notificationTemplateActivatedSuccess: 'Notification template activated successfully.',
@@ -402,6 +453,7 @@ const translations: Record<Language, Record<string, string>> = {
     groupGeneral: 'عام',
     groupSecurity: 'الأمن وإدارة الصلاحيات',
     groupOrganization: 'الهيكل التنظيمي',
+    groupMasterData: 'البيانات المرجعية',
     groupNotifications: 'مركز الإشعارات',
     groupSystem: 'إدارة النظام',
 
@@ -417,6 +469,7 @@ const translations: Record<Language, Record<string, string>> = {
     navCostCenters: 'شجرة مراكز التكلفة',
     navProfitCenters: 'مراكز الربحية',
     navLocationSites: 'المواقع والمستودعات',
+    navMasterLookups: 'القوائم المرجعية',
     navNotificationInbox: 'صندوق الإشعارات',
     navNotificationTemplates: 'قوالب الإشعارات',
     navNotificationChannels: 'تهيئة قنوات الإرسال',
@@ -442,6 +495,16 @@ const translations: Record<Language, Record<string, string>> = {
     active: 'نشط',
     inactive: 'غير نشط',
     all: 'الكل',
+    noneGlobalOption: '-- بدون / عام --',
+    noneRootMenuOption: '-- بدون (قائمة رئيسية) --',
+    moduleSecurity: 'الأمن',
+    moduleOrganization: 'الهيكل التنظيمي',
+    moduleFileService: 'خدمة الملفات',
+    moduleNotifications: 'الإشعارات',
+    moduleFinance: 'المالية',
+    moduleHR: 'الموارد البشرية',
+    moduleInventory: 'المخزون',
+    moduleSystemCore: 'نواة النظام',
     enabled: 'مفعل',
     disabled: 'معطل',
     details: 'التفاصيل',
@@ -513,6 +576,8 @@ const translations: Record<Language, Record<string, string>> = {
     employeeId: 'الرقم الوظيفي',
     preferredLang: 'اللغة المفضلة',
     assignedBranch: 'الفرع المعين',
+    assignedBranchRequired: 'يرجى اختيار الفرع المعين قبل الحفظ.',
+    selectBranchPlaceholder: '-- اختر الفرع --',
     dataAccessLevel: 'مستوى الوصول للبيانات',
     branchOnly: 'الفرع الخاص فقط',
     branchAndChildren: 'الفرع والفروع التابعة',
@@ -552,6 +617,17 @@ const translations: Record<Language, Record<string, string>> = {
     nodeTypeLockedHint: 'لا يمكن تعديل نوع المستوى بعد إنشائه.',
     cascadeDeactivateWarning: 'لا يمكن تعطيل الكيان: توجد فروع تابعة نشطة مرتبطة به.',
     cascadeBranchWarning: 'تعطيل هذا الفرع سيؤثر على الأقسام والمواقع المرتبطة به.',
+
+    // Master Data Module Specific
+    mdMasterLookupsTitle: 'إدارة القوائم المرجعية',
+    mdMasterLookupsBreadcrumb: 'البيانات المرجعية / القوائم المرجعية',
+    lookupKey: 'مفتاح القائمة',
+    lookupDetails: 'القيم المرجعية',
+    manageValues: 'إدارة القيم',
+    detailsCount: 'القيم',
+    extraValue: 'قيمة إضافية',
+    sortOrder: 'ترتيب العرض',
+    cannotDeleteInUse: 'هذا السجل مستخدم في أماكن أخرى ولا يمكن حذفه.',
 
     // File Service Specific
     fileAttachments: 'المرفقات والوثائق الداعمة',
@@ -617,6 +693,14 @@ const translations: Record<Language, Record<string, string>> = {
     errUsernameAlreadyExists: 'اسم المستخدم هذا مُستخدم بالفعل. يرجى اختيار اسم آخر.',
     errActivationTokenInvalid: 'رمز التفعيل غير صالح أو منتهي الصلاحية. يرجى طلب رمز جديد.',
     errResetTokenInvalid: 'رمز إعادة التعيين غير صالح أو منتهي الصلاحية. يرجى طلب رمز جديد.',
+    errMasterLookupKeyDuplicate: 'توجد قائمة مرجعية بهذا المفتاح بالفعل. اختر مفتاحاً مختلفاً.',
+    errMasterLookupInUse: 'هذه القائمة المرجعية مستخدمة حالياً ولا يمكن حذفها.',
+    errMasterLookupActiveDetailsExist: 'توجد قيم نشطة ضمن هذه القائمة المرجعية، لا يمكن تعطيلها.',
+    errMasterLookupDetailsExist: 'توجد قيم ضمن هذه القائمة المرجعية، لا يمكن حذفها.',
+    errMasterLookupInactive: 'هذه القائمة المرجعية غير نشطة.',
+    errLookupDetailCodeDuplicate: 'توجد قيمة مرجعية بهذا الكود بالفعل. اختر كوداً مختلفاً.',
+    errLookupDetailInUse: 'هذه القيمة المرجعية مستخدمة حالياً ولا يمكن حذفها.',
+    errLookupValueInvalid: 'هذه القيمة المرجعية غير صالحة.',
     userCreatedRoleAssignFailed: 'تم إنشاء المستخدم، لكن تعيين الأدوار فشل. عدّل المستخدم لتعيين الأدوار.',
     dataScopeSavedSuccess: 'تم حفظ نطاق البيانات بنجاح.',
     dataScopeDeletedSuccess: 'تم إزالة نطاق البيانات بنجاح.',
@@ -664,6 +748,16 @@ const translations: Record<Language, Record<string, string>> = {
     locationSiteSavedSuccess: 'تم حفظ الموقع بنجاح.',
     locationSiteCreatedSuccess: 'تم إنشاء الموقع بنجاح.',
     locationSiteDeactivatedSuccess: 'تم تعطيل الموقع بنجاح.',
+    masterLookupSavedSuccess: 'تم حفظ القائمة المرجعية بنجاح.',
+    masterLookupCreatedSuccess: 'تم إنشاء القائمة المرجعية بنجاح.',
+    masterLookupActivatedSuccess: 'تم تفعيل القائمة المرجعية بنجاح.',
+    masterLookupDeactivatedSuccess: 'تم تعطيل القائمة المرجعية بنجاح.',
+    masterLookupDeletedSuccess: 'تم حذف القائمة المرجعية بنجاح.',
+    lookupDetailSavedSuccess: 'تم حفظ القيمة المرجعية بنجاح.',
+    lookupDetailCreatedSuccess: 'تم إنشاء القيمة المرجعية بنجاح.',
+    lookupDetailActivatedSuccess: 'تم تفعيل القيمة المرجعية بنجاح.',
+    lookupDetailDeactivatedSuccess: 'تم تعطيل القيمة المرجعية بنجاح.',
+    lookupDetailDeletedSuccess: 'تم حذف القيمة المرجعية بنجاح.',
     notificationTemplateSavedSuccess: 'تم حفظ قالب الإشعار بنجاح.',
     notificationTemplateCreatedSuccess: 'تم إنشاء قالب الإشعار بنجاح.',
     notificationTemplateActivatedSuccess: 'تم تفعيل قالب الإشعار بنجاح.',
@@ -687,13 +781,19 @@ const translations: Record<Language, Record<string, string>> = {
   },
 };
 
+const initialLanguage = getInitialLanguage();
+const initialDir = initialLanguage === 'ar' ? 'rtl' : 'ltr';
+document.documentElement.dir = initialDir;
+document.documentElement.lang = initialLanguage;
+
 export const useLanguageStore = create<LanguageState>((set, get) => ({
-  lang: 'en',
-  dir: 'ltr',
+  lang: initialLanguage,
+  dir: initialDir,
   setLanguage: (lang: Language) => {
     const dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.dir = dir;
     document.documentElement.lang = lang;
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
     set({ lang, dir });
   },
   toggleLanguage: () => {
@@ -701,6 +801,7 @@ export const useLanguageStore = create<LanguageState>((set, get) => ({
     const dir = newLang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.dir = dir;
     document.documentElement.lang = newLang;
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, newLang);
     set({ lang: newLang, dir });
   },
   t: (key: string): string => {

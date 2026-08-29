@@ -16,6 +16,8 @@ export type ScreenType =
   | 'org-cost-centers'
   | 'org-profit-centers'
   | 'org-locations'
+  // Module 3: Master Data
+  | 'md-master-lookups'
   // Module 4: Notifications
   | 'notif-inbox'
   | 'notif-templates'
@@ -40,6 +42,7 @@ export const useNavigationStore = create<NavigationState>()(
         general: true,
         security: true,
         organization: true,
+        masterData: true,
         notifications: true,
       },
       setCurrentScreen: (screen: ScreenType) => set({ currentScreen: screen, sidebarOpen: false }),

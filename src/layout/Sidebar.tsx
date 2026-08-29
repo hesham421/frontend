@@ -223,6 +223,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
             )}
           </div>
 
+          {/* Module 3: Master Data Section */}
+          <div style={{ marginBottom: '12px' }}>
+            {groupHeader('masterData', t('groupMasterData'))}
+            {(openGroups.masterData ?? true) && (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {navItem('md-master-lookups', 'ti ti-list-details', t('navMasterLookups'))}
+              </div>
+            )}
+          </div>
+
           {/* Module 4: Notification Settings Section */}
           <div style={{ marginBottom: '12px' }}>
             {groupHeader('notifications', t('groupNotifications'))}

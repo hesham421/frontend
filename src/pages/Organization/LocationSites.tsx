@@ -95,7 +95,7 @@ export const LocationSitesPage: React.FC = () => {
 
   const branchOptions = [
     { value: 'ALL', label: t('all') },
-    ...branches.map((b) => ({ value: b.id, label: `${b.nameEn} (${b.branchCode})` })),
+    ...branches.map((b) => ({ value: b.id, label: `${lang === 'ar' ? b.nameAr : b.nameEn} (${b.branchCode})` })),
   ];
 
   const siteTypeOptions = [
@@ -295,7 +295,7 @@ export const LocationSitesPage: React.FC = () => {
       <Drawer
         isOpen={isLocationDrawerOpen}
         onClose={closeLocationDrawer}
-        title={selectedLocationSite ? `${t('edit')}: ${selectedLocationSite.nameEn}` : t('new')}
+        title={selectedLocationSite ? `${t('edit')}: ${lang === 'ar' ? selectedLocationSite.nameAr : selectedLocationSite.nameEn}` : t('new')}
         width="md"
         footer={
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>

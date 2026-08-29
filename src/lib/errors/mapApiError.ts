@@ -9,6 +9,15 @@ const CODE_KEYS: Partial<Record<string, string>> = {
   SIGNUP_USERNAME_ALREADY_EXISTS: 'errUsernameAlreadyExists',
   ACTIVATION_TOKEN_INVALID_OR_EXPIRED: 'errActivationTokenInvalid',
   RESET_TOKEN_INVALID_OR_EXPIRED: 'errResetTokenInvalid',
+  // MASTERDATA (governance/modules/MASTERDATA/api-docs) — Known Error Codes.
+  MASTER_LOOKUP_KEY_DUPLICATE: 'errMasterLookupKeyDuplicate',
+  MASTER_LOOKUP_IN_USE: 'errMasterLookupInUse',
+  MASTER_LOOKUP_ACTIVE_DETAILS_EXIST: 'errMasterLookupActiveDetailsExist',
+  MASTER_LOOKUP_DETAILS_EXIST: 'errMasterLookupDetailsExist',
+  MASTER_LOOKUP_INACTIVE: 'errMasterLookupInactive',
+  LOOKUP_DETAIL_CODE_DUPLICATE: 'errLookupDetailCodeDuplicate',
+  LOOKUP_DETAIL_IN_USE: 'errLookupDetailInUse',
+  LOOKUP_VALUE_INVALID: 'errLookupValueInvalid',
 };
 
 // One fallback message per kind (lib/errors/ApiError.ts's closed taxonomy).

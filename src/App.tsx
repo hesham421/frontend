@@ -24,6 +24,9 @@ import { CostCentersPage } from './pages/Organization/CostCenters';
 import { ProfitCentersPage } from './pages/Organization/ProfitCenters';
 import { LocationSitesPage } from './pages/Organization/LocationSites';
 
+// Module 3: Master Data Pages
+import { MasterLookupsPage } from './pages/MasterData/MasterLookups';
+
 // Module 4: Notification Pages
 import { NotificationInboxPage } from './pages/Notifications/NotificationInbox';
 import { NotificationTemplatesPage } from './pages/Notifications/NotificationTemplates';
@@ -129,6 +132,13 @@ export const App: React.FC = () => {
       case 'org-locations':
         return <LocationSitesPage />;
 
+      // Module 3: Master Data
+      // api-docs/index.md documents MASTER_LOOKUP_VIEW as a real required
+      // permission for this screen's own read endpoints — PERM_-prefixed per
+      // this app's confirmed authority-naming convention (see roles/hooks.ts).
+      case 'md-master-lookups':
+        return can('PERM_MASTER_LOOKUP_VIEW') ? <MasterLookupsPage /> : <Unauthorized />;
+
       // Module 4: Notifications
       case 'notif-inbox':
         return <NotificationInboxPage />;
@@ -168,6 +178,8 @@ export const App: React.FC = () => {
         return { title: t('orgProfitCentersTitle'), breadcrumb: t('orgProfitCentersBreadcrumb') };
       case 'org-locations':
         return { title: t('orgLocationsTitle'), breadcrumb: t('orgLocationsBreadcrumb') };
+      case 'md-master-lookups':
+        return { title: t('mdMasterLookupsTitle'), breadcrumb: t('mdMasterLookupsBreadcrumb') };
       case 'notif-inbox':
         return { title: t('notifInboxTitle'), breadcrumb: t('notifInboxBreadcrumb') };
       case 'notif-templates':

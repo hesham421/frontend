@@ -1,0 +1,185 @@
+<!-- Source: PHASE:F3 / SUB:F3-SCR-ORG-002 -->
+<!-- Context: see F3-HEADER.md for phase-level strategy, registry table, and intro -->
+
+## F3 — SCR-ORG-002 — Branches
+
+### F3-VALIDATION — RULE-ORG-003 — Prevent Branch deactivation — active departments
+─────────────────────────────────────────────────────────────────
+RULE SOURCE:
+  Statement  : The system MUST prevent deactivation of a Branch when one or more active Departments reference it
+  Message-AR : لا يمكن إلغاء تفعيل الفرع لوجود أقسام نشطة مرتبطة به
+  Message-EN : Cannot deactivate Branch: active departments exist
+  Scope      : DEACTIVATE (server-enforced, 409)
+
+VALIDATION SPEC:
+  Field            : isActive (via Deactivate action)
+  DB Column        : is_active_fl (DBF-ID: N/A — backend-execution-plan.md not provided this session)
+  Validation type  : BUSINESS_RULE
+  ERR-ID           : NOT ASSIGNED — no Error Catalog provided this session (see F3-LOC-RULE-1
+                     above); agent binds to the real ERR-ID once SVC+API's catalog exists
+Error routing (per shared F2 table above):
+  409 → business error → user toast via error mapper
+─────────────────────────────────────────────────────────────────
+
+### F3-VALIDATION — RULE-ORG-004 — Prevent Branch deactivation — active cost centers
+─────────────────────────────────────────────────────────────────
+RULE SOURCE:
+  Statement  : The system MUST prevent deactivation of a Branch when one or more active CostCenters reference it
+  Message-AR : لا يمكن إلغاء تفعيل الفرع لوجود مراكز تكلفة نشطة مرتبطة به
+  Message-EN : Cannot deactivate Branch: active cost centers exist
+  Scope      : DEACTIVATE (server-enforced, 409)
+
+VALIDATION SPEC:
+  Field            : isActive (via Deactivate action)
+  DB Column        : is_active_fl (DBF-ID: N/A — backend-execution-plan.md not provided this session)
+  Validation type  : BUSINESS_RULE
+  ERR-ID           : NOT ASSIGNED — no Error Catalog provided this session (see F3-LOC-RULE-1
+                     above); agent binds to the real ERR-ID once SVC+API's catalog exists
+Error routing (per shared F2 table above):
+  409 → business error → user toast via error mapper
+─────────────────────────────────────────────────────────────────
+
+### F3-VALIDATION — RULE-ORG-005 — Prevent Branch deactivation — active location sites
+─────────────────────────────────────────────────────────────────
+RULE SOURCE:
+  Statement  : The system MUST prevent deactivation of a Branch when one or more active LocationSites reference it
+  Message-AR : لا يمكن إلغاء تفعيل الفرع لوجود مواقع عمل نشطة مرتبطة به
+  Message-EN : Cannot deactivate Branch: active location sites exist
+  Scope      : DEACTIVATE (server-enforced, 409)
+
+VALIDATION SPEC:
+  Field            : isActive (via Deactivate action)
+  DB Column        : is_active_fl (DBF-ID: N/A — backend-execution-plan.md not provided this session)
+  Validation type  : BUSINESS_RULE
+  ERR-ID           : NOT ASSIGNED — no Error Catalog provided this session (see F3-LOC-RULE-1
+                     above); agent binds to the real ERR-ID once SVC+API's catalog exists
+Error routing (per shared F2 table above):
+  409 → business error → user toast via error mapper
+─────────────────────────────────────────────────────────────────
+
+### F3-VALIDATION — RULE-ORG-018 — Branch must belong to active LegalEntity
+─────────────────────────────────────────────────────────────────
+RULE SOURCE:
+  Statement  : The system MUST prevent creation of a Branch under an inactive LegalEntity
+  Message-AR : لا يمكن إنشاء فرع تحت كيان قانوني غير نشط
+  Message-EN : Cannot create a Branch under an inactive Legal Entity
+  Scope      : CREATE — legalEntityFk picker only lists isActive=true records (client-side exclusion, not just a server 400)
+
+VALIDATION SPEC:
+  Field            : legalEntityFk
+  DB Column        : legal_entity_fk (DBF-ID: N/A — backend-execution-plan.md not provided this session)
+  Validation type  : LOV_VALID (active-only filter)
+  ERR-ID           : NOT ASSIGNED — no Error Catalog provided this session (see F3-LOC-RULE-1
+                     above); agent binds to the real ERR-ID once SVC+API's catalog exists
+Error routing (per shared F2 table above):
+  400 → field validation → inline display under triggering field
+─────────────────────────────────────────────────────────────────
+
+### F3-VALIDATION — RULE-ORG-011 — Business Code immutable after save
+─────────────────────────────────────────────────────────────────
+RULE SOURCE:
+  Statement  : The system MUST prevent modification of the Business Code field after the record has been saved for the first time
+  Message-AR : رمز الأعمال لا يمكن تعديله بعد الحفظ الأول — هذا الحقل محمي ونهائي
+  Message-EN : Business Code is immutable after first save and cannot be modified
+  Scope      : UPDATE — see F3-BC-RULE-1..3
+
+VALIDATION SPEC:
+  Field            : branchCode
+  DB Column        : branch_code (DBF-ID: N/A — backend-execution-plan.md not provided this session)
+  Validation type  : REQUIRED (read-only field, no user-editable validation)
+  ERR-ID           : NOT ASSIGNED — no Error Catalog provided this session (see F3-LOC-RULE-1
+                     above); agent binds to the real ERR-ID once SVC+API's catalog exists
+Error routing (per shared F2 table above):
+  400 → field validation → inline display under triggering field
+─────────────────────────────────────────────────────────────────
+
+### F3-VALIDATION — RULE-ORG-012 — Business Code uniqueness within defined scope
+─────────────────────────────────────────────────────────────────
+RULE SOURCE:
+  Statement  : The system MUST ensure the Business Code generated by NumberingEngine is globally unique within its defined scope
+  Message-AR : تعذّر إنشاء رمز الأعمال — تعارض في التسلسل. يرجى المحاولة مرة أخرى
+  Message-EN : Business Code generation failed due to sequence conflict. Please retry
+  Scope      : CREATE (409, server-only — not a client-checkable rule, no field to validate client-side)
+
+VALIDATION SPEC:
+  Field            : branchCode (system-generated)
+  DB Column        : branch_code (DBF-ID: N/A — backend-execution-plan.md not provided this session)
+  Validation type  : BUSINESS_RULE (server-only)
+  ERR-ID           : NOT ASSIGNED — no Error Catalog provided this session (see F3-LOC-RULE-1
+                     above); agent binds to the real ERR-ID once SVC+API's catalog exists
+Error routing (per shared F2 table above):
+  409 → business error → user toast via error mapper
+─────────────────────────────────────────────────────────────────
+
+### F3-VALIDATION — RULE-ORG-013 — Business Code generated via NumberingEngine only
+─────────────────────────────────────────────────────────────────
+RULE SOURCE:
+  Statement  : The system MUST generate the Business Code exclusively through NumberingEngine
+  Message-AR : يجب إنشاء رمز الأعمال عبر محرك الترقيم المركزي فقط
+  Message-EN : Business Code must be generated via NumberingEngine only
+  Scope      : CREATE — field never sent by client, no client validation needed (see F3-BC-RULE-2)
+
+VALIDATION SPEC:
+  Field            : branchCode (never sent by client)
+  DB Column        : branch_code (DBF-ID: N/A — backend-execution-plan.md not provided this session)
+  Validation type  : REQUIRED (read-only field)
+  ERR-ID           : NOT ASSIGNED — no Error Catalog provided this session (see F3-LOC-RULE-1
+                     above); agent binds to the real ERR-ID once SVC+API's catalog exists
+Error routing (per shared F2 table above):
+  400 → field validation → inline display under triggering field
+─────────────────────────────────────────────────────────────────
+
+### F3-VALIDATION — RULE-ORG-014 — Reject Business Code in Update payload
+─────────────────────────────────────────────────────────────────
+RULE SOURCE:
+  Statement  : The system MUST reject any Update request that includes the Business Code field in its payload
+  Message-AR : رمز الأعمال لا يُقبل ضمن طلبات التعديل
+  Message-EN : Business Code field is not accepted in update requests
+  Scope      : UPDATE — Update DTOs must omit the code field entirely (F3-BC-RULE-3)
+
+VALIDATION SPEC:
+  Field            : branchCode (excluded from Update DTO)
+  DB Column        : branch_code (DBF-ID: N/A — backend-execution-plan.md not provided this session)
+  Validation type  : BUSINESS_RULE (DTO shape)
+  ERR-ID           : NOT ASSIGNED — no Error Catalog provided this session (see F3-LOC-RULE-1
+                     above); agent binds to the real ERR-ID once SVC+API's catalog exists
+Error routing (per shared F2 table above):
+  400 → field validation → inline display under triggering field
+─────────────────────────────────────────────────────────────────
+
+### F3-VALIDATION — RULE-ORG-015 — Name uniqueness within parent scope
+─────────────────────────────────────────────────────────────────
+RULE SOURCE:
+  Statement  : The system MUST prevent saving a record whose name_ar or name_en duplicates an existing active record within the same parent scope
+  Message-AR : الاسم مُستخدم مسبقاً ضمن نفس النطاق — يرجى اختيار اسم مختلف
+  Message-EN : Name already exists within the same parent scope — please choose a different name
+  Scope      : CREATE/UPDATE (409, server-enforced — no client-side pre-check declared; async on-blur check optional per F3 pattern, not specified by SRS)
+
+VALIDATION SPEC:
+  Field            : nameAr, nameEn
+  DB Column        : name_ar, name_en (DBF-ID: N/A — backend-execution-plan.md not provided this session)
+  Validation type  : UNIQUE_CHECK
+  ERR-ID           : NOT ASSIGNED — no Error Catalog provided this session (see F3-LOC-RULE-1
+                     above); agent binds to the real ERR-ID once SVC+API's catalog exists
+Error routing (per shared F2 table above):
+  409 → business error → user toast via error mapper
+─────────────────────────────────────────────────────────────────
+
+### F3-VALIDATION — RULE-ORG-016 — Reject audit fields in request payload
+─────────────────────────────────────────────────────────────────
+RULE SOURCE:
+  Statement  : The system MUST reject any request payload that includes audit fields (created_by, created_at, updated_by, updated_at)
+  Message-AR : حقول التدقيق لا تُقبل من المستخدم — يملؤها النظام تلقائياً
+  Message-EN : Audit fields are not accepted in request payloads — populated by system only
+  Scope      : CREATE/UPDATE — form models never send createdAt/createdBy/updatedAt/updatedBy (display-only, see F1 audit footer)
+
+VALIDATION SPEC:
+  Field            : createdBy/createdAt/updatedBy/updatedAt (never sent)
+  DB Column        : created_by/created_at/updated_by/updated_at (DBF-ID: N/A — backend-execution-plan.md not provided this session)
+  Validation type  : BUSINESS_RULE (DTO shape)
+  ERR-ID           : NOT ASSIGNED — no Error Catalog provided this session (see F3-LOC-RULE-1
+                     above); agent binds to the real ERR-ID once SVC+API's catalog exists
+Error routing (per shared F2 table above):
+  400 → field validation → inline display under triggering field
+─────────────────────────────────────────────────────────────────
+

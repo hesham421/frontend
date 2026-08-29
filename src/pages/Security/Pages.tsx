@@ -12,18 +12,11 @@ import { Table, type TableColumn } from '../../components/ui/Table';
 import { Pagination } from '../../components/ui/Pagination';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
+import { getModuleLabel } from '../../data/moduleLabels';
 
 type StatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
 
-const MODULE_OPTIONS = [
-  { value: 'SEC', label: 'SEC (Security)' },
-  { value: 'ORG', label: 'ORG (Organization)' },
-  { value: 'FILE', label: 'FILE (File Service)' },
-  { value: 'NOTIF', label: 'NOTIF (Notifications)' },
-  { value: 'FIN', label: 'FIN (Finance)' },
-  { value: 'HR', label: 'HR (Human Resources)' },
-  { value: 'INV', label: 'INV (Inventory)' },
-];
+const MODULE_CODES = ['SEC', 'ORG', 'FILE', 'NOTIF', 'FIN', 'HR', 'INV'];
 
 export const PagesRegistryPage: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -166,7 +159,8 @@ export const PagesRegistryPage: React.FC = () => {
     setConfirmToggle(null);
   };
 
-  const moduleFilterOptions = [{ value: 'ALL', label: t('all') }, ...MODULE_OPTIONS];
+  const moduleOptions = MODULE_CODES.map((code) => ({ value: code, label: getModuleLabel(code, t) }));
+  const moduleFilterOptions = [{ value: 'ALL', label: t('all') }, ...moduleOptions];
   const statusOptions = [
     { value: 'ALL', label: t('all') },
     { value: 'ACTIVE', label: t('active') },
@@ -176,11 +170,11 @@ export const PagesRegistryPage: React.FC = () => {
   // Parent picker sourced from the stable active-pages list (RULE-SEC-046
   // self-reference exclusion), not the current filtered search results.
   const parentOptions = [
-    { value: '', label: '-- None (Root Menu) --' },
+    { value: '', label: t('noneRootMenuOption') },
     ...excludeSelfFromParentOptions(
       activePages.filter((p): p is PageResponse & { id: number } => p.id != null),
       selectedPage?.id,
-    ).map((p) => ({ value: String(p.id), label: `${p.nameEn} (${p.pageCode})` })),
+    ).map((p) => ({ value: String(p.id), label: `${lang === 'ar' ? p.nameAr : p.nameEn} (${p.pageCode})` })),
   ];
 
   // Single-line ellipsis truncation with the full value in `title` — a fixed
@@ -389,7 +383,7 @@ export const PagesRegistryPage: React.FC = () => {
       <Drawer
         isOpen={isPageDrawerOpen}
         onClose={() => setIsPageDrawerOpen(false)}
-        title={selectedPage ? `${t('edit')}: ${selectedPage.nameEn}` : t('new')}
+        title={selectedPage ? `${t('edit')}: ${lang === 'ar' ? selectedPage.nameAr : selectedPage.nameEn}` : t('new')}
         width="lg"
         footer={
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
@@ -418,7 +412,7 @@ export const PagesRegistryPage: React.FC = () => {
             />
             <Select
               label={`${t('colModule')} *`}
-              options={MODULE_OPTIONS}
+              options={moduleOptions}
               value={module}
               onChange={(e) => setModule(e.target.value)}
               disabled={!canSavePageDialog}
@@ -504,7 +498,7 @@ export const PagesRegistryPage: React.FC = () => {
         onClose={() => setConfirmToggle(null)}
         onConfirm={handleConfirmToggle}
         title={t('confirmActionTitle')}
-        message={`${confirmToggle?.activate ? t('confirmReactivatePagePrefix') : t('confirmDeactivatePagePrefix')} "${confirmToggle?.page.nameEn}"?`}
+        message={`${confirmToggle?.activate ? t('confirmReactivatePagePrefix') : t('confirmDeactivatePagePrefix')} "${lang === 'ar' ? confirmToggle?.page.nameAr : confirmToggle?.page.nameEn}"?`}
         confirmLabel={t('confirm')}
         cancelLabel={t('cancel')}
         tone={confirmToggle?.activate ? 'primary' : 'danger'}

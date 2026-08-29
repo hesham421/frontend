@@ -49,12 +49,17 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
   copySourceOptions,
   onCopyFrom,
 }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [filterText, setFilterText] = useState('');
 
   const needle = filterText.trim().toLowerCase();
   const filteredPages = needle
-    ? pages.filter((p) => p.nameEn?.toLowerCase().includes(needle) || p.pageCode?.toLowerCase().includes(needle))
+    ? pages.filter(
+        (p) =>
+          p.nameEn?.toLowerCase().includes(needle) ||
+          p.nameAr?.toLowerCase().includes(needle) ||
+          p.pageCode?.toLowerCase().includes(needle)
+      )
     : pages;
 
   const assignedCount = Object.keys(matrixDraft).length;
@@ -139,7 +144,9 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
                 return (
                   <tr key={pg.pageCode} style={{ borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
                     <td style={{ padding: '8px 12px' }}>
-                      <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)' }}>{pg.nameEn}</div>
+                      <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)' }}>
+                        {lang === 'ar' ? pg.nameAr : pg.nameEn}
+                      </div>
                       <div style={{ fontSize: '11px', color: 'var(--text-muted, #647488)' }}>{pg.pageCode}</div>
                     </td>
                     <td style={{ padding: '8px 12px', textAlign: 'center' }}>

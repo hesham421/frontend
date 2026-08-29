@@ -8,6 +8,7 @@ import { Input, Select, Switch } from '../../components/ui/FormControls';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
 import { NotificationTemplate } from '../../data/mockData';
+import { getModuleLabel } from '../../data/moduleLabels';
 
 export const NotificationTemplatesPage: React.FC = () => {
   const { t, lang } = useLanguage();
@@ -118,12 +119,7 @@ export const NotificationTemplatesPage: React.FC = () => {
 
   const moduleOptions = [
     { value: 'ALL', label: t('all') },
-    { value: 'SEC', label: 'SEC (Security)' },
-    { value: 'ORG', label: 'ORG (Organization)' },
-    { value: 'FIN', label: 'FIN (Finance)' },
-    { value: 'HR', label: 'HR (Human Resources)' },
-    { value: 'INV', label: 'INV (Inventory)' },
-    { value: 'SYS', label: 'SYS (System Core)' },
+    ...['SEC', 'ORG', 'FIN', 'HR', 'INV', 'SYS'].map((code) => ({ value: code, label: getModuleLabel(code, t) })),
   ];
 
   const statusOptions = [

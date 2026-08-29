@@ -20,7 +20,7 @@ export interface DataScopeDrawerProps {
 }
 
 export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClose, scope: initialScope, roleId }) => {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const { showToast } = useToast();
   const roleOptions = useRolesOptions();
   const branches = useOrganizationStore((state) => state.branches);
@@ -73,7 +73,10 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
   };
 
   const roleSelectOptions = (roleOptions.data ?? []).map((r) => ({ value: String(r.id), label: `${r.roleName} (${r.roleCode})` }));
-  const branchOptions = branches.map((b) => ({ value: String(branchIdToNumber(b.id)), label: `${b.nameEn} - ${b.nameAr}` }));
+  const branchOptions = branches.map((b) => ({
+    value: String(branchIdToNumber(b.id)),
+    label: lang === 'ar' ? `${b.nameAr} - ${b.nameEn}` : `${b.nameEn} - ${b.nameAr}`,
+  }));
   const accessLevelOptions = DATA_ACCESS_LEVELS.map((level) => ({
     value: level,
     label: level === 'BRANCH_ONLY' ? t('branchOnly') : level === 'BRANCH_AND_CHILDREN' ? t('branchAndChildren') : t('allBranches'),

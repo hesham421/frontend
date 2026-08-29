@@ -6,6 +6,7 @@ import {
   type UserProfileSearchContractRequest,
 } from './userProfilesApi';
 import { usePermission } from '../auth/permissions';
+import { ApiError } from '../lib/errors/ApiError';
 
 // F2-QUERY blocks API-SEC-037..041 (F2/SCR-SEC-006).
 
@@ -98,7 +99,10 @@ export function useUserProfileFacade(userId: number | undefined) {
     saveProfile: async (data: UpdateSecUserProfileRequest) => {
       if (userId == null) throw new Error('saveProfile requires a userId');
       if (profileQuery.isLoading) throw new Error('saveProfile: profile lookup still in progress');
-      if (profileQuery.isError) throw profileQuery.error;
+      // A 404 here means "no profile yet" — the create-vs-update signal (see useUserProfile's
+      // retry: false comment), not a transient failure. Only re-throw a genuine error.
+      const isNotFound = profileQuery.error instanceof ApiError && profileQuery.error.kind === 'notFound';
+      if (profileQuery.isError && !isNotFound) throw profileQuery.error;
       const hasProfile = profileQuery.isSuccess && profileQuery.data != null;
       return hasProfile
         ? updateMutation.mutateAsync({ userId, req: data })

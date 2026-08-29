@@ -318,6 +318,52 @@ before picking, not to invent a fourth container.
 - Prefer logical CSS properties (`insetInlineStart`, `marginInlineStart`, `textAlign: 'start'`)
   over physical ones (`left`, `marginLeft`, `textAlign: 'left'`) in every new inline style —
   this codebase already does this consistently in the 4 Security pages; match it.
+- **Test the language default itself, not just the toggle.** `useLanguageStore.ts`'s initial
+  Zustand state was `lang: 'en', dir: 'ltr'` with zero `localStorage` read/write anywhere in
+  the file (confirmed by grepping the file, not assuming) — every fresh visit and every
+  refresh silently reset to English/LTR, even though `index.html` and every other part of the
+  app treat Arabic as primary. This was invisible to a code read because the store *looked*
+  bilingual (the full `en`/`ar` dictionary was right there) and invisible to a toggle test
+  (toggling and switching back masks a broken default). The only way this surfaced was
+  clearing `localStorage` and loading the app fresh — do that explicitly when reviewing
+  language behavior, don't just click the toggle. Fixed by reading/writing a
+  `localStorage` key on init and on every `setLanguage`/`toggleLanguage` call, defaulting to
+  `'ar'` when unset, and matching `index.html`'s pre-hydration `lang`/`dir` to the same
+  default so there's no LTR flash before the store initializes.
+- **A bilingual `nameAr`/`nameEn` field bypassing `lang === 'ar' ? x.nameAr : x.nameEn` is the
+  data-layer sibling of F9's header bug, and repeats at the same scale.** Found in ~15 call
+  sites at once (full-repo grep for `.nameEn`, not sampled) — dropdown option labels
+  (`Permissions.tsx`'s target-page picker, every Organization screen's legal-entity/branch
+  picker, `Pages.tsx`'s parent-page picker, `UserProfileDrawer.tsx`/`DataScopeDrawer.tsx`'s
+  branch pickers), table cells, edit-dialog titles, and confirm-dialog messages. It reads as
+  *more* broken than an untranslated header, because it looks like translation was attempted
+  and abandoned mid-record (Arabic column header, English row data) rather than simply
+  missing. When you find one bare `x.nameEn` (or `x.nameAr`) reference outside a
+  `lang === 'ar' ? ... : ...` ternary, grep the whole repo for the same field name before
+  fixing just the one call site — this class of bug does not occur in isolation. A raw
+  never-translated string living inside the same array (`'-- None / Global --'`,
+  `'-- None (Root Menu) --'`) is the same category of bug, not a separate one — route it
+  through `t()` with a new dictionary key in the same pass.
+- **"English text in an Arabic screen" has at least two distinct root causes — grepping for
+  one does not find the other.** F16 (bypassed `nameAr`/`nameEn` DB fields) and F17
+  (hardcoded-string enum-label arrays like `{ value: 'SEC', label: 'SEC (Security)' }` for
+  module/type filters, with no Arabic form anywhere) look identical to a user — both render as
+  English words in an otherwise-Arabic dropdown — but a repo grep for `.nameEn` will never
+  surface F17, because F17 has no `nameEn` in it at all. After fixing one class of "hardcoded
+  English" bug, re-test the *specific screens already fixed* by switching to Arabic and reading
+  every dropdown again, rather than assuming the grep pattern that found the first bug covers
+  the whole symptom. F17 was only found because the user sent a second screenshot after the
+  first fix landed — treat "still says X" reports as a cue to search for a different pattern,
+  not to re-check the first fix.
+- **Not every bilingual-looking gap is a frontend bug — check the DTO before assuming the
+  fix is a `lang === 'ar' ? ... : ...` ternary.** `RoleAssignmentDrawer.tsx` shows role names
+  in English in Arabic mode too, but `RoleDto` (`roles/rolesApi.ts`) genuinely has only one
+  `roleName` field — no `roleNameAr` exists in the type or the real backend contract. Roles are
+  admin-authored single-name records, not bilingual master data like Pages/Branches/Legal
+  Entities. Inventing an Arabic value client-side would be fabricating data. Before "fixing"
+  an English-in-Arabic-mode report, grep the relevant `*Api.ts`/`*Dto` type first — if there's
+  no Arabic field to read, the fix (if any) is a backend/data-model change, out of a UI/UX
+  pass's scope (see "Avoiding feature creep" above), not a missed ternary.
 
 ## Accessibility standards
 

@@ -296,7 +296,7 @@ export const LegalEntitiesPage: React.FC = () => {
       <Drawer
         isOpen={isEntityDrawerOpen}
         onClose={closeEntityDrawer}
-        title={selectedLegalEntity ? `${t('edit')}: ${selectedLegalEntity.nameEn}` : t('new')}
+        title={selectedLegalEntity ? `${t('edit')}: ${lang === 'ar' ? selectedLegalEntity.nameAr : selectedLegalEntity.nameEn}` : t('new')}
         width="md"
         footer={
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>

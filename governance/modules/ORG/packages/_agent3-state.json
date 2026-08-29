@@ -1,0 +1,28 @@
+{
+  "stages_completed": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "stages": {
+    "1": {
+      "completed_at": "2026-08-29T14:23:32.921094"
+    },
+    "2": {
+      "completed_at": "2026-08-29T14:23:52.482697"
+    },
+    "3": {
+      "completed_at": "2026-08-29T14:25:05.407633"
+    },
+    "4": {
+      "completed_at": "2026-08-29T14:25:46.283784"
+    },
+    "5": {
+      "completed_at": "2026-08-29T14:25:49.794643"
+    }
+  },
+  "exec_plan_path": "modules/ORG/P3_2/frontend-execution-plan.md",
+  "test_plan_path": null
+}

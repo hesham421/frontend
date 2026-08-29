@@ -132,7 +132,12 @@ export function Table<T>({
                   color: 'var(--text-subtle, #8C9AAC)',
                   textAlign: col.align || 'start',
                   width: col.width,
-                  ...(col.width ? { maxWidth: col.width } : {}),
+                  // Long unbroken text (a code, a URL, an id) wraps inside its
+                  // own column instead of spilling past the cell boundary and
+                  // visually overlapping the next column's content.
+                  overflowWrap: 'anywhere',
+                  wordBreak: 'break-word',
+                  ...(col.width ? { maxWidth: col.width, overflow: 'hidden' } : {}),
                 }}
               >
                 {col.header}
@@ -150,7 +155,11 @@ export function Table<T>({
                     padding: '14px 18px',
                     textAlign: col.align || 'start',
                     width: col.width,
-                    ...(col.width ? { maxWidth: col.width } : {}),
+                    verticalAlign: 'middle',
+                    // Same overflow containment as the header — see comment above.
+                    overflowWrap: 'anywhere',
+                    wordBreak: 'break-word',
+                    ...(col.width ? { maxWidth: col.width, overflow: 'hidden' } : {}),
                   }}
                 >
                   {col.render(row)}

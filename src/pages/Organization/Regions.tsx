@@ -95,7 +95,7 @@ export const RegionsPage: React.FC = () => {
 
   const entityOptions = [
     { value: 'ALL', label: t('all') },
-    ...legalEntities.map((e) => ({ value: e.id, label: `${e.nameEn} (${e.legalEntityCode})` })),
+    ...legalEntities.map((e) => ({ value: e.id, label: `${lang === 'ar' ? e.nameAr : e.nameEn} (${e.legalEntityCode})` })),
   ];
 
   const regionTypeOptions = [
@@ -295,7 +295,7 @@ export const RegionsPage: React.FC = () => {
       <Drawer
         isOpen={isRegionDrawerOpen}
         onClose={closeRegionDrawer}
-        title={selectedRegion ? `${t('edit')}: ${selectedRegion.nameEn}` : t('new')}
+        title={selectedRegion ? `${t('edit')}: ${lang === 'ar' ? selectedRegion.nameAr : selectedRegion.nameEn}` : t('new')}
         width="md"
         footer={
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
