@@ -1,0 +1,1613 @@
+[
+  {
+    "id": "TC001",
+    "title": "Login and reach the dashboard",
+    "description": "Verifies that a visitor can sign in with valid credentials and land on the dashboard.",
+    "category": "User Authentication and Self-Service",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard landing screen is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Update role permissions and persist them",
+    "description": "Verifies that permission matrix changes can be saved and remain visible after reopening the role.",
+    "category": "Security Roles Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing role"
+      },
+      {
+        "type": "action",
+        "description": "Open the permission matrix drawer"
+      },
+      {
+        "type": "action",
+        "description": "Toggle one or more permissions"
+      },
+      {
+        "type": "action",
+        "description": "Save the permission matrix changes"
+      },
+      {
+        "type": "action",
+        "description": "Reopen the same role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the permission changes persist after reopening"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Reject invalid login credentials",
+    "description": "Verifies that incorrect credentials are rejected and the visitor remains on the login screen with an error message.",
+    "category": "User Authentication and Self-Service",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with invalid-user"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with invalid-password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a login error message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login screen remains displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Create and persist a new role",
+    "description": "Verifies that a security administrator can create a role and see it persist after returning to the roles list.",
+    "category": "Security Roles Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required role details with a new unique role"
+      },
+      {
+        "type": "action",
+        "description": "Save the role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new role appears in the roles list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Create a new user account",
+    "description": "Verifies that a security administrator can create a new user and see the new account in the user list.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new user"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required user details with a new unique user"
+      },
+      {
+        "type": "action",
+        "description": "Submit the user form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new user appears in the user list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Activate an account from the login screen",
+    "description": "Verifies that a visitor can submit a valid activation code and see the account activation success state.",
+    "category": "User Authentication and Self-Service",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the activate account tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the activation code field with a valid activation code"
+      },
+      {
+        "type": "action",
+        "description": "Submit the activation form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an activation success confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Create a new page and generate permissions",
+    "description": "This test verifies that an administrator can create a page registry entry and see it appear with generated permissions.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-pages)"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new page"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required page fields"
+      },
+      {
+        "type": "action",
+        "description": "Submit the page form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new page appears in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify generated permissions are shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Edit a user and assign roles",
+    "description": "Verifies that a security administrator can update a user and persist role assignments.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing user for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change the user details"
+      },
+      {
+        "type": "action",
+        "description": "Update the assigned roles"
+      },
+      {
+        "type": "action",
+        "description": "Save the user changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated user details persist in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Create a new account from signup",
+    "description": "Verifies that a visitor can submit a signup request and receive confirmation that the account needs activation.",
+    "category": "User Authentication and Self-Service",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the signup tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with a new unique username"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with a new unique email address"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with a valid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the signup form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an account activation confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Create a page registry entry and generated permissions",
+    "description": "Verifies that a new page registry entry can be created and that generated permissions are reflected afterward.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the page registry screen"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new page registry entry"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required page details with a new unique page"
+      },
+      {
+        "type": "action",
+        "description": "Save the page registry entry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new page appears in the registry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify generated permissions are available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Set a new password with a reset token",
+    "description": "Verifies that a visitor can complete the reset password flow and see confirmation that the password was updated.",
+    "category": "User Authentication and Self-Service",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the reset password tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the reset token field with a valid reset token"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the new password field with a valid new password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the reset password form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a password updated confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Copy permissions from another role",
+    "description": "Verifies that permissions can be copied from one role to another and retained after save.",
+    "category": "Security Roles Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a target role"
+      },
+      {
+        "type": "action",
+        "description": "Open the copy permissions control"
+      },
+      {
+        "type": "action",
+        "description": "Choose a source role to copy from"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the copy"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the target role shows copied permissions"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Create a user profile with a branch selected",
+    "description": "A security administrator can create a user profile, select a branch, and see the new profile linked to that branch.",
+    "category": "User Profile and Branch Data Scope",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-users)"
+      },
+      {
+        "type": "action",
+        "description": "Click the control to create a new user profile"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the user's name field with Branch Linked User"
+      },
+      {
+        "type": "action",
+        "description": "Select a branch"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new user profile appears in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected branch is associated with the new profile"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Delete a user",
+    "description": "Verifies that a security administrator can delete a user that has no linked data and see it removed from the list.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Create a disposable user account"
+      },
+      {
+        "type": "action",
+        "description": "Delete the disposable user"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the disposable user is removed from the user list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Edit an existing role",
+    "description": "This test verifies that a security administrator can update role details and see the saved changes persist in the list.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-roles)"
+      },
+      {
+        "type": "action",
+        "description": "Open a role for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change the role fields"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated role values are shown in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Request a password reset",
+    "description": "Verifies that a visitor can request a password reset using an email address and see confirmation that the request was submitted.",
+    "category": "User Authentication and Self-Service",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the forgot password tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with a registered account email"
+      },
+      {
+        "type": "action",
+        "description": "Submit the password reset request form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a password reset confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Edit and save a user's profile",
+    "description": "A security administrator can update a user's extended profile and see the saved values after reopening the drawer.",
+    "category": "User Profile and Branch Data Scope",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-users)"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing user's profile drawer"
+      },
+      {
+        "type": "action",
+        "description": "Update the user's name field with Profile Test User"
+      },
+      {
+        "type": "action",
+        "description": "Update the preferred language field with a valid language"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "action",
+        "description": "Reopen the same user's profile drawer"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile values are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the profile drawer remains available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Search and filter users",
+    "description": "Verifies that a security administrator can narrow the user list using search and filters.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Enter a search term for an existing user"
+      },
+      {
+        "type": "action",
+        "description": "Apply a status or role filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user list is filtered to matching results"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Edit and persist a page registry entry",
+    "description": "Verifies that an existing page registry entry can be edited and the updated values remain after reopening.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the page registry screen"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing page registry entry for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change the page details"
+      },
+      {
+        "type": "action",
+        "description": "Save the page changes"
+      },
+      {
+        "type": "action",
+        "description": "Reopen the same page registry entry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated page details persist"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Activate and deactivate a role",
+    "description": "Verifies that a role can be deactivated and then reactivated from the roles list.",
+    "category": "Security Roles Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing active role"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the role"
+      },
+      {
+        "type": "action",
+        "description": "Reactivate the same role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role returns to an active state"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Search roles by name",
+    "description": "This test verifies that a security administrator can filter the role list by a search term and see matching roles only.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-roles)"
+      },
+      {
+        "type": "action",
+        "description": "Enter a role search term"
+      },
+      {
+        "type": "action",
+        "description": "Apply the search filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role list shows filtered results"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Update a user's profile drawer and reopen it",
+    "description": "Verifies that profile drawer edits are saved and remain visible when the drawer is reopened.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a user's profile drawer"
+      },
+      {
+        "type": "action",
+        "description": "Edit extended profile fields"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "action",
+        "description": "Reopen the profile drawer"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved profile values are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Assign and persist a user's branch access scope",
+    "description": "A security administrator can choose a branch-level access setting for a user and see it persist after reopening the scope drawer.",
+    "category": "User Profile and Branch Data Scope",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-users)"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing user's data scope drawer"
+      },
+      {
+        "type": "action",
+        "description": "Choose a branch-level access setting"
+      },
+      {
+        "type": "action",
+        "description": "Save the access scope"
+      },
+      {
+        "type": "action",
+        "description": "Reopen the same user's data scope drawer"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated access scope is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the scope drawer remains available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "Deactivate and reactivate a role",
+    "description": "This test verifies that a security administrator can change a role's active state and see the status update in the list.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-roles)"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate an active role"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the action"
+      },
+      {
+        "type": "action",
+        "description": "Activate the same role again"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role status changes as expected"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Set branch data scope for a user",
+    "description": "Verifies that branch-level access settings can be changed and saved from the data scope drawer.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open the data scope drawer for a user"
+      },
+      {
+        "type": "action",
+        "description": "Change the branch-level access settings"
+      },
+      {
+        "type": "action",
+        "description": "Save the data scope changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated branch data scope is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC026",
+    "title": "Deactivate and reactivate a page",
+    "description": "This test verifies that an administrator can toggle a page's active state and see the status update in the page registry.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-pages)"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate an active page"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the action"
+      },
+      {
+        "type": "action",
+        "description": "Reactivate the same page again"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page status changes as expected"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC027",
+    "title": "Assign and persist a role branch scope",
+    "description": "A security administrator can assign a branch and access level to a role and see the saved scope after reopening the panel.",
+    "category": "User Profile and Branch Data Scope",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-roles)"
+      },
+      {
+        "type": "action",
+        "description": "Open the role data scope panel for an existing role"
+      },
+      {
+        "type": "action",
+        "description": "Assign a branch"
+      },
+      {
+        "type": "action",
+        "description": "Choose an access level"
+      },
+      {
+        "type": "action",
+        "description": "Save the role scope changes"
+      },
+      {
+        "type": "action",
+        "description": "Reopen the same role data scope panel"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved role scope entry is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role scope panel remains available"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC028",
+    "title": "Open a module from the dashboard",
+    "description": "Verifies that an authenticated user can use the dashboard as a landing page and open a main administration module.",
+    "category": "Dashboard Navigation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Choose a navigation card to open a main module"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected module screen is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC029",
+    "title": "Remove a role permission row and keep it removed",
+    "description": "This test verifies that a security administrator can remove a page permission row from a role and see it remain removed after reopening the matrix.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-roles)"
+      },
+      {
+        "type": "action",
+        "description": "Open the permission matrix drawer for a role"
+      },
+      {
+        "type": "action",
+        "description": "Remove a page permission row"
+      },
+      {
+        "type": "action",
+        "description": "Save the permission changes"
+      },
+      {
+        "type": "action",
+        "description": "Reopen the permission matrix drawer"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the removed permission row is still absent"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC030",
+    "title": "Deactivate and reactivate a page registry entry",
+    "description": "Verifies that a page registry entry can be deactivated and then reactivated from the registry list.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the page registry screen"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing active page registry entry"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the page registry entry"
+      },
+      {
+        "type": "action",
+        "description": "Reactivate the same page registry entry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page registry entry returns to an active state"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC031",
+    "title": "Set role data scope",
+    "description": "Verifies that a role's branch data scope can be edited and saved from the data scope drawer.",
+    "category": "Security Roles Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open the data scope drawer for a role"
+      },
+      {
+        "type": "action",
+        "description": "Change the data scope settings"
+      },
+      {
+        "type": "action",
+        "description": "Save the data scope changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated data scope is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC032",
+    "title": "Create a permission record",
+    "description": "This test verifies that an administrator can create a permission with code, module, and description and see it appear in the registry.",
+    "category": "Security Permissions Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-permissions)"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new permission"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required permission fields"
+      },
+      {
+        "type": "action",
+        "description": "Submit the permission form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new permission appears in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC033",
+    "title": "Manage legal entities",
+    "description": "Verifies that an authenticated employee can create and persist a legal entity in the organization setup screens.",
+    "category": "Organization Setup",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the legal entities screen"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new legal entity"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required legal entity details"
+      },
+      {
+        "type": "action",
+        "description": "Save the legal entity"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new legal entity appears in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC034",
+    "title": "Edit a permission record",
+    "description": "This test verifies that an administrator can edit an existing permission and see the updated values persist in the registry.",
+    "category": "Security Permissions Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-permissions)"
+      },
+      {
+        "type": "action",
+        "description": "Open a permission for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change the permission details"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated permission values are shown in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC035",
+    "title": "Search pages by name",
+    "description": "This test verifies that an administrator can filter the page registry by a search term and see matching pages only.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-pages)"
+      },
+      {
+        "type": "action",
+        "description": "Enter a page search term"
+      },
+      {
+        "type": "action",
+        "description": "Apply the search filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page list shows filtered results"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC036",
+    "title": "Create a notification template",
+    "description": "An authenticated user can create a new notification template and see it appear in the template list.",
+    "category": "Notifications Workspace",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(notif-templates)"
+      },
+      {
+        "type": "action",
+        "description": "Click the control to create a new template"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the template name field with Template Alpha"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the template content field with Welcome to the workspace"
+      },
+      {
+        "type": "action",
+        "description": "Save the template"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new template appears in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC037",
+    "title": "Create a notification channel",
+    "description": "An authenticated user can create a new notification channel and see it appear in the channel list.",
+    "category": "Notifications Workspace",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(notif-channels)"
+      },
+      {
+        "type": "action",
+        "description": "Click the control to create a new channel"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the channel name field with Channel Alpha"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the channel destination field with team-alerts"
+      },
+      {
+        "type": "action",
+        "description": "Save the channel"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new channel appears in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC038",
+    "title": "Block deleting a user with linked data",
+    "description": "Verifies that deleting a user with existing linked data shows a conflict and keeps the user in the list.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a user that already has linked data"
+      },
+      {
+        "type": "action",
+        "description": "Delete the user"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a conflict message is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user remains in the list"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC039",
+    "title": "Edit a notification template",
+    "description": "An authenticated user can update an existing notification template and see the changes persist in the UI.",
+    "category": "Notifications Workspace",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(notif-templates)"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing template for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the template content field with Updated welcome message"
+      },
+      {
+        "type": "action",
+        "description": "Save the template"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated template content is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the template remains in the list"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC040",
+    "title": "Edit a notification channel",
+    "description": "An authenticated user can update an existing notification channel and see the changes persist in the UI.",
+    "category": "Notifications Workspace",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(notif-channels)"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing channel for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the channel destination field with priority-alerts"
+      },
+      {
+        "type": "action",
+        "description": "Save the channel"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated channel settings are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the channel remains in the list"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC041",
+    "title": "Open the notifications inbox",
+    "description": "Verifies that an authenticated user can open the mock notifications inbox and see inbox items.",
+    "category": "Notifications Workspace",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the notifications inbox"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify inbox items are displayed"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC042",
+    "title": "Search permissions by text and module",
+    "description": "This test verifies that an administrator can filter the permissions registry by search term and module and see matching results.",
+    "category": "Security Permissions Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(sec-permissions)"
+      },
+      {
+        "type": "action",
+        "description": "Enter a permission search term"
+      },
+      {
+        "type": "action",
+        "description": "Apply a module filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the permission list shows filtered results"
+      }
+    ],
+    "priority": "Low"
+  },
+  {
+    "id": "TC043",
+    "title": "View a notification item from the inbox",
+    "description": "An authenticated user can open the notifications inbox and view the details of a notification item.",
+    "category": "Notifications Workspace",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(notif-inbox)"
+      },
+      {
+        "type": "action",
+        "description": "Click the first notification item in the inbox list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected notification details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the inbox remains accessible"
+      }
+    ],
+    "priority": "Low"
+  }
+]
