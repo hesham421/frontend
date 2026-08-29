@@ -42,6 +42,21 @@ backend's own `project-artifacts/`, no nested per-repo subfolder.
 
 ---
 
+## TestSprite Tests
+
+`frontend/testsprite_tests/` is TestSprite's own scratch working directory
+(fixed path, not relocatable) — treat it as ephemeral. The durable,
+module-organized archive of generated tests lives under
+`governance/modules/<MOD>/testsprite/tests/`, and each run's full PRD +
+test plan + report bundle is archived under
+`governance/testsprite/runs/<date>-frontend/`. Full mechanism, the
+module-classification rule, the standing before/after-run procedure, and
+the two ready prompts (`start-tests.md` / `rerun-tests.md`) are documented
+in `governance/testsprite/TESTSPRITE-GOVERNANCE.md` — read it before
+running TestSprite or touching anything under `testsprite_tests/`.
+
+---
+
 ## Code Comments — No Banners, No Oversized Javadoc/JSDoc
 
 - NEVER write banner/section-divider comments (`// ==== Section ====`, a
