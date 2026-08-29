@@ -29,7 +29,7 @@ erp-priority-override/         precedence when guidance conflicts
 
 create-auth-session/           Phase 1  token store, refresh, session, grants
 create-error-handling/         Phase 1  error taxonomy and boundaries
-create-app-state/              Phase 1  LanguageContext, AuthContext
+create-app-state/              Phase 1  LanguageContext
 
 create-models/                 DTO types, Zod schema, form mapper
 create-api-client/             HTTP client and feature api module
@@ -123,7 +123,7 @@ user-facing behaviour. Raw messages never reach the UI; a correlation ID does.
 | Feature logic | `src/features/accounts/{model,api,hooks}.ts` |
 | Screen | `src/pages/Accounts.tsx` (default export, lazy) |
 | Path | `PATHS.accounts.edit(id)` — never a literal |
-| Permission | `perm(RESOURCES.ACCOUNT, 'UPDATE')` → `ACCOUNT_UPDATE` |
+| Permission | `perm(RESOURCES.ACCOUNT, 'UPDATE')` → `PERM_ACCOUNT_UPDATE` |
 | Query key | `accountKeys.list(searchRequest)` |
 | Hook | `useAccountList`, `useAccountMutations` |
 | Translation | `t('accounts.title')`, present in `en` and `ar` |

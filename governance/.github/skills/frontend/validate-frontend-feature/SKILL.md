@@ -205,7 +205,7 @@ npm audit --audit-level=high
 ```
 
 Then run the enforcement skills for depth: `enforce-frontend-architecture` (50),
-`enforce-state-management` (48), `enforce-permissions` (36), `enforce-ui-ux` (42),
+`enforce-state-management` (48), `enforce-permissions` (34), `enforce-ui-ux` (42),
 `enforce-security` (34), `enforce-reusability` (28).
 
 ## Report format
@@ -251,7 +251,7 @@ SCOPE NOTE: frontend authorization is UX. Backend enforcement is not assessed he
 |---|---|
 | `enforce-frontend-architecture` | 50 structural checks |
 | `enforce-state-management` | 48 ownership, render, and effect checks |
-| `enforce-permissions` | 36 triple-enforcement checks |
+| `enforce-permissions` | 34 triple-enforcement checks |
 | `enforce-ui-ux` | 42 design, i18n, accessibility, and motion checks |
 | `enforce-security` | 34 security checks |
 | `enforce-reusability` | 28 duplication checks |

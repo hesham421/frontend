@@ -116,9 +116,9 @@ DS design/i18n/a11y · SH shared layer
 | # | Rule | Violation |
 |---|---|---|
 | R.7.1 | Context holds cross-cutting client state only — never server data | Entity list cached in a provider |
-| R.7.2 | One provider per concern (`LanguageContext`, `AuthContext`) | A single god provider |
+| R.7.2 | One provider per concern (`LanguageContext` is the only cross-cutting Context — session/permissions are TanStack Query, AD-5) | A single god provider |
 | R.7.3 | Context value is memoised so consumers do not re-render on every parent render | New object literal as `value` each render |
-| R.7.4 | Consumers read through the provider's hook (`useLanguage`, `useAuth`, `useCan`) | `useContext(RawContext)` at a call site |
+| R.7.4 | Consumers read through the provider's hook (`useLanguage`) | `useContext(RawContext)` at a call site |
 | R.7.5 | Derived values computed at read time | Stored derivation that drifts from its source |
 | R.7.6 | Only durable preferences persist, and never anything sensitive | Token or session payload written to storage |
 | R.7.7 | No second client-state library alongside Context | A store duplicating an existing provider |
@@ -145,7 +145,7 @@ DS design/i18n/a11y · SH shared layer
 
 | # | Rule | Violation |
 |---|---|---|
-| R.9.1 | Access token in memory only, in `lib/auth/tokenStore.ts` | Token in `localStorage`, `sessionStorage`, cookie readable by JS, or React state |
+| R.9.1 | Access token in memory only, in `auth/tokenStore.ts` | Token in `localStorage`, `sessionStorage`, cookie readable by JS, or React state |
 | R.9.2 | Refresh token in an httpOnly, Secure, SameSite cookie scoped to `/auth` | Refresh token reachable from JS |
 | R.9.3 | Cookie-bearing requests send a double-submit `X-CSRF-Token` header | Unprotected cookie endpoint |
 | R.9.4 | Startup bootstrap refreshes before rendering anything behind the auth boundary | Flash of authenticated UI then redirect |
@@ -240,7 +240,7 @@ DS design/i18n/a11y · SH shared layer
 |---|---|
 | PERF.1 | Route-level code splitting on every page |
 | PERF.2 | Heavy widgets (rich text, signature, charts, file preview) dynamically imported |
-| PERF.3 | Icons imported individually |
+| PERF.3 | Icons are `@tabler/icons-webfont` CSS glyph classes (`ti ti-<name>`); no second icon package imported |
 | PERF.4 | No barrel chain that defeats tree-shaking |
 | PERF.5 | Every memoisation justified in a comment; none applied by reflex |
 | PERF.6 | Server-side pagination for every list; virtualization only above 200 rendered rows |
@@ -279,7 +279,7 @@ DS design/i18n/a11y · SH shared layer
 | SH.1 | `apiClient`, `http` | `lib/http` |
 | SH.2 | `ApiError`, `normalizeError`, `mapBackendError` | `lib/errors` |
 | SH.3 | `useLanguage()`, `t()` | `context/LanguageContext` |
-| SH.4 | `useAuth()`, `useCan()` | `context/AuthContext` |
+| SH.4 | `usePermission()`, `useSession()` | `auth/permissions`, `auth/session` |
 | SH.5 | `perm()`, `RESOURCES` | `auth/permissions` |
 | SH.6 | `PATHS`, `NAV_SECTIONS`, `useVisibleNav()` | `routes/` |
 | SH.7 | `RequireAuth`, `RequirePermission`, `<Can>` | `routes/guards`, `components/ui` |

@@ -27,7 +27,7 @@ responsibility requires amending this table, not a local decision.
 | Design tokens | `src/styles/tokens/*.css` | referenced via `var(--token)` | hardcoded hex or px |
 | Icons | `@tabler/icons-webfont` | everywhere | any second icon set |
 | Localization and direction | `LanguageContext` → `useLanguage()`, `t()` | everywhere | per-component dictionaries |
-| Session and permissions | `AuthContext` → `useAuth()`, `useCan()` | everywhere | a second auth store |
+| Session and permissions | TanStack Query → `usePermission()` (`src/auth/permissions.ts`) | everywhere | a second auth store, a Context copy of the grant set |
 | Cross-cutting client state | React Context | `src/context/` | server data |
 | Server state and caching | TanStack Query v5 | `src/features/*/hooks.ts` | UI state, form state |
 | HTTP transport | native `fetch` behind `lib/http` | `lib/http`, `features/*/api.ts` | components, pages |
@@ -42,10 +42,12 @@ responsibility requires amending this table, not a local decision.
 MobX, SWR, Axios, Formik, Yup, Moment.js, Tailwind CSS, styled-components, Emotion, CSS
 Modules, Material UI, Ant Design, Chakra, react-icons, lucide-react, Enzyme, Cypress.
 
-> **Note on client state.** `AuthContext` and `LanguageContext` already own cross-cutting
-> client state. A state library alongside them would create a second owner for the same
-> concern, which is the failure this table exists to prevent. Context is sufficient here
-> because this state is small, changes rarely, and is read almost everywhere.
+> **Note on client state.** `LanguageContext` owns cross-cutting client state; session and
+> permissions are server state and live in TanStack Query instead (AD-5), never mirrored
+> into a Context. A state library alongside `LanguageContext` would create a second owner
+> for the same concern, which is the failure this table exists to prevent. Context is
+> sufficient there because locale/direction is small, changes rarely, and is read almost
+> everywhere.
 
 ## 2. Architecture decisions
 
@@ -74,10 +76,30 @@ Frontend ──► routes.tsx: each route declares the permission it requires
              navigation.ts: menu derived from the same route config, filtered by grants
 ```
 
-Permission codes are `<RESOURCE>_<ACTION>` with `ACTION ∈ VIEW | CREATE | UPDATE | DELETE`,
-declared once in `src/auth/permissions.ts` and referenced by routes, controls, and handlers.
-A code the frontend does not know is ignored. A code the backend does not grant hides the
-route and its menu entry.
+Permission codes are `PERM_<RESOURCE>_<ACTION>` with `ACTION ∈ VIEW | CREATE | UPDATE |
+DELETE`, declared once in `src/auth/permissions.ts` and referenced by routes, controls, and
+handlers. A code the frontend does not know is ignored. A code the backend does not grant
+hides the route and its menu entry.
+
+**The `PERM_` prefix is not optional, for any resource in any module** — confirmed by
+decoding a live login JWT's `authorities` claim on 2026-08-29: every single authority the
+backend issues, across every module (Security, Organization, Master Data, Notifications —
+this is a platform-wide backend convention, not a Security-specific one), is
+`PERM_`-prefixed (`PERM_ROLE_CREATE`, `PERM_PAGE_UPDATE`, `PERM_USER_PROFILE_VIEW`, …); no
+bare `<RESOURCE>_<ACTION>` form exists anywhere in a real token, for any resource. A
+`can(...)` call built without the prefix never matches, for any user including SUPER_ADMIN,
+regardless of which module owns the resource, and **fails closed silently** — the guarded
+button/control simply never renders, with no error, no console warning, nothing to grep for
+except the missing prefix itself. This exact mistake shipped in four Security-module facades
+first (`roles/hooks.ts`, `pageRegistry/hooks.ts`, `roleDataScope/hooks.ts`,
+`userProfiles/hooks.ts`) — Security merely happened to be the first module built and tested,
+not the only module this convention governs — before being caught by a TestSprite run; see
+`governance/testsprite/runs/2026-08-29-frontend/` and the `enforce-permissions` skill's
+diagnostic patterns for the fix. Apply the same `PERM_` prefix when building permission
+checks for any other module's resources (`PERM_BRANCH_VIEW`, `PERM_LOOKUP_CREATE`, etc.).
+Verify the real convention any time it's in doubt by decoding the JWT from a real
+`/api/auth/login` response rather than trusting a spec doc — specs can drift from what the
+backend actually issues, for any module.
 
 **Why:** grants are user-specific and genuinely backend-owned. Page inventory is a UI fact.
 Coupling the route table to a database table means a route rename becomes a data migration,
@@ -112,11 +134,19 @@ can tell which happened.
 exfiltrates a bearer token. In-memory storage reduces that from silent long-lived account
 takeover to damage confined to the compromised tab.
 
-### AD-5 — Session is Context over a query
+### AD-5 — Session is a query, read directly via `usePermission()`
 
-The session is fetched once by TanStack Query and exposed through `AuthContext` so that
-`useAuth()` and `useCan()` are the only read points. There is exactly one copy of the
-permission set in the application. The token is not in Context — it is never rendered.
+The session — user, permissions, pages — is fetched once by TanStack Query
+(`staleTime: Infinity`, invalidated on auth events) and read directly through
+`usePermission()` (`src/auth/permissions.ts`), never mirrored into a Context. There is
+exactly one copy of the permission set in the application, which is why a screen's gating
+can never disagree with the navigation menu. The token is separate and is never rendered —
+it lives in `tokenStore` (AD-4), not in the session query or any Context.
+
+**Why not a Context wrapper:** the session is already single-sourced by the QueryClient
+cache; adding `AuthContext`/`useAuth()`/`useCan()` on top would be a second read path for
+data that already has exactly one owner, with no behavior it enables that direct
+`usePermission()` calls don't already have.
 
 ### AD-6 — Frontend authorization is a UX layer
 
@@ -129,8 +159,8 @@ green frontend report is routinely misread as proof that an endpoint is protecte
 
 | State | Owner |
 |---|---|
-| Anything a server is the source of truth for | TanStack Query (`features/*/hooks.ts`) |
-| Session, permissions, locale, direction | React Context (`src/context/`) |
+| Anything a server is the source of truth for, including session and permissions | TanStack Query (`features/*/hooks.ts`, `auth/permissions.ts`) |
+| Locale, direction | React Context (`src/context/`) |
 | Fields being edited | React Hook Form |
 | List page, size, sort, filters, active tab, opened record | URL search params |
 | State used by one subtree | `useState` |
@@ -226,11 +256,11 @@ src/
 │   └── guards.tsx               RequireAuth, RequirePermission
 ├── auth/
 │   ├── tokenStore.ts            in-memory access token
-│   ├── permissions.ts           permission code constants + perm()
+│   ├── session.ts               session query (user, permissions, pages)
+│   ├── permissions.ts           perm(), usePermission() — reads the session query directly
 │   └── authApi.ts               login, refresh, logout
 ├── context/
-│   ├── LanguageContext.tsx      locale, direction, t()
-│   └── AuthContext.tsx          session, useAuth(), useCan()
+│   └── LanguageContext.tsx      locale, direction, t()
 ├── layout/
 │   ├── AppShell.tsx             Topbar + Sidebar + <Outlet />
 │   ├── Sidebar.tsx              navigation from routes/navigation.ts
@@ -290,7 +320,7 @@ routes → layout → pages → features/<f>/{hooks, components, confirmActions}
 | Form values | `<Entity>FormValues` | `AccountFormValues` |
 | Zod schema | `<entity>FormSchema` | `accountFormSchema` |
 | Path constant | `PATHS.<area>.<screen>` | `PATHS.accounts.list` |
-| Permission | `perm(ACCOUNT, 'UPDATE')` | `ACCOUNT_UPDATE` |
+| Permission | `perm(ACCOUNT, 'UPDATE')` | `PERM_ACCOUNT_UPDATE` |
 | Route param | `<entityCamel>Id` | `:accountId` |
 
 Page components are the only default exports, because `React.lazy` requires it. Everything

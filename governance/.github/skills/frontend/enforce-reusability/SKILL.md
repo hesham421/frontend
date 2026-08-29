@@ -27,8 +27,9 @@ shared code correctly. Rules: `references/contract-rules.md` §SH;
 2. **If something close exists, can it be extended?** Extend when the difference is a prop. Never copy.
 3. **If it is new and a second feature will need it, does it belong in `lib/` or `components/ui` now?** Do not wait for the third copy.
 
-Placement follows AD-13: `lib/` is organised by purpose (`lib/format`, `lib/errors`,
-`lib/auth`). Creating `lib/utils/` or `src/common/` to hold it is itself the violation.
+Placement follows AD-13: `lib/` is organised by purpose (`lib/http`, `lib/format`,
+`lib/errors`) — `auth/` is its own top-level folder, not under `lib/` (AD-4, AD-5). Creating
+`lib/utils/` or `src/common/` to hold it is itself the violation.
 
 ## Section 1 — Component duplication (10)
 

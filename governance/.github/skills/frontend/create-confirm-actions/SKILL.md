@@ -50,7 +50,7 @@ export function useBranchConfirmActions({ mutations }: { mutations: BranchMutati
     qc.fetchQuery({ queryKey: branchKeys.usage(id), queryFn: ({ signal }) => branchApi.getUsage(id, signal) });
 
   async function confirmToggleActive(row: BranchDto) {
-    if (!can(perm(BRANCH_PAGE, 'UPDATE'))) { toast.error(t('common.noPermission')); return; }   // 1
+    if (!can(perm(RESOURCES.BRANCH, 'UPDATE'))) { toast.error(t('common.noPermission')); return; }   // 1
 
     if (row.isActive) {                                                                         // 2
       const usage = await fetchUsage(row.id);
@@ -76,7 +76,7 @@ export function useBranchConfirmActions({ mutations }: { mutations: BranchMutati
   }
 
   async function confirmDelete(row: BranchDto) {
-    if (!can(perm(BRANCH_PAGE, 'DELETE'))) { toast.error(t('common.noPermission')); return; }
+    if (!can(perm(RESOURCES.BRANCH, 'DELETE'))) { toast.error(t('common.noPermission')); return; }
 
     const usage = await fetchUsage(row.id);                                                     // R.6.4
     if (!usage.canDelete) {

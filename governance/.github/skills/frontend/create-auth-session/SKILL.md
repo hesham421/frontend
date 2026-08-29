@@ -22,10 +22,10 @@ Rules: `references/contract-rules.md` §R.9, §SEC.
 ## Output
 
 ```
-src/lib/auth/tokenStore.ts     in-memory access token
-src/lib/auth/authApi.ts        login, refresh, logout
-src/lib/auth/session.ts        session query + Zod parsing
-src/lib/auth/permissions.ts    perm(), usePermission()
+src/auth/tokenStore.ts         in-memory access token
+src/auth/authApi.ts            login, refresh, logout
+src/auth/session.ts            session query + Zod parsing
+src/auth/permissions.ts        perm(), usePermission()
 src/lib/http/refreshQueue.ts   single-flight 401 handling
 src/app/AuthBootstrap.tsx      startup gate
 src/routes/guards.tsx          RequireAuth, RequirePermission
@@ -44,7 +44,7 @@ clears the cache, and tells the other tabs.
 ## Step 1 — Token store (R.9.1)
 
 ```ts
-// lib/auth/tokenStore.ts — never React state, never persisted
+// src/auth/tokenStore.ts — never React state, never persisted
 let accessToken: string | null = null;
 let expiresAt = 0;
 
@@ -65,7 +65,7 @@ token is never rendered, so putting it in state buys nothing and adds a re-rende
 ## Step 2 — Auth endpoints (R.9.2, R.9.3)
 
 ```ts
-// lib/auth/authApi.ts
+// src/auth/authApi.ts
 const AUTH = '/auth';
 const csrf = () => readCookie('csrf') ?? '';
 
@@ -87,6 +87,9 @@ export const authApi = {
       headers: { 'X-CSRF-Token': csrf() },
       skipAuthRefresh: true,
     }),
+
+  // backs Step 4's session query — user, permissions, pages
+  me: () => http.get<AuthResult>(`${AUTH}/me`),
 };
 ```
 
@@ -116,7 +119,7 @@ arriving during a refresh await the same promise rather than starting their own.
 ## Step 4 — Session as server state (R.9.9, AD-5)
 
 ```ts
-// lib/auth/session.ts
+// src/auth/session.ts
 export const sessionKeys = { current: () => ['session'] as const };
 
 export function useSession() {
@@ -140,10 +143,10 @@ session still loads.
 ## Step 5 — Permissions (AD-7, P.4)
 
 ```ts
-// lib/auth/permissions.ts
+// src/auth/permissions.ts
 export type PermissionAction = 'VIEW' | 'CREATE' | 'UPDATE' | 'DELETE';
 
-export const perm = (resource: string, action: PermissionAction) => `${resource}_${action}`;
+export const perm = (resource: string, action: PermissionAction) => `PERM_${resource}_${action}`;
 
 export function usePermission() {
   const { data } = useSession();
@@ -155,8 +158,9 @@ export function usePermission() {
 }
 ```
 
-Features never concatenate permission strings. `perm(BRANCH_PAGE, 'UPDATE')` is greppable
-back to a page; `'BRANCH_UPDAT'` typed inline is a check that silently never passes.
+Features never concatenate permission strings. `perm(RESOURCES.BRANCH, 'UPDATE')` is
+greppable back to a page; `'PERM_BRANCH_UPDAT'` typed inline is a check that silently never
+passes.
 
 ## Step 6 — Startup bootstrap (R.9.4)
 

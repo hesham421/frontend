@@ -1,6 +1,6 @@
 ---
 name: create-app-state
-description: "Generates cross-cutting client state as React Context providers — LanguageContext for locale, direction and t(), AuthContext for session and grants — and defines precisely which state belongs there versus in TanStack Query, React Hook Form, URL search params, or useState."
+description: "Generates cross-cutting client state as React Context providers — LanguageContext for locale, direction and t() — and defines precisely which state belongs there versus in TanStack Query, React Hook Form, URL search params, or useState. Session and permissions look cross-cutting but stop at TanStack Query (AD-5, create-auth-session) and never reach Context."
 ---
 
 # Skill: create-app-state
@@ -10,12 +10,12 @@ Generates the application's Context providers and settles state ownership.
 Implements AD-5, AD-7. Rules: `references/contract-rules.md` §R.7.
 
 ## When to Use
-- Locale, direction, theme, session, or grants need to be readable across the tree
+- Locale, direction, or theme needs to be readable across the tree
 - Deciding where a new piece of state belongs
 - Reviewing a provider for re-render or ownership problems
 
 ## When NOT to Use
-- Server data → `create-queries`
+- Server data, including session and permissions → `create-queries`, `create-auth-session`
 - Form fields → `create-forms`
 - List page, size, sort, filters, active tab → URL search params (R.5.8)
 - State read by one subtree → `useState` and props
@@ -24,7 +24,6 @@ Implements AD-5, AD-7. Rules: `references/contract-rules.md` §R.7.
 
 ```
 src/context/LanguageContext.tsx
-src/context/AuthContext.tsx
 ```
 
 ---
@@ -43,9 +42,12 @@ before reaching Context.
 | 5 | Is it read by one subtree? | `useState` + props |
 | 6 | Is it cross-cutting and read almost everywhere? | **Context** |
 
-Only locale/direction and session/grants clear all six. That is why there are exactly two
-providers and no general-purpose store: a third provider needs to justify itself against
-this list.
+Session and permissions look cross-cutting and read-everywhere, which is why they're the
+case worth naming explicitly: they stop at question 1 — a server owns that truth — and
+never reach question 6, so they live in TanStack Query via `usePermission()`
+(`create-auth-session`, AD-5), not here. Only locale/direction clears all six. That is why
+there is exactly one provider and no general-purpose store: a second provider needs to
+justify itself against this list.
 
 ## Step 1 — LanguageContext
 
@@ -105,55 +107,35 @@ Three things carry weight here:
 
 The provider throws when used outside itself. Returning `undefined` pushes an optional-chaining burden onto every call site and turns a wiring mistake into a silent blank label.
 
-## Step 2 — AuthContext
+## Step 2 — Why session/permissions stop here, not in Context
 
-The session comes from a query (AD-5); Context is the read surface so `useAuth` and `useCan`
-are the only ways to reach it.
+This is worth stating explicitly because a session-in-Context wrapper is a common tutorial
+pattern that looks like it belongs in this file. It doesn't:
 
-```tsx
-interface AuthContextValue {
-  status: 'loading' | 'authenticated' | 'anonymous';
-  user: SessionUser | null;
-  can: (permission: string) => boolean;
-}
+- The session (`user`, `permissions`, `pages`) is already single-sourced by the TanStack
+  Query cache (`useSession()`, `staleTime: Infinity`) — see `create-auth-session` Step 4.
+  A Context wrapper on top would be a second read path for data with exactly one owner
+  already, not a second owner (which R.7.1 would reject), but still pure overhead: every
+  consumer of `usePermission()` already gets the same single source, without an extra
+  provider, an extra `useContext` throw-guard, or an extra memoised `value` object to keep
+  correct.
+- The permission set is read via `const { can } = usePermission()` directly
+  (`auth/permissions.ts`) — same call shape as `useLanguage()`, just backed by a query
+  instead of a provider.
+- **The token is not here either**, and never will be: it is never rendered, so putting it
+  anywhere React can see it adds a re-render surface and a leak path for no benefit (AD-4).
 
-export function AuthProvider({ children }: PropsWithChildren) {
-  const { data, isPending, isError } = useSessionQuery();   // staleTime: Infinity
-
-  const granted = useMemo(() => new Set(data?.permissions ?? []), [data]);
-
-  const can = useCallback((permission: string) => granted.has(permission), [granted]);
-
-  const value = useMemo<AuthContextValue>(() => ({
-    status: isPending ? 'loading' : isError || !data ? 'anonymous' : 'authenticated',
-    user: data?.user ?? null,
-    can,
-  }), [isPending, isError, data, can]);
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export const useAuth = () => { /* throws outside the provider */ };
-export const useCan = () => useAuth().can;
-```
-
-The permission set is a `Set`, not an array: `can()` runs on every guarded control on every
-render, and a linear scan over a few hundred grants in a table of fifty rows is measurable.
-
-**The token is not here.** It is never rendered, so putting it in Context adds a re-render
-surface and a way for it to leak into a component tree for no benefit (AD-4).
+If a genuinely new cross-cutting concern shows up that a server does *not* already own
+(theme, a feature flag set fetched once and rarely changing), it goes through the same
+six-question test above — and if it clears all six, it becomes this file's second provider.
 
 ## Step 3 — Provider composition
 
-Order matters — inner providers may consume outer ones.
-
 ```tsx
 // main.tsx
-<QueryClientProvider client={queryClient}>   {/* AuthProvider's session query needs this */}
-  <LanguageProvider>                          {/* AuthProvider may render translated errors */}
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+<QueryClientProvider client={queryClient}>   {/* usePermission()'s session query needs this */}
+  <LanguageProvider>
+    <App />
   </LanguageProvider>
 </QueryClientProvider>
 ```
@@ -162,14 +144,14 @@ Order matters — inner providers may consume outer ones.
 
 ```tsx
 const { t, dir } = useLanguage();
-const can = useCan();
+const { can } = usePermission();
 ```
 
 Never `useContext(LanguageContext)` at a call site (R.7.4). The hook is where the
 outside-provider check lives, and routing every read through it means the context object
 itself can be refactored without touching consumers.
 
-## When a third provider is justified
+## When a second provider is justified
 
 Rarely. A candidate must clear all six ownership questions and be read across unrelated
 branches of the tree. A theme provider qualifies if theming ever becomes user-selectable.

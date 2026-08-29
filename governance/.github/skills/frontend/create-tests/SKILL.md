@@ -163,13 +163,13 @@ either way, which is exactly why that defect ships.
 
 ```tsx
 it('hides delete without the DELETE grant', async () => {
-  renderFeature('/org/branches', sessionWith(['BRANCH_VIEW']));
+  renderFeature('/org/branches', sessionWith(['PERM_BRANCH_VIEW']));
   await screen.findByRole('cell', { name: 'HQ' });
   expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument();
 });
 
 it('returns 403 on a deep link to edit without UPDATE', async () => {
-  renderFeature('/org/branches/1/edit', sessionWith(['BRANCH_VIEW']));
+  renderFeature('/org/branches/1/edit', sessionWith(['PERM_BRANCH_VIEW']));
   expect(await screen.findByText(/do not have permission/i)).toBeInTheDocument();
 });
 

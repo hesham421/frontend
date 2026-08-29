@@ -99,29 +99,32 @@ export const RESOURCES = {
   DEPARTMENT: 'DEPARTMENT',
 } as const;
 
-export const perm = (resource: string, action: PermissionAction) => `${resource}_${action}`;
+export const perm = (resource: string, action: PermissionAction) => `PERM_${resource}_${action}`;
 ```
 
-`perm(RESOURCES.ACCOUNT, 'UPDATE')` yields `ACCOUNT_UPDATE`. Codes are never concatenated
-inline: a literal `'ACCOUNT_UPDAT'` is a check that silently never passes, and grep cannot
-tie it back to a resource (P.4).
+`perm(RESOURCES.ACCOUNT, 'UPDATE')` yields `PERM_ACCOUNT_UPDATE`. The `PERM_` prefix is not
+stylistic — it's what the backend actually issues in every authority string (confirmed by
+decoding a live login JWT, see `references/architecture.md` AD-2); a `perm()` without it
+produces codes that never match, for any user. Codes are never concatenated inline either: a
+literal `'ACCOUNT_UPDAT'` is a check that silently never passes, and grep cannot tie it back
+to a resource (P.4).
 
 ## Step 3 — Guards (`guards.tsx`)
 
 ```tsx
 export function RequireAuth({ children }: PropsWithChildren) {
-  const { status } = useAuth();
+  const { data, isPending, isError } = useSession();   // AD-5 — the session query, no Context
   const location = useLocation();
 
-  if (status === 'loading') return <FullPageLoader />;          // AD-3 — no flash
-  if (status === 'anonymous') {
+  if (isPending) return <FullPageLoader />;                     // AD-3 — no flash
+  if (isError || !data) {
     return <Navigate to={PATHS.login} replace state={{ from: location.pathname + location.search }} />;
   }
   return <>{children}</>;
 }
 
 export function RequirePermission({ permission, children }: RequirePermissionProps) {
-  const can = useCan();
+  const { can } = usePermission();
   if (!can(permission)) return <ForbiddenPage />;               // explicit 403, not a redirect
   return <>{children}</>;
 }
@@ -192,7 +195,7 @@ in the menu without a route or drift to the wrong URL.
 ```ts
 export interface NavItem {
   labelKey: string;          // translation key — t() resolves it (AD-10)
-  icon: string;              // tabler icon class
+  icon: string;              // `ti ti-<name>` — Tabler webfont, both classes required
   path: string;
   permission: string;
 }
@@ -201,14 +204,14 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     labelKey: 'nav.finance',
     items: [
-      { labelKey: 'nav.accounts', icon: 'ti-book', path: PATHS.accounts.list,
+      { labelKey: 'nav.accounts', icon: 'ti ti-book', path: PATHS.accounts.list,
         permission: perm(RESOURCES.ACCOUNT, 'VIEW') },
     ],
   },
   {
     labelKey: 'nav.organization',
     items: [
-      { labelKey: 'nav.orgStructure', icon: 'ti-sitemap', path: PATHS.organization.root,
+      { labelKey: 'nav.orgStructure', icon: 'ti ti-sitemap', path: PATHS.organization.root,
         permission: perm(RESOURCES.ORG_UNIT, 'VIEW') },
     ],
   },
@@ -216,7 +219,7 @@ export const NAV_SECTIONS: NavSection[] = [
 
 /** Sections with no visible items disappear entirely. */
 export function useVisibleNav(): NavSection[] {
-  const can = useCan();
+  const { can } = usePermission();
   return useMemo(
     () => NAV_SECTIONS
       .map((s) => ({ ...s, items: s.items.filter((i) => can(i.permission)) }))

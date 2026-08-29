@@ -96,7 +96,7 @@ imports. Rules: `references/architecture.md` §3–4, `references/contract-rules
 |---|---|---|
 | A.5.1 | Pages lazy per route | PERF.1 |
 | A.5.2 | Heavy widgets dynamically imported | PERF.2 |
-| A.5.3 | Icons imported individually | PERF.3 |
+| A.5.3 | Icons are `ti ti-<name>` webfont classes, no second icon package | PERF.3 |
 | A.5.4 | No barrel chain defeating tree-shaking | PERF.4 |
 | A.5.5 | Every `useMemo`/`useCallback`/`memo` carries a justification comment | PERF.5 |
 | A.5.6 | Server-side pagination; virtualization only above 200 rendered rows | PERF.6 |
@@ -141,7 +141,7 @@ find src/features/<domain>/<feature> -type f | sort        # Section 1
 rg -n "^import .*(from '\.\./\.\./)" src/features          # A.2.6 cross-feature
 rg -n "fetch\(" src --glob '!src/lib/http/*'              # A.2.2
 rg -n ": any|as any|@ts-ignore" src                        # A.4.2, A.4.4
-rg -n "from '@tabler/icons-webfont'" src | rg -v "\{"              # A.5.3 namespace icon import
+rg -n "from ['\"](lucide|@heroicons|react-icons|@mui/icons)" src   # A.5.3 — second icon package introduced
 npx madge --circular src                                   # A.2.8
 npx tsc --noEmit                                           # A.4.x
 rg -n "PATHS\." src | wc -l; rg -n "'/[a-z]" src/pages src/layout   # X.4, R.5.2

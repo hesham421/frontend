@@ -135,6 +135,7 @@ refuses to say why it is unavailable.
 | 6 | Dialog before the permission check | P.3.2, P.3.3 |
 | 7 | Delete without a `canDelete` check | P.3.4 |
 | 8 | Concatenated permission literal | P.4.1 |
+| 8b | `can(...)` literal missing the verified `PERM_` prefix | P.1.8 |
 | 9 | Permission derived from a route string | P.4.7 |
 | 10 | Hardcoded navigation menu | P.5.1 |
 | 11 | An action gated at fewer than three layers | P.5.5 |
@@ -158,6 +159,20 @@ guarding.
 **A screen 403s for everyone after a backend change** → a grant code was renamed server-side
 without updating `permissions.ts`. Fails closed and silently — check P.1.8 first.
 
+**A Create/Save/toggle control is missing for literally every user, including SUPER_ADMIN**
+→ do not assume the backend grant is missing before checking the literal itself, in any
+module. Every real authority the backend issues, for every module's resources, is
+`PERM_<RESOURCE>_<ACTION>` (verified by decoding a live login JWT — see
+`references/architecture.md` AD-2). Confirmed incident, 2026-08-29: four Security-module
+facades called `can('ROLE_CREATE')`, `can('PAGE_UPDATE')`, `can('USER_PROFILE_VIEW')`, etc.
+— missing the `PERM_` prefix. Security was simply the first module built and tested; the
+same class of mistake is equally possible in Organization, Master Data, Notifications, or
+any future module, since the underlying convention is platform-wide, not Security-specific.
+This fails closed silently: no error, no 403, the control just never
+renders, for anyone. Before concluding a permission is genuinely ungranted **in any
+module**, decode a real login response's JWT (`payload.authorities`) and diff it against the
+literal in the `can(...)` call — don't trust what a spec doc says the naming convention is.
+
 ## How to run
 
 ```bash
@@ -165,6 +180,15 @@ rg -n "RequirePermission|RequireAuth" src/routes/routes.tsx     # Section 1
 rg -n "onClick=" src/features --glob '*.tsx' | rg -v "Can"      # Section 2 candidates
 rg -n "'[A-Z_]+_(VIEW|CREATE|UPDATE|DELETE)'" src               # P.4.1 inline literals
 rg -n "permission:" src/routes/navigation.ts                    # P.5.1
+rg -n "can\('[A-Z_]+'\)" src | rg -v "can\('PERM_"               # P.1.8 — literals missing the PERM_ prefix (see Diagnostic patterns)
+```
+
+To verify what the backend actually issues, rather than trusting this doc or any spec:
+
+```bash
+curl -s -X POST http://localhost:7272/api/auth/login -H "Content-Type: application/json" \
+  -d '{"username":"<user>","password":"<pass>"}' \
+  | python3 -c "import json,sys,base64; t=json.load(sys.stdin)['data']['accessToken'].split('.')[1]; t+='='*(-len(t)%4); print(sorted(json.loads(base64.urlsafe_b64decode(t))['authorities']))"
 ```
 
 Then read each confirm handler top-down: the first statement must be `can(...)`.

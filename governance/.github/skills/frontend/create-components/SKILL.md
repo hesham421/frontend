@@ -35,6 +35,7 @@ pages/<ENTITY_NAME>EntryPage.tsx
 - MUST NOT emit literal user-facing strings (DS.5)
 - MUST NOT use physical direction utilities (DS.7)
 - MUST NOT add manual memo without a cited reason (R.4.2)
+- MUST NOT use Tailwind utility classes — Tailwind is prohibited outright (`references/architecture.md` §1); style with inline `style={{}}` objects reading `var(--token)`, or `avl-*` classes for shared patterns
 
 ---
 
@@ -74,28 +75,29 @@ when unauthorized, and `disabled` with a reason when the data forbids it.
 export function BranchActionsCell({ row, onEdit, onToggleActive, onDelete }: Props) {
   const t = useLanguage();
   return (
-    <div className="flex items-center gap-1">
-      <Can permission={perm(BRANCH_PAGE, 'UPDATE')}>
-        <Button variant="ghost" size="xs" aria-label={t('common.edit')} onClick={() => onEdit(row)}>
-          <Pencil className="size-4" />
-        </Button>
+    <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
+      <Can permission={perm(RESOURCES.BRANCH, 'UPDATE')}>
+        <IconButton icon="ti ti-edit" label={t('common.edit')} variant="ghost" size="sm"
+                    onClick={() => onEdit(row)} />
       </Can>
-      <Can permission={perm(BRANCH_PAGE, 'UPDATE')}>
-        <Button variant="ghost" size="xs"
-                aria-label={t(row.isActive ? 'common.deactivate' : 'common.activate')}
-                onClick={() => onToggleActive(row)}>
-          {row.isActive ? <ToggleRight className="size-4" /> : <ToggleLeft className="size-4" />}
-        </Button>
+      <Can permission={perm(RESOURCES.BRANCH, 'UPDATE')}>
+        <IconButton icon={row.isActive ? 'ti ti-toggle-right' : 'ti ti-toggle-left'}
+                    label={t(row.isActive ? 'common.deactivate' : 'common.activate')}
+                    variant="ghost" size="sm" onClick={() => onToggleActive(row)} />
       </Can>
-      <Can permission={perm(BRANCH_PAGE, 'DELETE')}>
-        <Button variant="ghost" size="xs" aria-label={t('common.delete')} onClick={() => onDelete(row)}>
-          <Trash2 className="size-4" />
-        </Button>
+      <Can permission={perm(RESOURCES.BRANCH, 'DELETE')}>
+        <IconButton icon="ti ti-trash" label={t('common.delete')} variant="ghost" size="sm"
+                    onClick={() => onDelete(row)} />
       </Can>
     </div>
   );
 }
 ```
+
+Icons are Tabler webfont glyph classes (`ti ti-<name>`) passed as the `icon` string prop to
+`IconButton` — this project's only icon dependency is `@tabler/icons-webfont` (a CSS
+webfont, not a React component package). There is no `lucide-react` or similar component-based
+icon import anywhere in this codebase; don't introduce one.
 
 Hidden versus disabled (DS.15, P.7): **unauthorized → hidden**, because offering an action
 the user can never perform is noise. **Unavailable for data reasons → disabled with a
@@ -170,10 +172,12 @@ export default function BranchListPage() {
   return (
     <>
       <Breadcrumbs items={[{ label: t('nav.organization') }, { label: t('branch.title') }]} />
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold">{t('branch.title')}</h1>
-        <Can permission={perm(BRANCH_PAGE, 'CREATE')}>
-          <Button leftIcon={<Plus className="size-4" />} onClick={() => navigate('new')}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-strong, #14222F)' }}>
+          {t('branch.title')}
+        </h1>
+        <Can permission={perm(RESOURCES.BRANCH, 'CREATE')}>
+          <Button iconLeft={<i className="ti ti-plus" />} onClick={() => navigate('new')}>
             {t('common.create')}
           </Button>
         </Can>
@@ -250,11 +254,12 @@ export default function BranchEntryPage() {
   if (mode === 'edit' && isError) return <ErrorState kind={normalizeError(error).kind} />;
 
   return (
-    <form onSubmit={form.handleSubmit(onValid)} noValidate className="space-y-6">
+    <form onSubmit={form.handleSubmit(onValid)} noValidate
+          style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <BranchForm form={form} mode={mode} />
       <FormActions
         onCancel={() => navigate('..')}
-        savePermission={perm(BRANCH_PAGE, mode === 'edit' ? 'UPDATE' : 'CREATE')}
+        savePermission={perm(RESOURCES.BRANCH, mode === 'edit' ? 'UPDATE' : 'CREATE')}
         isSubmitting={create.isPending || update.isPending}
       />
     </form>

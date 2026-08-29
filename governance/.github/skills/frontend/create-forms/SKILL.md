@@ -48,10 +48,11 @@ an effect for this re-introduces the fetch-then-sync pattern and races the user'
 ## Step 2 — Submission (R.8.2, R.8.3)
 
 ```tsx
-<form onSubmit={form.handleSubmit(onValid)} noValidate className="space-y-6">
+<form onSubmit={form.handleSubmit(onValid)} noValidate
+      style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
   {/* fields */}
   <Button type="button" variant="secondary" onClick={onCancel}>{t('common.cancel')}</Button>
-  <Button type="submit" isLoading={form.formState.isSubmitting}>{t('common.save')}</Button>
+  <Button type="submit" loading={form.formState.isSubmitting}>{t('common.save')}</Button>
 </form>
 ```
 
