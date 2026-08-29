@@ -40,66 +40,78 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Fill 'admin' into the Username or Email field, fill 'admin' into the Password field, then click the 'Sign In to ERP' button to log in.
+        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, and click the 'Sign In to ERP' button to log in.
         # username text field
         elem = page.locator('[id="avl-username-or-email"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Fill 'admin' into the Username or Email field, fill 'admin' into the Password field, then click the 'Sign In to ERP' button to log in.
+        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, and click the 'Sign In to ERP' button to log in.
         # •••••••••••• password field
         elem = page.locator('[id="avl-password"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Fill 'admin' into the Username or Email field, fill 'admin' into the Password field, then click the 'Sign In to ERP' button to log in.
+        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, and click the 'Sign In to ERP' button to log in.
         # Sign In to ERP button
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Permission Registry' button in the left navigation to open the Permission Registry screen.
+        # -> Click the 'Permission Registry' item in the left navigation to open the Permission Registry screen.
         # Permission Registry button
         elem = page.get_by_role('button', name='Permission Registry', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Add New' button to open the create-permission form.
+        # -> Click the 'Add New' button to open the create-permission form/drawer.
         # Add New button
         elem = page.get_by_role('button', name='Add New', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Fill the Name field with 'PERM_AUTOTEST_CREATE' and click the 'Save Changes' button to create the permission.
+        # -> Fill the Name field in the 'Add New' drawer with 'PERM_AUTOTEST_20260829_CREATE' and click the 'Save Changes' button to create the permission.
         # text field
         elem = page.locator('[id="avl-name-*"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("PERM_AUTOTEST_CREATE")
+        await elem.fill("PERM_AUTOTEST_20260829_CREATE")
         
-        # -> Fill the Name field with 'PERM_AUTOTEST_CREATE' and click the 'Save Changes' button to create the permission.
+        # -> Fill the Name field in the 'Add New' drawer with 'PERM_AUTOTEST_20260829_CREATE' and click the 'Save Changes' button to create the permission.
         # Save Changes button
         elem = page.get_by_role('button', name='Save Changes', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Edit' button for the PERM_AUTOTEST_CREATE row to open the edit-permission form.
+        # -> Click the 'Edit' button for the permission named PERM_AUTOTEST_20260829_CREATE to open its edit drawer.
         # Edit button
-        elem = page.get_by_text('PERM_AUTOTEST_CREATE', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Edit', exact=True)
+        elem = page.get_by_text('PERM_AUTOTEST_20260829_CREATE', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Edit', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Change the Name field to 'PERM_AUTOTEST_RENAMED' and click the 'Save Changes' button.
+        # -> Change the Name field to 'PERM_AUTOTEST_20260829_RENAMED' and click the 'Save Changes' button in the edit drawer.
         # text field
         elem = page.locator('[id="avl-name-*"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("PERM_AUTOTEST_RENAMED")
+        await elem.fill("PERM_AUTOTEST_20260829_RENAMED")
         
-        # -> Change the Name field to 'PERM_AUTOTEST_RENAMED' and click the 'Save Changes' button.
+        # -> Change the Name field to 'PERM_AUTOTEST_20260829_RENAMED' and click the 'Save Changes' button in the edit drawer.
         # Save Changes button
         elem = page.get_by_role('button', name='Save Changes', exact=True)
         await elem.click(timeout=10000)
+        
+        # -> Type 'PERM_AUTOTEST_20260829_RENAMED' into the search field labeled 'Search by code, title, or reference...' and submit the search (press Enter).
+        # Search by code, title, or reference... text field
+        elem = page.locator('xpath=/html/body/div/div/div/div[2]/main/div/div[2]/div/div/div/div/div/input')
+        await elem.wait_for(state="visible", timeout=10000)
+        await elem.fill("PERM_AUTOTEST_20260829_RENAMED")
         
         # --> Assertions to verify final state
         
-        # --> The renamed permission 'PERM_AUTOTEST_RENAMED' is present in the Permission Registry table.
+        # --> The permissions table shows the renamed permission PERM_AUTOTEST_20260829_RENAMED.
         # Assert-outcome: passed
-        # Assert: Permission row displays the renamed name 'PERM_AUTOTEST_RENAMED'.
-        await expect(page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[4]/div/div/table/tbody/tr[10]/td[1]").nth(0)).to_have_text("PERM_AUTOTEST_RENAMED", timeout=15000), "Permission row displays the renamed name 'PERM_AUTOTEST_RENAMED'."
+        # Assert: The Name cell displays the renamed permission code.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[3]/div/div/table/tbody/tr/td[1]").nth(0)).to_have_text("PERM_AUTOTEST_20260829_RENAMED", timeout=15000), "The Name cell displays the renamed permission code."
+        
+        # --> The renamed permission remains actionable after search (Edit action is present).
+        await page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[3]/div/div/table/tbody/tr/td[4]/button").nth(0).scroll_into_view_if_needed()
+        # Assert-outcome: passed
+        # Assert: The Edit button for the permission row is visible.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[3]/div/div/table/tbody/tr/td[4]/button").nth(0)).to_be_visible(timeout=15000), "The Edit button for the permission row is visible."
         await asyncio.sleep(5)
 
     finally:

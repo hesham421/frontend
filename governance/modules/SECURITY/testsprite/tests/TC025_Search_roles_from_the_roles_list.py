@@ -40,19 +40,19 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Fill 'admin' into the Username or Email field, fill 'admin' into the Password field, then click the 'Sign In to ERP' button.
+        # -> Fill the 'Username or Email' field with 'admin', fill the 'Password' field with 'admin', then click the 'Sign In to ERP' button to log in.
         # username text field
         elem = page.locator('[id="avl-username-or-email"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Fill 'admin' into the Username or Email field, fill 'admin' into the Password field, then click the 'Sign In to ERP' button.
+        # -> Fill the 'Username or Email' field with 'admin', fill the 'Password' field with 'admin', then click the 'Sign In to ERP' button to log in.
         # •••••••••••• password field
         elem = page.locator('[id="avl-password"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Fill 'admin' into the Username or Email field, fill 'admin' into the Password field, then click the 'Sign In to ERP' button.
+        # -> Fill the 'Username or Email' field with 'admin', fill the 'Password' field with 'admin', then click the 'Sign In to ERP' button to log in.
         # Sign In to ERP button
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
@@ -62,36 +62,23 @@ async def run_test():
         elem = page.get_by_role('button', name='Roles & Permissions', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Edit' button for the 'PW CopyTarget' role to open its edit screen.
-        # Edit button
-        elem = page.get_by_text('PWTEST_COPYTGT_MROQ9NGZ367', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Edit', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Open the '-- Copy From Role --' dropdown in the Permission Matrix so the list of roles to copy from becomes visible.
-        # -- Copy From Role -- TEST_ROLE_5F6XKD4G... dropdown
-        elem = page.locator('xpath=/html/body/div/div/div/div[2]/main/div/div[5]/div[2]/div[2]/div/div[4]/div/div[2]/div/select')
-        await elem.click(timeout=10000)
-        
-        # -> Select 'AAA_PW CopySource MROQ9NGI500 (PWTEST_COPYSRC_MROQ9NGI844)' from the '-- Copy From Role --' dropdown
-        # -- Copy From Role -- TEST_ROLE_5F6XKD4G... dropdown
-        elem = page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[5]/div[2]/div[2]/div/div[4]/div/div[2]/div/select").nth(0)
+        # -> Type 'AUTO_ROLE_20260828_01' into the search field labeled 'Search by code, title, or reference...' and verify the list filters to matching results.
+        # Search by code, title, or reference... text field
+        elem = page.locator('xpath=/html/body/div/div/div/div[2]/main/div/div[2]/div/div/div/div/div/input')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.select_option("")
+        await elem.fill("AUTO_ROLE_20260828_01")
         
-        # -> Click the 'Sync All' button in the Permission Matrix to copy permissions from the selected source role.
-        # Sync All button
-        elem = page.get_by_role('button', name='Sync All', exact=True)
-        await elem.click(timeout=10000)
+        # --> Assertions to verify final state
         
-        # -> Click the 'Sync All' button in the Permission Matrix to attempt copying permissions from the selected source role.
-        # Sync All button
-        elem = page.get_by_role('button', name='Sync All', exact=True)
-        await elem.click(timeout=10000)
+        # --> The search field contains the entered value 'AUTO_ROLE_20260828_01'.
+        # Assert-outcome: passed
+        # Assert: The search input shows the entered search term.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[2]/div/div/div[1]/div/div/input").nth(0)).to_have_value("AUTO_ROLE_20260828_01", timeout=15000), "The search input shows the entered search term."
         
-        # --> Test passed — verified by AI agent
-        frame = context.pages[-1]
-        current_url = await frame.evaluate("() => window.location.href")
-        assert current_url is not None, "Test completed successfully"
+        # --> The roles list shows the matching role with code 'AUTO_ROLE_20260828_01'.
+        # Assert-outcome: passed
+        # Assert: The first row's Code column matches the searched role code.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[3]/div/div/table/tbody/tr/td[1]").nth(0)).to_have_text("AUTO_ROLE_20260828_01", timeout=15000), "The first row's Code column matches the searched role code."
         await asyncio.sleep(5)
 
     finally:

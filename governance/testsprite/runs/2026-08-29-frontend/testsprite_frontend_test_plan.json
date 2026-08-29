@@ -1,0 +1,2308 @@
+[
+  {
+    "id": "TC001",
+    "title": "Log in and reach the dashboard",
+    "description": "An authenticated user can log in successfully and land on the dashboard.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is authenticated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC002",
+    "title": "Sign up, activate the account, and log in",
+    "description": "Verifies that a new user can complete signup, activate the account, and then log in to reach the dashboard.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Open the signup tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid signup details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the signup form"
+      },
+      {
+        "type": "action",
+        "description": "Open the account activation tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a valid activation code or token"
+      },
+      {
+        "type": "action",
+        "description": "Submit the activation form"
+      },
+      {
+        "type": "action",
+        "description": "Open the login tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the new account credentials"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed after login"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the account is activated and accessible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC003",
+    "title": "Login with valid credentials",
+    "description": "A visitor can sign in with valid credentials and reach the authenticated dashboard.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify authenticated navigation is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC004",
+    "title": "Log in and land on the dashboard",
+    "description": "This test verifies that a valid user can log in successfully and arrives at the authenticated dashboard landing page.",
+    "category": "Dashboard Landing",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify navigation entry points are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC005",
+    "title": "Reach the dashboard after logging in",
+    "description": "Verifies that a valid user can log in successfully and land on the authenticated dashboard.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify authenticated navigation is available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC006",
+    "title": "Recover access through password reset and login",
+    "description": "An existing user can request a password reset, set a new password, and log in successfully with the new credentials.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the forgot password tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the forgot password form"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the reset password tab"
+      },
+      {
+        "type": "action",
+        "description": "Enter the reset token for the account"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the new password field with a valid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the reset password form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with the new password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is authenticated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC007",
+    "title": "Sign up for a new account",
+    "description": "A new visitor can complete signup and see the account created in the authentication flow.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the signup flow"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the signup identity fields with a new valid user"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the signup password fields with a valid password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the signup form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify a signup success confirmation is visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC008",
+    "title": "Activate a newly created account",
+    "description": "A user can activate a pending account and receive confirmation that it is ready for login.",
+    "category": "Account Activation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the signup tab"
+      },
+      {
+        "type": "action",
+        "description": "Create a new unique account with valid details"
+      },
+      {
+        "type": "action",
+        "description": "Switch to the account activation tab"
+      },
+      {
+        "type": "action",
+        "description": "Enter the activation code for the newly created account"
+      },
+      {
+        "type": "action",
+        "description": "Submit the activation form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an activation success confirmation is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the account can be used to log in"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC009",
+    "title": "Recover access with forgot password and reset password",
+    "description": "Verifies that an existing user can complete password recovery and then log in successfully with the new password.",
+    "category": "Authentication",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Open the forgot password tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the account email or username"
+      },
+      {
+        "type": "action",
+        "description": "Submit the password recovery request"
+      },
+      {
+        "type": "action",
+        "description": "Open the reset password tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in a valid reset token and new password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the reset password form"
+      },
+      {
+        "type": "action",
+        "description": "Open the login tab"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the account credentials with the new password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the dashboard is displayed after login"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new password is accepted"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC010",
+    "title": "Login with invalid credentials",
+    "description": "A visitor who enters incorrect credentials sees an authentication error and stays on the login screen.",
+    "category": "User Login",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with invalid-user"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with invalid-password"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify an authentication error is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the login screen remains visible"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC011",
+    "title": "Search, create, and update a security user",
+    "description": "This test verifies that an administrator can find an existing user, create a new user, and edit user details from the users management screen.",
+    "category": "Security Users",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry point for the users management module"
+      },
+      {
+        "type": "action",
+        "description": "Search for an existing user"
+      },
+      {
+        "type": "action",
+        "description": "Open the create user form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the new user details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Open the edit form for the newly created user"
+      },
+      {
+        "type": "action",
+        "description": "Update the user details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the newly created user is present in the users list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated user details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC012",
+    "title": "Create a new user",
+    "description": "A security administrator can create a user and see the new user appear in the list.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new user"
+      },
+      {
+        "type": "action",
+        "description": "Fill in all required user fields with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Submit the user form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new user appears in the users list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC013",
+    "title": "Create and activate a security role",
+    "description": "A security administrator can create a role, view it in the roles list, and activate or deactivate it from the role management screen.",
+    "category": "Security Roles",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security roles module from navigation"
+      },
+      {
+        "type": "action",
+        "description": "Create a new role with valid details"
+      },
+      {
+        "type": "action",
+        "description": "Save the new role"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the new role"
+      },
+      {
+        "type": "action",
+        "description": "Activate the same role again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new role appears in the roles list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role status changes are reflected"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC014",
+    "title": "Change a user's role assignments",
+    "description": "A security administrator can update a user's assigned roles and see the selected roles reflected for that user.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a user for editing"
+      },
+      {
+        "type": "action",
+        "description": "Open the assigned roles picker"
+      },
+      {
+        "type": "action",
+        "description": "Select one or more roles"
+      },
+      {
+        "type": "action",
+        "description": "Save the user changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user's assigned roles are updated"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC015",
+    "title": "Create a new role",
+    "description": "A security administrator can create a role and see the new role appear in the list.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new role"
+      },
+      {
+        "type": "action",
+        "description": "Fill in all required role fields with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Submit the role form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new role appears in the roles list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC016",
+    "title": "Create a page registry entry",
+    "description": "Verifies that an administrator can create a new page registry entry and see it appear in the list with permissions generated.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security page registry"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new page"
+      },
+      {
+        "type": "action",
+        "description": "Fill in valid page details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new page appears in the registry"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify permissions are generated for the new page"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC017",
+    "title": "Update a role's permission matrix",
+    "description": "A security administrator can open the permission matrix for a role and save permission changes for that role.",
+    "category": "Security Roles",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security roles module from navigation"
+      },
+      {
+        "type": "action",
+        "description": "Open the permission matrix for an existing role"
+      },
+      {
+        "type": "action",
+        "description": "Change one or more permission selections"
+      },
+      {
+        "type": "action",
+        "description": "Save the permission matrix changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated permissions are displayed for the role"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC018",
+    "title": "Edit user details and save changes",
+    "description": "A security administrator can edit an existing user and see the updated details persist in the list.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a user for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the user details with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the user changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated user information is shown in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC019",
+    "title": "Edit and deactivate a role",
+    "description": "This test verifies that an administrator can update role details and deactivate an existing role from the roles management screen.",
+    "category": "Security Roles",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry point for the roles management module"
+      },
+      {
+        "type": "action",
+        "description": "Open the edit form for a role"
+      },
+      {
+        "type": "action",
+        "description": "Update the role details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated role details are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role is shown as inactive"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC020",
+    "title": "Edit role details and save changes",
+    "description": "A security administrator can edit an existing role and see the updated details persist in the list.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a role for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the role details with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the role changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated role information is shown in the list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC021",
+    "title": "Open a security module from the dashboard",
+    "description": "This test verifies that an authenticated user can use the dashboard to navigate into a security management module.",
+    "category": "Dashboard Landing",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry point for the users management module"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the users management screen is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC022",
+    "title": "Search users from the users list",
+    "description": "A security administrator can search the users list and see it narrow to matching results.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Type a user search term"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the users list is filtered to matching results"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC023",
+    "title": "Create and edit a security page entry",
+    "description": "A security administrator can create a page registry record and later edit its details from the page registry screen.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security pages module from navigation"
+      },
+      {
+        "type": "action",
+        "description": "Create a new page registry entry"
+      },
+      {
+        "type": "action",
+        "description": "Save the new page entry"
+      },
+      {
+        "type": "action",
+        "description": "Open the created page entry for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the page details"
+      },
+      {
+        "type": "action",
+        "description": "Save the page changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated page entry is displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC024",
+    "title": "Manage a role's page permissions",
+    "description": "This test verifies that an administrator can open the permission matrix for a role, update page permissions, and save the changes.",
+    "category": "Security Roles",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry point for the roles management module"
+      },
+      {
+        "type": "action",
+        "description": "Open the permission matrix for a role"
+      },
+      {
+        "type": "action",
+        "description": "Select page permissions for the role"
+      },
+      {
+        "type": "action",
+        "description": "Save the permission matrix"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected permissions are shown for the role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the permission matrix can be reopened with the saved changes"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC025",
+    "title": "Search roles from the roles list",
+    "description": "A security administrator can search the roles list and see it narrow to matching results.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Type a role search term"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the roles list is filtered to matching results"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC026",
+    "title": "Edit a page registry entry",
+    "description": "Verifies that an administrator can update an existing page registry entry and see the changes persist after saving.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security page registry"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing page for editing"
+      },
+      {
+        "type": "action",
+        "description": "Change the page details"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated page details are shown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the changes persist after saving"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC027",
+    "title": "Delete a user from the list",
+    "description": "A security administrator can delete a user and see the user removed from the list.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Choose to delete a user"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is removed from the users list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC028",
+    "title": "Create and update a permission entry",
+    "description": "This test verifies that an administrator can create a permission and edit its details in the permissions registry.",
+    "category": "Security Permissions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry point for the permissions registry module"
+      },
+      {
+        "type": "action",
+        "description": "Open the create permission form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the new permission details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Open the edit form for the permission"
+      },
+      {
+        "type": "action",
+        "description": "Update the permission details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new permission is present in the permissions list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated permission details are displayed"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC029",
+    "title": "Create, rename, and search a permission",
+    "description": "A security administrator can create a permission, rename it, and find it again through search on the permissions registry screen.",
+    "category": "Security Permissions",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security permissions module from navigation"
+      },
+      {
+        "type": "action",
+        "description": "Create a new permission entry"
+      },
+      {
+        "type": "action",
+        "description": "Save the new permission"
+      },
+      {
+        "type": "action",
+        "description": "Rename the permission entry"
+      },
+      {
+        "type": "action",
+        "description": "Save the permission changes"
+      },
+      {
+        "type": "action",
+        "description": "Search for the renamed permission"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the renamed permission appears in the results"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the permission entry remains available after search"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC030",
+    "title": "Manage a user's assigned roles",
+    "description": "A security administrator can open the role assignment drawer for a user and assign roles from the available picker.",
+    "category": "Security Users",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security users module from navigation"
+      },
+      {
+        "type": "action",
+        "description": "Open the role assignment drawer for an existing user"
+      },
+      {
+        "type": "action",
+        "description": "Assign one or more roles to the user"
+      },
+      {
+        "type": "action",
+        "description": "Save the role assignment changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user's assigned roles are displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role assignment drawer closes after saving"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC031",
+    "title": "Create, edit, activate, and deactivate a page registry entry",
+    "description": "This test verifies that an administrator can manage a page registry entry through creation, editing, activation, and deactivation.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry point for the page registry module"
+      },
+      {
+        "type": "action",
+        "description": "Open the create page form"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the new page details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Open the edit form for the page"
+      },
+      {
+        "type": "action",
+        "description": "Update the page details"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Activate the page"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page appears in the page list with the saved details"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page is shown as inactive"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC032",
+    "title": "Deactivate and reactivate a role",
+    "description": "A security administrator can toggle a role between inactive and active states.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate an active role"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deactivation"
+      },
+      {
+        "type": "action",
+        "description": "Activate the same role again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the role status returns to active"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC033",
+    "title": "Search and filter page registry results",
+    "description": "Verifies that a user can narrow the page registry to matching results using search or filters.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security page registry"
+      },
+      {
+        "type": "action",
+        "description": "Type a search term or apply a filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the registry results are narrowed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify only matching pages are shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC034",
+    "title": "Delete a security user after confirming the prompt",
+    "description": "This test verifies that an administrator can delete an existing user from the users management screen after confirming the action.",
+    "category": "Security Users",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry point for the users management module"
+      },
+      {
+        "type": "action",
+        "description": "Open the delete action for a user"
+      },
+      {
+        "type": "action",
+        "description": "Confirm the deletion"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user is no longer present in the users list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC035",
+    "title": "Navigate from dashboard to a security module",
+    "description": "An authenticated administrator can use the dashboard navigation to open a target security module.",
+    "category": "Dashboard Navigation",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the dashboard module navigation"
+      },
+      {
+        "type": "action",
+        "description": "Select the security roles module"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the security roles screen is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify module navigation remains available"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC036",
+    "title": "Edit role permissions in the permission matrix",
+    "description": "A security administrator can update a role's page permissions and see the edits persist when the matrix is reopened.",
+    "category": "Security Roles and RBAC Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the roles management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open the permission matrix for a role"
+      },
+      {
+        "type": "action",
+        "description": "Toggle one or more page permissions"
+      },
+      {
+        "type": "action",
+        "description": "Save the permission changes"
+      },
+      {
+        "type": "action",
+        "description": "Reopen the permission matrix for the same role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated page permissions are still applied"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC037",
+    "title": "Create a new permission",
+    "description": "A security administrator can create a permission record and see it appear in the permissions list.",
+    "category": "Security Permissions Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the permissions registry screen"
+      },
+      {
+        "type": "action",
+        "description": "Start creating a new permission"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the required permission code, module, and description with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Submit the permission form"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new permission appears in the permissions list"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC038",
+    "title": "Assign a branch data scope to a role",
+    "description": "Verifies that a security administrator can add a branch assignment to a role data scope and see it appear in the assignment list.",
+    "category": "Role Data Scope Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security roles module"
+      },
+      {
+        "type": "action",
+        "description": "Open the role data scope drawer"
+      },
+      {
+        "type": "action",
+        "description": "Add a branch assignment"
+      },
+      {
+        "type": "action",
+        "description": "Choose a data access level"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the branch assignment appears in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected access level is shown"
+      }
+    ],
+    "priority": "High"
+  },
+  {
+    "id": "TC039",
+    "title": "Edit a role's details",
+    "description": "A security administrator can update an existing role's details and see the revised role information in the list.",
+    "category": "Security Roles",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security roles module from navigation"
+      },
+      {
+        "type": "action",
+        "description": "Open an existing role for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the role details"
+      },
+      {
+        "type": "action",
+        "description": "Save the role changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated role details are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC040",
+    "title": "Open a user's profile and role details",
+    "description": "This test verifies that an administrator can open a user's profile drawer and review the user's assigned roles and profile information.",
+    "category": "Security Users",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry point for the users management module"
+      },
+      {
+        "type": "action",
+        "description": "Open the user profile drawer"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the user profile drawer is displayed"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify assigned roles are displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC041",
+    "title": "Search permissions by text and module",
+    "description": "A security administrator can search permissions and apply a module filter to narrow the results.",
+    "category": "Security Permissions Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the permissions registry screen"
+      },
+      {
+        "type": "action",
+        "description": "Type a permission search term"
+      },
+      {
+        "type": "action",
+        "description": "Select a module filter"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the permissions list is filtered to matching results"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC042",
+    "title": "Deactivate and reactivate a page",
+    "description": "Verifies that an administrator can deactivate an active page and later reactivate it from the page registry.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security page registry"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate an active page and confirm the action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page is marked inactive"
+      },
+      {
+        "type": "action",
+        "description": "Reactivate the same page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page is marked active again"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC043",
+    "title": "Navigate from the dashboard into page registry management",
+    "description": "This test verifies that an authenticated user can open the dashboard and navigate to the page registry module from it.",
+    "category": "Dashboard Landing",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry point for the page registry module"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page registry screen is displayed"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC044",
+    "title": "Edit a permission record",
+    "description": "A security administrator can edit an existing permission and see the updated information persist.",
+    "category": "Security Permissions Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the permissions registry screen"
+      },
+      {
+        "type": "action",
+        "description": "Open a permission for editing"
+      },
+      {
+        "type": "action",
+        "description": "Update the permission name or description with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the permission changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated permission details are shown in the list"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC045",
+    "title": "Update an existing role data scope assignment",
+    "description": "Verifies that a security administrator can edit an existing branch assignment for a role and see the updated access settings.",
+    "category": "Role Data Scope Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security roles module"
+      },
+      {
+        "type": "action",
+        "description": "Open the role data scope drawer"
+      },
+      {
+        "type": "action",
+        "description": "Edit an existing branch assignment"
+      },
+      {
+        "type": "action",
+        "description": "Change the access level or active status"
+      },
+      {
+        "type": "action",
+        "description": "Save the changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated assignment is shown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the new access settings are reflected"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC046",
+    "title": "Configure a role's data scope",
+    "description": "A security administrator can open the data scope drawer for a role and save branch-based scope assignments.",
+    "category": "Security Roles",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security roles module from navigation"
+      },
+      {
+        "type": "action",
+        "description": "Open the data scope drawer for an existing role"
+      },
+      {
+        "type": "action",
+        "description": "Assign one or more branches to the role scope"
+      },
+      {
+        "type": "action",
+        "description": "Save the data scope changes"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the configured scope is displayed for the role"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the data scope drawer closes after saving"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC047",
+    "title": "Configure a user's data scope",
+    "description": "This test verifies that an administrator can open the data scope drawer for a user and save the selected scope settings.",
+    "category": "Security Users",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /(login)"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the email field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the form"
+      },
+      {
+        "type": "action",
+        "description": "Click the navigation entry point for the users management module"
+      },
+      {
+        "type": "action",
+        "description": "Open the data scope drawer for a user"
+      },
+      {
+        "type": "action",
+        "description": "Select a valid data scope option"
+      },
+      {
+        "type": "action",
+        "description": "Save the data scope settings"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the data scope drawer closes after saving"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the selected scope is shown for the user"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC048",
+    "title": "Open and update a user profile drawer",
+    "description": "A security administrator can open a user profile drawer, save profile edits, and see the drawer restore the saved values when reopened.",
+    "category": "Security Users Management",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the users management screen"
+      },
+      {
+        "type": "action",
+        "description": "Open the profile drawer for a user"
+      },
+      {
+        "type": "action",
+        "description": "Update the profile details with valid values"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "action",
+        "description": "Reopen the profile drawer for the same user"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the saved profile values are shown in the drawer"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC049",
+    "title": "Edit and save user profile details",
+    "description": "Verifies that a security administrator can edit a user's extended profile details and see the updated values after reopening the drawer.",
+    "category": "User Profile Drawer",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_USER}} into the username field"
+      },
+      {
+        "type": "action",
+        "description": "Fill in {{LOGIN_PASSWORD}} into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security users module"
+      },
+      {
+        "type": "action",
+        "description": "Open a user's profile drawer"
+      },
+      {
+        "type": "action",
+        "description": "Edit the full name or employee ID"
+      },
+      {
+        "type": "action",
+        "description": "Save the profile changes"
+      },
+      {
+        "type": "action",
+        "description": "Reopen the profile drawer"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the updated profile values are shown"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the edits persist after reopening"
+      }
+    ],
+    "priority": "Medium"
+  },
+  {
+    "id": "TC050",
+    "title": "Activate and deactivate a page registry entry",
+    "description": "A security administrator can change a page registry entry between active and inactive states from the page registry screen.",
+    "category": "Security Page Registry",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the username field with {{LOGIN_USER}}"
+      },
+      {
+        "type": "action",
+        "description": "Fill in the password field with {{LOGIN_PASSWORD}}"
+      },
+      {
+        "type": "action",
+        "description": "Submit the login form"
+      },
+      {
+        "type": "action",
+        "description": "Open the security pages module from navigation"
+      },
+      {
+        "type": "action",
+        "description": "Create a temporary page registry entry"
+      },
+      {
+        "type": "action",
+        "description": "Deactivate the page registry entry"
+      },
+      {
+        "type": "action",
+        "description": "Activate the same page registry entry again"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the page entry status changes are displayed"
+      }
+    ],
+    "priority": "Medium"
+  }
+]

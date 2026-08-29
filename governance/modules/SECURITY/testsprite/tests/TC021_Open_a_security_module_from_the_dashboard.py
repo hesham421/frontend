@@ -40,50 +40,35 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Fill 'admin' into the Username or Email field and 'admin' into the Password field, then click the 'Sign In to ERP' button to submit the login form.
+        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, then click the 'Sign In to ERP' button to submit the login form.
         # username text field
         elem = page.locator('[id="avl-username-or-email"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Fill 'admin' into the Username or Email field and 'admin' into the Password field, then click the 'Sign In to ERP' button to submit the login form.
+        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, then click the 'Sign In to ERP' button to submit the login form.
         # •••••••••••• password field
         elem = page.locator('[id="avl-password"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Fill 'admin' into the Username or Email field and 'admin' into the Password field, then click the 'Sign In to ERP' button to submit the login form.
+        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, then click the 'Sign In to ERP' button to submit the login form.
         # Sign In to ERP button
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Permission Registry' link in the left navigation to open the Permission Registry page.
-        # Permission Registry button
-        elem = page.get_by_role('button', name='Permission Registry', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Edit' button for the permission row named 'PERM_TESTPAGE_1BD77298_DELETE' to open the permission edit form.
-        # Edit button
-        elem = page.get_by_text('PERM_TESTPAGE_1BD77298_DELETE', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Edit', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Change the Name field to 'PERM_TESTPAGE_1BD77298_DELETE_EDITED' and click the 'Save Changes' button.
-        # text field
-        elem = page.locator('[id="avl-name-*"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("PERM_TESTPAGE_1BD77298_DELETE_EDITED")
-        
-        # -> Change the Name field to 'PERM_TESTPAGE_1BD77298_DELETE_EDITED' and click the 'Save Changes' button.
-        # Save Changes button
-        elem = page.get_by_role('button', name='Save Changes', exact=True)
+        # -> Click the 'User Management' navigation entry in the SECURITY & RBAC sidebar to open the Users management screen.
+        # User Management button
+        elem = page.get_by_role('button', name='User Management', exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> The Permission Registry shows the updated name 'PERM_TESTPAGE_1BD77298_DELETE_EDITED' in the Name column.
+        # --> The Users management (Enterprise User Directory) screen is displayed.
+        await page.locator("xpath=/html/body/div[1]/div[1]/div/div[2]/main/div/div[3]/div/div[1]/table/thead/tr").nth(0).scroll_into_view_if_needed()
         # Assert-outcome: passed
-        # Assert: The registry row's Name column equals 'PERM_TESTPAGE_1BD77298_DELETE_EDITED'.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/div[2]/main/div/div[4]/div/div/table/tbody/tr[2]/td[1]").nth(0)).to_have_text("PERM_TESTPAGE_1BD77298_DELETE_EDITED", timeout=15000), "The registry row's Name column equals 'PERM_TESTPAGE_1BD77298_DELETE_EDITED'."
+        # Assert: The users table header is visible, confirming the Users management screen is shown.
+        await expect(page.locator("xpath=/html/body/div[1]/div[1]/div/div[2]/main/div/div[3]/div/div[1]/table/thead/tr").nth(0)).to_be_visible(timeout=15000), "The users table header is visible, confirming the Users management screen is shown."
         await asyncio.sleep(5)
 
     finally:

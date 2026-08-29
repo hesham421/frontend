@@ -40,29 +40,34 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Fill the 'Username or Email' field with an invalid username, fill the 'Password' field with an invalid password, then click the 'Sign In to ERP' button.
+        # -> Enter 'admin' into the Username or Email field, enter 'admin' into the Password field, then click the 'Sign In to ERP' button to submit the login form.
         # username text field
         elem = page.locator('[id="avl-username-or-email"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("invalid_user")
+        await elem.fill("admin")
         
-        # -> Fill the 'Username or Email' field with an invalid username, fill the 'Password' field with an invalid password, then click the 'Sign In to ERP' button.
+        # -> Enter 'admin' into the Username or Email field, enter 'admin' into the Password field, then click the 'Sign In to ERP' button to submit the login form.
         # •••••••••••• password field
         elem = page.locator('[id="avl-password"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("invalid_pass")
+        await elem.fill("admin")
         
-        # -> Fill the 'Username or Email' field with an invalid username, fill the 'Password' field with an invalid password, then click the 'Sign In to ERP' button.
+        # -> Enter 'admin' into the Username or Email field, enter 'admin' into the Password field, then click the 'Sign In to ERP' button to submit the login form.
         # Sign In to ERP button
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> After submitting invalid credentials, the login page shows an error message 'No refresh cookie'.
+        # --> The authenticated dashboard is displayed with the heading "System Command Center".
         # Assert-outcome: passed
-        # Assert: Error banner contains the text 'No refresh cookie'.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div[2]/div[2]/div[3]/div/i").nth(0)).to_contain_text("No refresh cookie", timeout=15000), "Error banner contains the text 'No refresh cookie'."
+        # Assert: Dashboard heading 'System Command Center' is visible.
+        await expect(page.locator("xpath=/html/body/div[1]/div[1]/div/div[2]/header/div[1]").nth(0)).to_contain_text("System Command Center", timeout=15000), "Dashboard heading 'System Command Center' is visible."
+        
+        # --> Authenticated Security navigation is available (e.g. the 'Page Registry' item is shown).
+        # Assert-outcome: passed
+        # Assert: The 'Page Registry' navigation item is visible in the Security section.
+        await expect(page.locator("xpath=/html/body/div[1]/div[1]/div/aside/nav/div[2]/div[2]/button[4]").nth(0)).to_have_text("Page Registry", timeout=15000), "The 'Page Registry' navigation item is visible in the Security section."
         await asyncio.sleep(5)
 
     finally:

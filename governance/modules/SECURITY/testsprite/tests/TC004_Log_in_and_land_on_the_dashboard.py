@@ -57,34 +57,20 @@ async def run_test():
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Roles & Permissions' link to open the Roles management screen.
-        # Roles & Permissions → button
-        elem = page.get_by_role('button', name='Roles & Permissions →', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Select the status filter 'Active' and enter 'TEST_ROLE' into the search field to filter the roles list.
-        # All Active Inactive dropdown
-        elem = page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[3]/div/div/div[2]/div/div/select").nth(0)
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.select_option("")
-        
-        # -> Select the status filter 'Active' and enter 'TEST_ROLE' into the search field to filter the roles list.
-        # Search by code, title, or reference... text field
-        elem = page.locator('xpath=/html/body/div/div/div/div[2]/main/div/div[3]/div/div/div/div/div/input')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("TEST_ROLE")
-        
         # --> Assertions to verify final state
         
-        # --> The search field contains the typed keyword 'TEST_ROLE'.
+        # --> The dashboard header 'System Command Center' is visible.
         # Assert-outcome: passed
-        # Assert: Search input contains the typed keyword 'TEST_ROLE'.
-        await expect(page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[3]/div/div/div[1]/div/div/input").nth(0)).to_have_value("TEST_ROLE", timeout=15000), "Search input contains the typed keyword 'TEST_ROLE'."
+        # Assert: Dashboard header contains 'System Command Center'.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/header/div[1]").nth(0)).to_contain_text("System Command Center", timeout=15000), "Dashboard header contains 'System Command Center'."
         
-        # --> The result row shows an Active status badge.
+        # --> The SECURITY & RBAC navigation entries 'User Management', 'Roles & Permissions', 'Permission Registry', and 'Page Registry' are visible in the left navigation.
         # Assert-outcome: passed
-        # Assert: The Status badge for the first result displays 'Active'.
-        await expect(page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[4]/div/div/table/tbody/tr[1]/td[4]/span").nth(0)).to_have_text("Active", timeout=15000), "The Status badge for the first result displays 'Active'."
+        # Assert: Navigation shows 'User Management' entry.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/aside/nav/div[2]/div[2]/button[1]").nth(0)).to_have_text("User Management", timeout=15000), "Navigation shows 'User Management' entry."
+        # Assert-outcome: passed
+        # Assert: Navigation shows 'Roles & Permissions' entry.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/aside/nav/div[2]/div[2]/button[2]").nth(0)).to_have_text("Roles & Permissions", timeout=15000), "Navigation shows 'Roles & Permissions' entry."
         await asyncio.sleep(5)
 
     finally:

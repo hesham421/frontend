@@ -40,50 +40,48 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Fill 'admin' into the Username or Email field and submit the 'Sign In to ERP' form.
+        # -> Fill 'admin' into the 'Username or Email' field and 'admin' into the 'Password' field, then click the 'Sign In to ERP' button.
         # username text field
         elem = page.locator('[id="avl-username-or-email"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Fill 'admin' into the Username or Email field and submit the 'Sign In to ERP' form.
+        # -> Fill 'admin' into the 'Username or Email' field and 'admin' into the 'Password' field, then click the 'Sign In to ERP' button.
         # •••••••••••• password field
         elem = page.locator('[id="avl-password"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Fill 'admin' into the Username or Email field and submit the 'Sign In to ERP' form.
+        # -> Fill 'admin' into the 'Username or Email' field and 'admin' into the 'Password' field, then click the 'Sign In to ERP' button.
         # Sign In to ERP button
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Page Registry' link in the left navigation to open the Pages Registry view.
-        # Page Registry button
-        elem = page.get_by_role('button', name='Page Registry', exact=True)
+        # -> Open the 'User Management' screen by clicking the 'User Management' navigation item in the SECURITY & RBAC section.
+        # User Management button
+        elem = page.get_by_role('button', name='User Management', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Search for 'Test Page' in the 'Search by code, title, or reference...' field, then filter by Module = 'SEC (Security)' and Status = 'Active' to narrow results.
+        # -> Type 'autotest_user' into the search field labeled 'Search by code, title, or reference...' and press Enter to filter the users list.
         # Search by code, title, or reference... text field
-        elem = page.locator('xpath=/html/body/div/div/div/div[2]/main/div/div[3]/div/div/div/div/div/input')
+        elem = page.locator('xpath=/html/body/div/div/div/div[2]/main/div/div[2]/div/div/div/div/div/input')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("Test Page")
+        await elem.fill("autotest_user")
         
-        # -> Search for 'Test Page' in the 'Search by code, title, or reference...' field, then filter by Module = 'SEC (Security)' and Status = 'Active' to narrow results.
-        # All SEC (Security) ORG (Organization) FILE (File... dropdown
-        elem = page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[3]/div/div/div[2]/div/div/select").nth(0)
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.select_option("")
+        # --> Assertions to verify final state
         
-        # -> Search for 'Test Page' in the 'Search by code, title, or reference...' field, then filter by Module = 'SEC (Security)' and Status = 'Active' to narrow results.
-        # All Active Inactive dropdown
-        elem = page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[3]/div/div/div[3]/div/div/select").nth(0)
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.select_option("")
+        # --> The search field contains the entered term 'autotest_user'.
+        # Assert-outcome: passed
+        # Assert: Search input contains the entered search term 'autotest_user'.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[2]/div/div/div[1]/div/div/input").nth(0)).to_have_value("autotest_user", timeout=15000), "Search input contains the entered search term 'autotest_user'."
         
-        # --> Test passed — verified by AI agent
-        frame = context.pages[-1]
-        current_url = await frame.evaluate("() => window.location.href")
-        assert current_url is not None, "Test completed successfully"
+        # --> The users table is narrowed to rows whose usernames include the searched term (four matching usernames are visible).
+        # Assert-outcome: passed
+        # Assert: First row username contains 'autotest_user_1787985853'.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[3]/div/div/table/tbody/tr[1]/td[1]").nth(0)).to_contain_text("autotest_user_1787985853", timeout=15000), "First row username contains 'autotest_user_1787985853'."
+        # Assert-outcome: passed
+        # Assert: Second row username contains 'autotest_user_1787985576'.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[3]/div/div/table/tbody/tr[2]/td[1]").nth(0)).to_contain_text("autotest_user_1787985576", timeout=15000), "Second row username contains 'autotest_user_1787985576'."
         await asyncio.sleep(5)
 
     finally:

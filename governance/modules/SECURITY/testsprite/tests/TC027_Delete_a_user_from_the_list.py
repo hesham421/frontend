@@ -40,54 +40,44 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Fill 'admin' into the Username or Email field, fill 'admin' into the Password field, then click the 'Sign In to ERP' button to log in.
+        # -> Fill 'admin' into the Username or Email field, fill 'admin' into the Password field, and click the 'Sign In to ERP' button to log in.
         # username text field
         elem = page.locator('[id="avl-username-or-email"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Fill 'admin' into the Username or Email field, fill 'admin' into the Password field, then click the 'Sign In to ERP' button to log in.
+        # -> Fill 'admin' into the Username or Email field, fill 'admin' into the Password field, and click the 'Sign In to ERP' button to log in.
         # •••••••••••• password field
         elem = page.locator('[id="avl-password"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Fill 'admin' into the Username or Email field, fill 'admin' into the Password field, then click the 'Sign In to ERP' button to log in.
+        # -> Fill 'admin' into the Username or Email field, fill 'admin' into the Password field, and click the 'Sign In to ERP' button to log in.
         # Sign In to ERP button
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Roles & Permissions' link in the sidebar to open the Roles management screen.
-        # Roles & Permissions button
-        elem = page.get_by_role('button', name='Roles & Permissions', exact=True)
+        # -> Click the 'User Management' entry in the left 'SECURITY & RBAC' menu to open the Users management screen.
+        # User Management button
+        elem = page.get_by_role('button', name='User Management', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Deactivate' button for the role 'TEST_ROLE_5F6XKD4G' to open the deactivation confirmation.
-        # Deactivate button
-        elem = page.get_by_text('TEST_ROLE_5F6XKD4G', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Deactivate', exact=True)
+        # -> Click the 'Delete' button for the user 'testuser_e2e' in the Users list to open the deletion confirmation.
+        # Delete button
+        elem = page.get_by_text('Ttestuser_e2e', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Delete', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Confirm' button on the "Confirm Required Action" dialog to deactivate the selected role.
-        # Confirm button
-        elem = page.get_by_role('button', name='Confirm', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Reactivate' button for the role 'TEST_ROLE_5F6XKD4G' to start the reactivation flow.
-        # Reactivate button
-        elem = page.get_by_role('button', name='Reactivate', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Click the 'Confirm' button on the 'Confirm Required Action' dialog to reactivate the role.
-        # Confirm button
-        elem = page.get_by_role('button', name='Confirm', exact=True)
+        # -> Click the 'Delete' button in the confirmation modal to confirm removal of the user 'testuser_e2e'.
+        # Delete button
+        elem = page.get_by_text('Cancel', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Delete', exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> Role 'TEST_ROLE_5F6XKD4G' is shown as Active in the Roles & Permissions list.
-        # Assert-outcome: passed
-        # Assert: Status cell for TEST_ROLE_5F6XKD4G displays 'Active'.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/div[2]/main/div/div[4]/div/div/table/tbody/tr[2]/td[4]/span").nth(0)).to_have_text("Active", timeout=15000), "Status cell for TEST_ROLE_5F6XKD4G displays 'Active'."
+        # --> The user 'testuser_e2e' was not removed from the users list after confirming deletion.
+        # Assert-outcome: failed
+        # Assert: Expected the user row for 'testuser_e2e' to be removed from the users list.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[4]/div/div[1]/table/tbody/tr[1]").nth(0)).not_to_be_visible(timeout=15000), "Expected the user row for 'testuser_e2e' to be removed from the users list."
         await asyncio.sleep(5)
 
     finally:

@@ -40,35 +40,41 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, then click the 'Sign In to ERP' button.
+        # -> Open the login page by navigating to the '/login' URL (clicking or typing the path would not be used — use the explicit navigation).
+        await page.goto("http://localhost:4200/login")
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=5000)
+        except Exception:
+            pass
+        
+        # -> Fill 'invalid-user' into the 'Username or Email' field, fill 'invalid-password' into the 'Password' field, then click the 'Sign In to ERP' button to submit the form.
         # username text field
         elem = page.locator('[id="avl-username-or-email"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("admin")
+        await elem.fill("invalid-user")
         
-        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, then click the 'Sign In to ERP' button.
+        # -> Fill 'invalid-user' into the 'Username or Email' field, fill 'invalid-password' into the 'Password' field, then click the 'Sign In to ERP' button to submit the form.
         # •••••••••••• password field
         elem = page.locator('[id="avl-password"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("admin")
+        await elem.fill("invalid-password")
         
-        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, then click the 'Sign In to ERP' button.
+        # -> Fill 'invalid-user' into the 'Username or Email' field, fill 'invalid-password' into the 'Password' field, then click the 'Sign In to ERP' button to submit the form.
         # Sign In to ERP button
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> The dashboard header 'System Command Center' is visible, indicating the dashboard loaded.
+        # --> An inline authentication error 'The username or password you entered is incorrect.' is shown.
         # Assert-outcome: passed
-        # Assert: Verifies the dashboard header contains 'System Command Center'.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/div[2]/header/div[1]").nth(0)).to_contain_text("System Command Center", timeout=15000), "Verifies the dashboard header contains 'System Command Center'."
+        # Assert: Authentication error text is visible on the page.
+        await expect(page.locator("xpath=/html/body/div[1]/div[1]/div[2]/div[2]/div[3]/div/i").nth(0)).to_contain_text("The username or password you entered is incorrect.", timeout=15000), "Authentication error text is visible on the page."
         
-        # --> The dashboard KPI area is visible with KPI cards and values shown.
-        await page.locator("xpath=/html/body/div[1]/div/div/div[2]/main/div/div[2]/div[1]/div[1]/span[2]/i").nth(0).scroll_into_view_if_needed()
+        # --> The login form remains visible and the username field contains the entered value 'invalid-user'.
         # Assert-outcome: passed
-        # Assert: Verifies a KPI card element (icon) is visible on the dashboard.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/div[2]/main/div/div[2]/div[1]/div[1]/span[2]/i").nth(0)).to_be_visible(timeout=15000), "Verifies a KPI card element (icon) is visible on the dashboard."
+        # Assert: Username input contains the entered username.
+        await expect(page.locator("xpath=/html/body/div[1]/div[1]/div[2]/div[2]/form/div[1]/div/input").nth(0)).to_have_value("invalid-user", timeout=15000), "Username input contains the entered username."
         await asyncio.sleep(5)
 
     finally:

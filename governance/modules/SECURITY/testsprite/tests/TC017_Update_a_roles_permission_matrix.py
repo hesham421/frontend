@@ -57,48 +57,37 @@ async def run_test():
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'User Management' link in the sidebar to open the Users Management screen.
-        # User Management button
-        elem = page.get_by_role('button', name='User Management', exact=True)
+        # -> Click the 'Roles & Permissions' button in the SECURITY & RBAC section to open the Roles & Permissions page.
+        # Roles & Permissions → button
+        elem = page.get_by_role('button', name='Roles & Permissions →', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Add New' button to open the Create User form.
-        # Add New button
-        elem = page.get_by_role('button', name='Add New', exact=True)
+        # -> Click the 'Edit' button for the role 'TEST1234' to open that role's details and access the Permissions/Matrix.
+        # Edit button
+        elem = page.get_by_text('TEST1234', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Edit', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Fill the 'Username or Email' and 'Password' fields and click the 'Save Changes' button to create the test user.
-        # text field
-        elem = page.locator('[id="avl-username-or-email-*"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("testuser_delete_20260828")
-        
-        # -> Fill the 'Username or Email' and 'Password' fields and click the 'Save Changes' button to create the test user.
-        # •••••••••••• password field
-        elem = page.locator('[id="avl-password-*"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("Password123!")
-        
-        # -> Fill the 'Username or Email' and 'Password' fields and click the 'Save Changes' button to create the test user.
-        # Save Changes button
-        elem = page.get_by_role('button', name='Save Changes', exact=True)
+        # -> Click the 'Permission Matrix' button in the edit drawer (labeled 'Permission Matrix →').
+        # Permission Matrix → button
+        elem = page.get_by_role('button', name='Permission Matrix →', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Delete' button for user 'testuser_delete_20260828' in the user list.
-        # Delete button
-        elem = page.get_by_text('Ttestuser_delete_20260828', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Delete', exact=True)
+        # -> Click the 'View' checkbox for 'Test Page' in the Permission Matrix to select one permission.
+        # Click the 'View' checkbox for 'Test Page' in the Permission Matrix to select one permission.
+        elem = page.locator('xpath=/html/body/div/div/div/div[2]/main/div/div[5]/div[2]/div[2]/div/div[2]/table/tbody/tr/td[2]')
         await elem.click(timeout=10000)
         
-        # -> Click the 'Delete' button in the 'Confirm Required Action' dialog to confirm removal of the user.
-        # Delete button
-        elem = page.get_by_text('Cancel', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Delete', exact=True)
+        # -> Click the 'View' checkbox for 'Test Page' in the Permission Matrix and verify the selection count updates to '1 Selected', then locate a 'Save' control if present.
+        # Click the 'View' checkbox for 'Test Page' in the Permission Matrix and verify the selection count updates to '1 Selected', then locate a 'Save' control if present.
+        elem = page.locator('xpath=/html/body/div/div/div/div[2]/main/div/div[5]/div[2]/div[2]/div/div[2]/table/tbody/tr/td[2]')
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
-        current_url = await page.evaluate("() => window.location.href")
-        # Assert-outcome: passed
-        # Assert: page loaded with a URL (final outcome verified by the AI judge during the run)
-        assert current_url, 'Page should have loaded with a URL'
+        
+        # --> Updated permissions were not applied: the Permission Matrix did not register the selection for role 'test ahmed'.
+        # Assert-outcome: failed
+        # Assert: Expected the Permission Matrix header to show '1 Selected' after selecting a permission.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[5]/div[1]").nth(0)).to_contain_text("1 Selected", timeout=15000), "Expected the Permission Matrix header to show '1 Selected' after selecting a permission."
         await asyncio.sleep(5)
 
     finally:

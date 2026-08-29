@@ -57,42 +57,26 @@ async def run_test():
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Permission Registry' navigation link in the Security & RBAC section to open the Permission Registry page.
-        # Permission Registry button
-        elem = page.get_by_role('button', name='Permission Registry', exact=True)
+        # -> Click the 'Roles & Permissions' link in the Security & RBAC navigation to open the Roles management screen.
+        # Roles & Permissions button
+        elem = page.get_by_role('button', name='Roles & Permissions', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the '+ Add New' button in the System Permission Registry header to open the create-permission form.
-        # Add New button
-        elem = page.get_by_role('button', name='Add New', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Fill the Name field with a unique permission code, set Permission Type to 'CREATE', and click the 'Save Changes' button.
-        # text field
-        elem = page.locator('[id="avl-name-*"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("PERM_AUTOMATION_20260828_CREATE")
-        
-        # -> Fill the Name field with a unique permission code, set Permission Type to 'CREATE', and click the 'Save Changes' button.
-        # VIEW CREATE UPDATE DELETE dropdown
-        elem = page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[5]/div[2]/div[2]/div/div[2]/div/select").nth(0)
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.select_option("")
-        
-        # -> Fill the Name field with a unique permission code, set Permission Type to 'CREATE', and click the 'Save Changes' button.
-        # Save Changes button
-        elem = page.get_by_role('button', name='Save Changes', exact=True)
+        # -> Click the 'Edit' button for the visible role 'TEST1234' to open its edit drawer.
+        # Edit button
+        elem = page.get_by_text('TEST1234', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Edit', exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> The new permission 'PERM_AUTOMATION_20260828_CREATE' with type 'CREATE' is listed in the Permission Registry table.
-        # Assert-outcome: passed
-        # Assert: The table row shows the permission name 'PERM_AUTOMATION_20260828_CREATE'.
-        await expect(page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[4]/div/div/table/tbody/tr[1]/td[1]").nth(0)).to_have_text("PERM_AUTOMATION_20260828_CREATE", timeout=15000), "The table row shows the permission name 'PERM_AUTOMATION_20260828_CREATE'."
-        # Assert-outcome: passed
-        # Assert: The Permission Type column for that row is 'CREATE'.
-        await expect(page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[4]/div/div/table/tbody/tr[1]/td[2]").nth(0)).to_have_text("CREATE", timeout=15000), "The Permission Type column for that row is 'CREATE'."
+        # --> Edits cannot be persisted because the role edit drawer does not show a Save/Update control, so the updated role information cannot be saved to the list.
+        # Assert-outcome: failed
+        # Assert: Expected the edit drawer to include a 'Save' or 'Update' control.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[4]/div[1]").nth(0)).to_contain_text("Save", timeout=15000), "Expected the edit drawer to include a 'Save' or 'Update' control."
+        await page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[4]/div[2]/div[3]/div/div[2]/button").nth(0).scroll_into_view_if_needed()
+        # Assert-outcome: failed
+        # Assert: Expected the edit drawer to be open and show a 'Cancel' button so a Save control can be located.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[4]/div[2]/div[3]/div/div[2]/button").nth(0)).to_be_visible(timeout=15000), "Expected the edit drawer to be open and show a 'Cancel' button so a Save control can be located."
         await asyncio.sleep(5)
 
     finally:

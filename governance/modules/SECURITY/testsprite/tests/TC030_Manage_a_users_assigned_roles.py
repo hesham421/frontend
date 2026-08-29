@@ -40,56 +40,59 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, and click the 'Sign In to ERP' button.
+        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, then click the 'Sign In to ERP' button.
         # username text field
         elem = page.locator('[id="avl-username-or-email"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, and click the 'Sign In to ERP' button.
+        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, then click the 'Sign In to ERP' button.
         # •••••••••••• password field
         elem = page.locator('[id="avl-password"]')
         await elem.wait_for(state="visible", timeout=10000)
         await elem.fill("admin")
         
-        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, and click the 'Sign In to ERP' button.
+        # -> Fill 'admin' into the 'Username or Email' field, fill 'admin' into the 'Password' field, then click the 'Sign In to ERP' button.
         # Sign In to ERP button
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'User Management' button to open the Users management screen.
-        # User Management → button
-        elem = page.get_by_role('button', name='User Management →', exact=True)
+        # -> Click the 'User Management' button in the Security & RBAC navigation to open the Users module.
+        # User Management button
+        elem = page.get_by_role('button', name='User Management', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the '+ Add New' button to open the Create User form.
-        # Add New button
-        elem = page.get_by_role('button', name='Add New', exact=True)
+        # -> Click the 'Edit' button for user 'autotest_user_1787985853' to open the role assignment drawer.
+        # Edit button
+        elem = page.get_by_text('Aautotest_user_1787985853', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Edit', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Fill the 'Username or Email' and 'Password' fields in the Add New modal and click the 'Save Changes' button.
-        # text field
-        elem = page.locator('[id="avl-username-or-email-*"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("autotest_user_20260828_01")
+        # -> Click the 'Assign Roles' button in the user's role assignment drawer to open the role picker.
+        # Assign Roles → button
+        elem = page.get_by_role('button', name='Assign Roles →', exact=True)
+        await elem.click(timeout=10000)
         
-        # -> Fill the 'Username or Email' and 'Password' fields in the Add New modal and click the 'Save Changes' button.
-        # •••••••••••• password field
-        elem = page.locator('[id="avl-password-*"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("TestPass!2345")
+        # -> Select the 'Audit QA Test Role (ROLE_AUDIT_QA_TEST)' checkbox in the role picker so the user is assigned that role.
+        # checkbox
+        elem = page.get_by_label('Audit QA Test Role (ROLE_AUDIT_QA_TEST)', exact=True)
+        await elem.click(timeout=10000)
         
-        # -> Fill the 'Username or Email' and 'Password' fields in the Add New modal and click the 'Save Changes' button.
+        # -> Click the 'Save Changes' button in the Edit drawer to persist the assigned role.
+        # button
+        elem = page.locator('xpath=/html/body/div/div/div/div[2]/main/div/div[5]/div[2]/div/button')
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Save Changes' button to persist the assigned role and close the edit drawer.
         # Save Changes button
         elem = page.get_by_role('button', name='Save Changes', exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> The newly created user 'autotest_user_20260828_01' appears in the users list.
+        # --> The user's Assigned Roles column shows the 'Audit QA Test Role' label.
         # Assert-outcome: passed
-        # Assert: The users table contains the username 'autotest_user_20260828_01' in the first row.
-        await expect(page.locator("xpath=/html/body/div[1]/div/div/div[2]/main/div/div[4]/div/div/table/tbody/tr[1]/td[1]").nth(0)).to_contain_text("autotest_user_20260828_01", timeout=15000), "The users table contains the username 'autotest_user_20260828_01' in the first row."
+        # Assert: Assigned Roles column equals 'Audit QA Test Role'.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[2]/main/div/div[3]/div/div[1]/table/tbody/tr[6]/td[2]").nth(0)).to_have_text("Audit QA Test Role", timeout=15000), "Assigned Roles column equals 'Audit QA Test Role'."
         await asyncio.sleep(5)
 
     finally:

@@ -57,43 +57,49 @@ async def run_test():
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'Roles & Permissions' link in the left sidebar to open the Roles management screen.
-        # Roles & Permissions button
-        elem = page.get_by_role('button', name='Roles & Permissions', exact=True)
+        # -> Click the 'User Management' item in the left navigation to open the Users management screen.
+        # User Management button
+        elem = page.get_by_role('button', name='User Management', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Open the 'PW CopyTarget' role by clicking its 'Edit' button to begin the copy-permissions flow.
-        # Edit button
-        elem = page.get_by_text('PWTEST_COPYTGT_MROQ9NGZ367', exact=True).locator("xpath=ancestor-or-self::*[.//button][1]").get_by_role('button', name='Edit', exact=True)
+        # -> Click the 'Add New' button to open the create-user form.
+        # Add New button
+        elem = page.get_by_role('button', name='Add New', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Open the "-- Copy From Role --" dropdown and select the 'AAA_PW CopySource' role from the options.
-        # -- Copy From Role -- TEST_ROLE_5F6XKD4G... dropdown
-        elem = page.locator('xpath=/html/body/div/div/div/div[2]/main/div/div[5]/div[2]/div[2]/div/div[4]/div/div[2]/div/select')
-        await elem.click(timeout=10000)
-        
-        # -> Select 'AAA_PW CopySource MROQ9NGI500 (PWTEST_COPYSRC_MROQ9NGI844)' from the '-- Copy From Role --' dropdown in the Edit modal.
-        # -- Copy From Role -- TEST_ROLE_5F6XKD4G... dropdown
-        elem = page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[5]/div[2]/div[2]/div/div[4]/div/div[2]/div/select").nth(0)
+        # -> Fill the 'Username or Email' field with 'e2e_user_999999' and click the 'Save Changes' button to submit the new user form.
+        # text field
+        elem = page.locator('[id="avl-username-or-email-*"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.select_option("")
+        await elem.fill("e2e_user_999999")
         
-        # -> Click the 'Confirm' button in the Edit modal to proceed with copying permissions from 'AAA_PW CopySource' to 'PW CopyTarget'.
-        # Confirm button
-        elem = page.get_by_role('button', name='Confirm', exact=True)
+        # -> Fill the 'Username or Email' field with 'e2e_user_999999' and click the 'Save Changes' button to submit the new user form.
+        # Save Changes button
+        elem = page.get_by_role('button', name='Save Changes', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Click the 'Save Changes' button in the Add New drawer to submit the new user form.
+        # Save Changes button
+        elem = page.get_by_role('button', name='Save Changes', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Fill the 'Password' field with a valid password and click the 'Save Changes' button to submit the new user form.
+        # •••••••••••• password field
+        elem = page.locator('[id="avl-password-*"]')
+        await elem.wait_for(state="visible", timeout=10000)
+        await elem.fill("Passw0rd!23")
+        
+        # -> Fill the 'Password' field with a valid password and click the 'Save Changes' button to submit the new user form.
+        # Save Changes button
+        elem = page.get_by_role('button', name='Save Changes', exact=True)
         await elem.click(timeout=10000)
         
         # --> Assertions to verify final state
         
-        # --> Permission checkbox for 'Test Page (PAGE_F7040BE4)' was not set on the PW CopyTarget role after confirming the copy.
-        # Assert-outcome: failed
-        # Assert: Expected the PAGE_F7040BE4 permission checkbox to be checked after copying permissions.
-        await expect(page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[5]/div[2]/div[2]/div/div[4]/div[2]/table/tbody/tr[1]/td[3]/input").nth(0)).to_have_attribute("checked", "true", timeout=15000), "Expected the PAGE_F7040BE4 permission checkbox to be checked after copying permissions."
-        
-        # --> Permission checkbox for 'ToggleMe (PWTEST_MROP7JRF)' was not set on the PW CopyTarget role after confirming the copy.
-        # Assert-outcome: failed
-        # Assert: Expected the PWTEST_MROP7JRF permission checkbox to be checked after copying permissions.
-        await expect(page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[5]/div[2]/div[2]/div/div[4]/div[2]/table/tbody/tr[2]/td[3]/input").nth(0)).to_have_attribute("checked", "true", timeout=15000), "Expected the PWTEST_MROP7JRF permission checkbox to be checked after copying permissions."
+        # --> The newly created user 'e2e_user_999999' appears in the users list.
+        # Assert-outcome: passed
+        # Assert: Verifies the username 'e2e_user_999999' appears in the users table.
+        await expect(page.locator("xpath=/html/body/div[1]/div[1]/div/div[2]/main/div/div[3]/div/div[1]/table/tbody/tr[1]/td[1]").nth(0)).to_contain_text("e2e_user_999999", timeout=15000), "Verifies the username 'e2e_user_999999' appears in the users table."
         await asyncio.sleep(5)
 
     finally:

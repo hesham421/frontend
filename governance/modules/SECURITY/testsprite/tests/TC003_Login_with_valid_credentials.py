@@ -40,38 +40,34 @@ async def run_test():
         except Exception:
             pass
         
-        # -> Click the 'Create Account' tab to open the signup form.
-        # Create Account button
-        elem = page.get_by_role('button', name='Create Account', exact=True)
-        await elem.click(timeout=10000)
-        
-        # -> Fill the 'Username or Email', 'Work Email Address', and 'Password' fields with a unique username/email and a valid password, then click the 'Submit Registration' button.
+        # -> Fill 'admin' into the Username or Email field and 'admin' into the Password field, then click the 'Sign In to ERP' button.
         # username text field
         elem = page.locator('[id="avl-username-or-email"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("testuser_20260828_001")
+        await elem.fill("admin")
         
-        # -> Fill the 'Username or Email', 'Work Email Address', and 'Password' fields with a unique username/email and a valid password, then click the 'Submit Registration' button.
-        # user@avelynq.com email field
-        elem = page.locator('[id="avl-work-email-address"]')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("testuser_20260828_001@example.com")
-        
-        # -> Fill the 'Username or Email', 'Work Email Address', and 'Password' fields with a unique username/email and a valid password, then click the 'Submit Registration' button.
+        # -> Fill 'admin' into the Username or Email field and 'admin' into the Password field, then click the 'Sign In to ERP' button.
         # •••••••••••• password field
         elem = page.locator('[id="avl-password"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("Password123!")
+        await elem.fill("admin")
         
-        # -> Fill the 'Username or Email', 'Work Email Address', and 'Password' fields with a unique username/email and a valid password, then click the 'Submit Registration' button.
-        # Submit Registration button
-        elem = page.get_by_role('button', name='Submit Registration', exact=True)
+        # -> Fill 'admin' into the Username or Email field and 'admin' into the Password field, then click the 'Sign In to ERP' button.
+        # Sign In to ERP button
+        elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
-        # --> Test passed — verified by AI agent
-        frame = context.pages[-1]
-        current_url = await frame.evaluate("() => window.location.href")
-        assert current_url is not None, "Test completed successfully"
+        # --> Assertions to verify final state
+        
+        # --> The authenticated dashboard is displayed (header 'System Command Center' is present).
+        # Assert-outcome: passed
+        # Assert: The dashboard header element is present on the page.
+        await expect(page.locator("xpath=/html/body/div[1]/div[1]/div/div[2]/header/div[1]")).to_have_count(1, timeout=15000), "The dashboard header element is present on the page."
+        
+        # --> An authenticated navigation/session is available (user shown and Sign Out button present).
+        # Assert-outcome: passed
+        # Assert: A 'Sign Out' button is present, indicating an authenticated session.
+        await expect(page.locator("xpath=/html/body/div[1]/div[1]/div/div[2]/header/div[5]/button")).to_have_count(1, timeout=15000), "A 'Sign Out' button is present, indicating an authenticated session."
         await asyncio.sleep(5)
 
     finally:

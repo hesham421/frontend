@@ -1,0 +1,108 @@
+import asyncio
+import re
+from playwright import async_api
+from playwright.async_api import expect
+
+async def run_test():
+    pw = None
+    browser = None
+    context = None
+
+    try:
+        # Start a Playwright session in asynchronous mode
+        pw = await async_api.async_playwright().start()
+
+        # Launch a Chromium browser in headless mode with custom arguments
+        browser = await pw.chromium.launch(
+            headless=True,
+            args=[
+                "--window-size=1280,720",
+                "--disable-dev-shm-usage",
+                "--ipc=host",
+                "--single-process"
+            ],
+        )
+
+        # Create a new browser context (like an incognito window)
+        context = await browser.new_context()
+        # Wider default timeout to match the agent's DOM-stability budget;
+        # auto-waiting Playwright APIs (expect, locator.wait_for) inherit this.
+        context.set_default_timeout(15000)
+
+        # Open a new page in the browser context
+        page = await context.new_page()
+
+        # Interact with the page elements to simulate user flow
+        # -> navigate
+        await page.goto("http://localhost:4200")
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=5000)
+        except Exception:
+            pass
+        
+        # -> Click the 'Create Account' tab to open the signup flow.
+        # Create Account button
+        elem = page.get_by_role('button', name='Create Account', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Fill the 'Username or Email', 'Work Email Address', and 'Password' fields and click the 'Submit Registration' button.
+        # username text field
+        elem = page.locator('[id="avl-username-or-email"]')
+        await elem.wait_for(state="visible", timeout=10000)
+        await elem.fill("testuser_e2e")
+        
+        # -> Fill the 'Username or Email', 'Work Email Address', and 'Password' fields and click the 'Submit Registration' button.
+        # user@avelynq.com email field
+        elem = page.locator('[id="avl-work-email-address"]')
+        await elem.wait_for(state="visible", timeout=10000)
+        await elem.fill("testuser_e2e@avelynq.com")
+        
+        # -> Fill the 'Username or Email', 'Work Email Address', and 'Password' fields and click the 'Submit Registration' button.
+        # •••••••••••• password field
+        elem = page.locator('[id="avl-password"]')
+        await elem.wait_for(state="visible", timeout=10000)
+        await elem.fill("Password123!")
+        
+        # -> Fill the 'Username or Email', 'Work Email Address', and 'Password' fields and click the 'Submit Registration' button.
+        # Submit Registration button
+        elem = page.get_by_role('button', name='Submit Registration', exact=True)
+        await elem.click(timeout=10000)
+        
+        # -> Fill the 'Username or Email' with 'testuser_e2e', ensure the 'Activation Code / Token' is set to 'ACT-998822', then click the 'Activate Account' button.
+        # username text field
+        elem = page.locator('[id="avl-username-or-email"]')
+        await elem.wait_for(state="visible", timeout=10000)
+        await elem.fill("testuser_e2e")
+        
+        # -> Fill the 'Username or Email' with 'testuser_e2e', ensure the 'Activation Code / Token' is set to 'ACT-998822', then click the 'Activate Account' button.
+        # ACT-998822 text field
+        elem = page.locator('[id="avl-activation-code-/-token"]')
+        await elem.wait_for(state="visible", timeout=10000)
+        await elem.fill("ACT-998822")
+        
+        # -> Fill the 'Username or Email' with 'testuser_e2e', ensure the 'Activation Code / Token' is set to 'ACT-998822', then click the 'Activate Account' button.
+        # Activate Account button
+        elem = page.get_by_role('button', name='Activate Account', exact=True)
+        await elem.click(timeout=10000)
+        
+        # --> Assertions to verify final state
+        
+        # --> Account activation failed and no signup success confirmation was shown.
+        # Assert-outcome: failed
+        # Assert: Expected a signup success confirmation to be visible.
+        await expect(page.locator("xpath=/html/body/div[1]/div[1]/div[2]/div[2]/div[2]/div/i").nth(0)).to_contain_text("This activation code is invalid or has expired. Please request a new one.", timeout=15000), "Expected a signup success confirmation to be visible."
+        # Assert-outcome: failed
+        # Assert: Expected the signup success confirmation to include the entered username 'testuser_e2e'.
+        await expect(page.locator("xpath=/html/body/div[1]/div[1]/div[2]/div[2]/form/div[1]/div/input").nth(0)).to_have_value("testuser_e2e", timeout=15000), "Expected the signup success confirmation to include the entered username 'testuser_e2e'."
+        await asyncio.sleep(5)
+
+    finally:
+        if context:
+            await context.close()
+        if browser:
+            await browser.close()
+        if pw:
+            await pw.stop()
+
+asyncio.run(run_test())
+    

@@ -57,37 +57,36 @@ async def run_test():
         elem = page.get_by_role('button', name='Sign In to ERP', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Click the 'User Management' button to open the Users / User Management screen.
-        # User Management → button
-        elem = page.get_by_role('button', name='User Management →', exact=True)
+        # -> Click the 'Roles & Permissions' item in the left navigation to open the Roles management screen.
+        # Roles & Permissions button
+        elem = page.get_by_role('button', name='Roles & Permissions', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Type 'testuser' into the 'Search by code, title, or reference...' field and open the status dropdown
-        # Search by code, title, or reference... text field
-        elem = page.locator('xpath=/html/body/div/div/div/div[2]/main/div/div[3]/div/div/div/div/div/input')
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("testuser")
+        # -> Scroll the Roles & Permissions main content to reveal any hidden 'Create' / 'New Role' button or floating action.
+        await page.mouse.wheel(0, 300)
         
-        # -> Type 'testuser' into the 'Search by code, title, or reference...' field and open the status dropdown
-        # All Active Inactive dropdown
-        elem = page.get_by_text('All Active Inactive', exact=True)
+        # -> Click the 'Open navigation' button to reveal any hidden toolbar actions (where the 'Create' or 'New Role' control might appear).
+        # Open navigation button
+        elem = page.get_by_role('button', name='Open navigation', exact=True)
         await elem.click(timeout=10000)
         
-        # -> Select the 'Active' option from the status dropdown to filter the user list to active users only.
-        # All Active Inactive dropdown
-        elem = page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[3]/div/div/div[2]/div/div/select").nth(0)
-        await elem.wait_for(state="visible", timeout=10000)
-        await elem.select_option("")
+        # -> Find the page control labeled 'Create', 'New Role', 'Add', or '+' on the Roles & Permissions screen so the role creation form can be opened.
+        # [internal] extract_content: 
+        
+        # -> Scroll up to reveal the top toolbar on the 'Role-Based Access Control (RBAC)' page and locate a 'Create' or 'Add' button.
+        await page.mouse.wheel(0, 300)
         
         # --> Assertions to verify final state
         
-        # --> Search term 'testuser' is applied and the users table displays matching users with 'Active' status.
-        # Assert-outcome: passed
-        # Assert: Search input contains 'testuser'.
-        await expect(page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[3]/div/div/div[1]/div/div/input").nth(0)).to_have_value("testuser", timeout=15000), "Search input contains 'testuser'."
-        # Assert-outcome: passed
-        # Assert: The first row's status badge reads 'Active'.
-        await expect(page.locator("xpath=/html/body/div/div/div/div[2]/main/div/div[4]/div/div/table/tbody/tr[1]/td[3]/span").nth(0)).to_have_text("Active", timeout=15000), "The first row's status badge reads 'Active'."
+        # --> The Roles & Permissions page does not expose a page-level 'Create' / 'New Role' control, so a new role could not be created or added to the list.
+        # Assert-outcome: failed
+        # Assert: Expected the Roles & Permissions page to contain a 'Create' button.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[1]").nth(0)).to_contain_text("Create", timeout=15000), "Expected the Roles & Permissions page to contain a 'Create' button."
+        
+        # --> Role status changes could not be verified because the test could not create a role (no page-level create/add control was found).
+        # Assert-outcome: failed
+        # Assert: Expected the Roles & Permissions page to contain a 'Create' or 'New Role' control so the test could create a role and verify status changes.
+        await expect(page.locator("xpath=/html/body/div/div[1]/div/div[1]").nth(0)).to_contain_text("Create", timeout=15000), "Expected the Roles & Permissions page to contain a 'Create' or 'New Role' control so the test could create a role and verify status changes."
         await asyncio.sleep(5)
 
     finally:
