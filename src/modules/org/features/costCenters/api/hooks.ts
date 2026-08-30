@@ -8,9 +8,9 @@ import {
   type CostCenterTreeNodeResponse,
   type UpdateCostCenterRequest,
 } from './costCentersApi';
-import { useLookupValues } from '@/features/masterLookups';
-import { useBranchesOptions } from '@/features/branches';
-import { usePermission } from '@/features/auth';
+import { useLookupValues } from '@/modules/masterdata';
+import { useBranchesOptions } from '../../branches';
+import { usePermission } from '@/modules/security';
 import { DEFAULT_PAGE_SIZE } from '@/data/searchContract';
 
 // F2-QUERY blocks API-ORG-026..032, F2-LOV-QUERY LOV-ORG-004/005 (F2/SCR-ORG-005).

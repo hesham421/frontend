@@ -7,7 +7,7 @@ import {
   type PageSearchContractRequest,
   type UpdatePageRequest,
 } from './pageRegistryApi';
-import { usePermission } from '@/features/auth';
+import { usePermission } from '../../auth';
 import { DEFAULT_PAGE_SIZE } from '@/data/searchContract';
 
 // F2-QUERY blocks API-SEC-030..036 (F2/SCR-SEC-005).

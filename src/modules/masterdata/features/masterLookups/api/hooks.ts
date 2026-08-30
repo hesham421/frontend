@@ -12,7 +12,7 @@ import {
   type MasterLookupUpdateRequest,
   type LookupDetailDto,
 } from './masterLookupsApi';
-import { usePermission } from '@/features/auth';
+import { usePermission } from '@/modules/security';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '@/data/searchContract';
 
 export const masterLookupKeys = {

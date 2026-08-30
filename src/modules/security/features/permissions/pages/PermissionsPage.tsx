@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { usePermissionRegistryFacade } from '@/features/permissions';
-import { PERMISSION_TYPES, type PermissionType } from '@/features/permissions';
-import type { PermissionDto } from '@/features/permissions';
+import { usePermissionRegistryFacade, type PermissionDto } from '../api';
+import { PERMISSION_TYPES, type PermissionType } from '../types';
 import { mapApiError } from '@/lib/errors/mapApiError';
 import { Breadcrumb, Drawer, Alert } from '@/components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '@/components/ui/Button';

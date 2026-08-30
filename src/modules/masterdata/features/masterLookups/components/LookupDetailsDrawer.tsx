@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import type { MasterLookupDto, LookupDetailDto } from '@/features/masterLookups';
-import { useLookupDetailManagementFacade, useLookupDetailUsage } from '@/features/masterLookups';
-import { createLookupDetailSchema, updateLookupDetailSchema } from '@/features/masterLookups';
+import { useLookupDetailManagementFacade, useLookupDetailUsage, type MasterLookupDto, type LookupDetailDto } from '../api';
+import { createLookupDetailSchema, updateLookupDetailSchema } from '../types';
 import { mapApiError } from '@/lib/errors/mapApiError';
 import { Drawer, Dialog, Alert, EmptyState } from '@/components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '@/components/ui/Button';

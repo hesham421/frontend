@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import type { RoleDto } from '@/features/roles';
+import type { RoleDto } from '../api';
 import { Drawer } from '@/components/ui/OverlaysAndFeedback';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/FormControls';

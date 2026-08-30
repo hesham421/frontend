@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { useUserManagementFacade } from '@/features/users';
-import { usePermission } from '@/features/auth';
-import type { UserDto } from '@/features/users';
-import { createUserSchema } from '@/features/users';
+import { useUserManagementFacade, type UserDto } from '../api';
+import { usePermission } from '../../auth';
+import { createUserSchema } from '../types';
 import { mapApiError } from '@/lib/errors/mapApiError';
 import { Breadcrumb, Drawer, Alert } from '@/components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '@/components/ui/Button';
@@ -13,9 +12,9 @@ import { Table, type TableColumn } from '@/components/ui/Table';
 import { Pagination } from '@/components/ui/Pagination';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
-import { UserProfileDrawer } from '@/features/users';
-import { DataScopeDrawer } from '@/features/roleDataScope';
-import { RoleAssignmentDrawer } from '@/features/roles';
+import { UserProfileDrawer } from '../components/UserProfileDrawer';
+import { DataScopeDrawer } from '../../roleDataScope';
+import { RoleAssignmentDrawer } from '../../roles';
 
 type StatusFilter = 'ALL' | 'ACTIVE' | 'INACTIVE';
 

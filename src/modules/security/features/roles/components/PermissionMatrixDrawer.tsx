@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import type { RoleDto } from '@/features/roles';
-import type { CrudPermission } from '@/features/roles';
-import type { PageResponse } from '@/features/pageRegistry';
+import type { RoleDto } from '../api';
+import type { CrudPermission } from '../types';
+import type { PageResponse } from '../../pageRegistry';
 import { Drawer } from '@/components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/FormControls';

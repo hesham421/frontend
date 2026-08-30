@@ -6,7 +6,7 @@ import {
   type PermissionDto,
   type PermissionSearchContractRequest,
 } from './permissionsApi';
-import { useActivePages } from '@/features/pageRegistry';
+import { useActivePages } from '../../pageRegistry';
 import { DEFAULT_PAGE_SIZE } from '@/data/searchContract';
 
 // F2-QUERY blocks API-SEC-027..029 (F2/SCR-SEC-004).

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { useAuthStore } from '@/features/auth';
-import { useNotificationsStore } from '@/features/notifications';
+import { useAuthStore } from '@/modules/security';
+import { useNotificationsStore } from '@/modules/shared';
 import { useNavigationStore } from '@/stores/useNavigationStore';
 import { Avatar, Badge, Card } from '@/components/ui/DataDisplay';
 import { Button, IconButton } from '@/components/ui/Button';

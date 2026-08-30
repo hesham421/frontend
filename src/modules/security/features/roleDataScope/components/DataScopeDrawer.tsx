@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { useBranchesOptions } from '@/features/branches';
-import { useRolesOptions } from '@/features/roles';
-import { useRoleDataScopeFacade } from '@/features/roleDataScope';
-import { DATA_ACCESS_LEVELS, type DataAccessLevel } from '@/features/roleDataScope';
-import type { SecRoleBranchDto } from '@/features/roleDataScope';
+import { useBranchesOptions } from '@/modules/org';
+import { useRolesOptions } from '../../roles';
+import { useRoleDataScopeFacade, type SecRoleBranchDto } from '../api';
+import { DATA_ACCESS_LEVELS, type DataAccessLevel } from '../types';
 import { Drawer, Alert } from '@/components/ui/OverlaysAndFeedback';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/FormControls';

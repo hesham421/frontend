@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigationStore } from '@/stores/useNavigationStore';
-import { useBranchesFacade } from '@/features/branches';
-import type { BranchResponse, CreateBranchRequest, UpdateBranchRequest } from '@/features/branches';
+import {
+  useBranchesFacade,
+  type BranchResponse,
+  type CreateBranchRequest,
+  type UpdateBranchRequest,
+} from '../api';
 import { mapApiError } from '@/lib/errors/mapApiError';
 import { Breadcrumb, Drawer, Alert } from '@/components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '@/components/ui/Button';

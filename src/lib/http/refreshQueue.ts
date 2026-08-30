@@ -1,6 +1,6 @@
-import { tokenStore } from '@/features/auth/api/tokenStore';
-import { authApi, type AuthResponse } from '@/features/auth/api/authApi';
-import { useAuthStore } from '@/features/auth';
+import { tokenStore } from '@/modules/security/features/auth/api/tokenStore';
+import { authApi, type AuthResponse } from '@/modules/security/features/auth/api/authApi';
+import { useAuthStore } from '@/modules/security';
 import { useNavigationStore } from '@/stores/useNavigationStore';
 
 // Single-flight refresh (R.9.5, R.9.6): every concurrent 401 awaits the same

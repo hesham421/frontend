@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { useRoleManagementFacade } from '@/features/roles';
-import { usePermission } from '@/features/auth';
-import { createRoleSchema, excludeSelfFromCopySources, type CrudPermission } from '@/features/roles';
-import type { RoleDto } from '@/features/roles';
-import { useActivePages } from '@/features/pageRegistry';
+import { useRoleManagementFacade, type RoleDto } from '../api';
+import { usePermission } from '../../auth';
+import { createRoleSchema, excludeSelfFromCopySources, type CrudPermission } from '../types';
+import { useActivePages } from '../../pageRegistry';
 import { mapApiError } from '@/lib/errors/mapApiError';
 import { Breadcrumb, Drawer, Alert } from '@/components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '@/components/ui/Button';
@@ -14,8 +13,8 @@ import { Table, type TableColumn } from '@/components/ui/Table';
 import { Pagination } from '@/components/ui/Pagination';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
-import { DataScopeDrawer } from '@/features/roleDataScope';
-import { PermissionMatrixDrawer } from '@/features/roles';
+import { DataScopeDrawer } from '../../roleDataScope';
+import { PermissionMatrixDrawer } from '../components/PermissionMatrixDrawer';
 
 export const RolesPage: React.FC = () => {
   const { t } = useLanguage();

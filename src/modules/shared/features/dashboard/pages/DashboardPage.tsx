@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigationStore, ScreenType } from '@/stores/useNavigationStore';
-import { useUsersCount } from '@/features/users';
-import { useRolesCount } from '@/features/roles';
-import { useLegalEntitiesOptions } from '@/features/legalEntities';
-import { useBranchesOptions } from '@/features/branches';
-import { useNotificationsStore } from '@/features/notifications';
+import { useUsersCount, useRolesCount } from '@/modules/security';
+import { useLegalEntitiesOptions, useBranchesOptions } from '@/modules/org';
+import { useNotificationsStore } from '../../notifications';
 import { Stat, Card, Badge } from '@/components/ui/DataDisplay';
 import { Button } from '@/components/ui/Button';
 import { Drawer } from '@/components/ui/OverlaysAndFeedback';
-import { FileAttachmentPanel } from '@/features/attachments';
+import { FileAttachmentPanel } from '../../attachments';
 
 export interface DashboardProps {
   onNavigate?: (screen: ScreenType) => void;

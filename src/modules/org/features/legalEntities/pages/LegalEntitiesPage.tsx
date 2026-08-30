@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 import { useNavigationStore } from '@/stores/useNavigationStore';
-import { useLegalEntitiesFacade } from '@/features/legalEntities';
-import type { LegalEntityResponse, CreateLegalEntityRequest, UpdateLegalEntityRequest } from '@/features/legalEntities';
+import {
+  useLegalEntitiesFacade,
+  type LegalEntityResponse,
+  type CreateLegalEntityRequest,
+  type UpdateLegalEntityRequest,
+} from '../api';
 import { mapApiError } from '@/lib/errors/mapApiError';
 import { Breadcrumb, Drawer, Alert } from '@/components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '@/components/ui/Button';

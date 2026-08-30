@@ -7,8 +7,8 @@ import {
   type LegalEntitySearchContractRequest,
   type UpdateLegalEntityRequest,
 } from './legalEntitiesApi';
-import { useLookupValues } from '@/features/masterLookups';
-import { usePermission } from '@/features/auth';
+import { useLookupValues } from '@/modules/masterdata';
+import { usePermission } from '@/modules/security';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '@/data/searchContract';
 
 // F2-QUERY blocks API-ORG-001..006, F2-LOV-QUERY LOV-ORG-001 (F2/SCR-ORG-001).

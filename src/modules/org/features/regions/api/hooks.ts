@@ -7,8 +7,8 @@ import {
   type RegionSearchContractRequest,
   type UpdateRegionRequest,
 } from './regionsApi';
-import { useLegalEntitiesOptions } from '@/features/legalEntities';
-import { usePermission } from '@/features/auth';
+import { useLegalEntitiesOptions } from '../../legalEntities';
+import { usePermission } from '@/modules/security';
 import { DEFAULT_PAGE_SIZE } from '@/data/searchContract';
 
 // F2-QUERY blocks API-ORG-013..018 (F2/SCR-ORG-003). regionTypeIdFk's picker

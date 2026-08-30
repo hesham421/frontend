@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { useRegionsFacade } from '@/features/regions';
+import { useRegionsFacade } from '../api';
 import type { RegionResponse, CreateRegionRequest, UpdateRegionRequest } from '../api/regionsApi';
 import { mapApiError } from '@/lib/errors/mapApiError';
 import { Breadcrumb, Drawer, Alert } from '@/components/ui/OverlaysAndFeedback';

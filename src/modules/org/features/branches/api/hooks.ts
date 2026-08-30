@@ -7,9 +7,9 @@ import {
   type CreateBranchRequest,
   type UpdateBranchRequest,
 } from './branchesApi';
-import { useLookupValues } from '@/features/masterLookups';
-import { useLegalEntitiesOptions } from '@/features/legalEntities';
-import { usePermission } from '@/features/auth';
+import { useLookupValues } from '@/modules/masterdata';
+import { useLegalEntitiesOptions } from '../../legalEntities';
+import { usePermission } from '@/modules/security';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '@/data/searchContract';
 
 // F2-QUERY blocks API-ORG-007..012, F2-LOV-QUERY LOV-ORG-002 (F2/SCR-ORG-002).

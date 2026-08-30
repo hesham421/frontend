@@ -3,35 +3,41 @@ import { useLanguage } from './context/LanguageContext';
 import { useNavigationStore } from './stores/useNavigationStore';
 import { AppShell } from './layout/AppShell';
 
-// Features: Auth, Session, Core
-import { useAuthStore, useLogoutMutation, useSessionBootstrap, usePermission, LoginPage } from './features/auth';
-import { DashboardPage } from './features/dashboard';
-import { UnauthorizedPage } from './features/unauthorized';
-
-// Features: Security
-import { UsersPage } from './features/users';
-import { RolesPage } from './features/roles';
-import { PermissionsPage } from './features/permissions';
-import { PagesRegistryPage } from './features/pageRegistry';
-
-// Features: Organization
-import { LegalEntitiesPage } from './features/legalEntities';
-import { BranchesPage } from './features/branches';
-import { RegionsPage } from './features/regions';
-import { DepartmentsPage } from './features/departments';
-import { CostCentersPage } from './features/costCenters';
-import { ProfitCentersPage } from './features/profitCenters';
-import { LocationSitesPage } from './features/locationSites';
-
-// Features: Master Data
-import { MasterLookupsPage } from './features/masterLookups';
-
-// Features: Notifications
+// 🔐 Module: Security
 import {
+  useAuthStore,
+  useLogoutMutation,
+  useSessionBootstrap,
+  usePermission,
+  LoginPage,
+  UsersPage,
+  RolesPage,
+  PermissionsPage,
+  PagesRegistryPage,
+} from '@/modules/security';
+
+// 🏢 Module: Organization
+import {
+  LegalEntitiesPage,
+  BranchesPage,
+  RegionsPage,
+  DepartmentsPage,
+  CostCentersPage,
+  ProfitCentersPage,
+  LocationSitesPage,
+} from '@/modules/org';
+
+// 📋 Module: Master Data
+import { MasterLookupsPage } from '@/modules/masterdata';
+
+// 📦 Module: Shared & System
+import {
+  DashboardPage,
+  UnauthorizedPage,
   NotificationInboxPage,
   NotificationTemplatesPage,
   NotificationChannelsPage,
-} from './features/notifications';
+} from '@/modules/shared';
 
 export const App: React.FC = () => {
   const sessionReady = useSessionBootstrap();

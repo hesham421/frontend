@@ -7,8 +7,8 @@ import {
   type UserDto,
   type UserSearchContractRequest,
 } from './usersApi';
-import { useRolesOptions } from '@/features/roles';
-import { usePermission } from '@/features/auth';
+import { useRolesOptions } from '../../roles';
+import { usePermission } from '../../auth';
 import { DEFAULT_PAGE_SIZE } from '@/data/searchContract';
 
 // F2-QUERY blocks API-SEC-009..015 (F2/SCR-SEC-002).

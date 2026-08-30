@@ -9,7 +9,7 @@ import {
   type RoleSearchContractRequest,
   type UpdateRoleRequest,
 } from './rolesApi';
-import { usePermission } from '@/features/auth';
+import { usePermission } from '../../auth';
 import { DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE } from '@/data/searchContract';
 
 // F2-QUERY blocks API-SEC-016..026, API-SEC-050 (F2/SCR-SEC-003).

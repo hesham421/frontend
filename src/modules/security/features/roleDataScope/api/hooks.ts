@@ -6,7 +6,7 @@ import {
 } from './roleDataScopeApi';
 import { DATA_ACCESS_LEVELS, type DataAccessLevel } from '../types/dataAccessLevel';
 import { ApiError } from '@/lib/errors/ApiError';
-import { usePermission } from '@/features/auth';
+import { usePermission } from '../../auth';
 
 // F2-QUERY blocks API-SEC-042..047 (F2/SCR-SEC-007).
 

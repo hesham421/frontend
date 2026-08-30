@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { useMasterLookupManagementFacade, useMasterLookupUsage } from '@/features/masterLookups';
-import { createMasterLookupSchema } from '@/features/masterLookups';
-import type { MasterLookupDto } from '@/features/masterLookups';
+import { useMasterLookupManagementFacade, useMasterLookupUsage, type MasterLookupDto } from '../api';
+import { createMasterLookupSchema } from '../types';
 import { mapApiError } from '@/lib/errors/mapApiError';
 import { Breadcrumb, Drawer, Alert } from '@/components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '@/components/ui/Button';
@@ -12,7 +11,7 @@ import { Table, type TableColumn } from '@/components/ui/Table';
 import { Pagination } from '@/components/ui/Pagination';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
-import { LookupDetailsDrawer } from '@/features/masterLookups';
+import { LookupDetailsDrawer } from '../components/LookupDetailsDrawer';
 
 export const MasterLookupsPage: React.FC = () => {
   const { t } = useLanguage();

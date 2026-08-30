@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { usePageRegistryFacade } from '@/features/pageRegistry';
-import { createPageSchema, updatePageSchema, excludeSelfFromParentOptions } from '@/features/pageRegistry';
-import type { PageResponse } from '@/features/pageRegistry';
+import { usePageRegistryFacade, type PageResponse } from '../api';
+import { createPageSchema, updatePageSchema, excludeSelfFromParentOptions } from '../types';
 import { mapApiError } from '@/lib/errors/mapApiError';
 import { Breadcrumb, Drawer, Alert } from '@/components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '@/components/ui/Button';

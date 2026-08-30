@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/context/LanguageContext';
-import { useBranchesOptions } from '@/features/branches';
-import { useUserProfileFacade } from '@/features/userProfiles';
-import type { UserDto } from '@/features/users';
+import { useBranchesOptions } from '@/modules/org';
+import { useUserProfileFacade } from '../../userProfiles';
+import type { UserDto } from '../api';
 import { Drawer, Alert } from '@/components/ui/OverlaysAndFeedback';
 import { Button } from '@/components/ui/Button';
 import { Input, Select } from '@/components/ui/FormControls';

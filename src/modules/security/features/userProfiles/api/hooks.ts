@@ -5,7 +5,7 @@ import {
   type UpdateSecUserProfileRequest,
   type UserProfileSearchContractRequest,
 } from './userProfilesApi';
-import { usePermission } from '@/features/auth';
+import { usePermission } from '../../auth';
 import { ApiError } from '@/lib/errors/ApiError';
 
 // F2-QUERY blocks API-SEC-037..041 (F2/SCR-SEC-006).
