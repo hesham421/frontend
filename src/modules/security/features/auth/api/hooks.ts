@@ -10,7 +10,7 @@ import {
 } from './authApi';
 import { tokenStore } from './tokenStore';
 import { decodeAccessToken } from './decodeAccessToken';
-import { useAuthStore } from '@/stores/useAuthStore';
+import { useAuthStore } from '../store';
 
 // F2-QUERY blocks API-SEC-001..008 — all pre-auth POSTs, no useQuery here (R.3.2).
 
@@ -37,10 +37,12 @@ export function useRefreshMutation() {
 
 export function useLogoutMutation() {
   const qc = useQueryClient();
+  const logout = useAuthStore((s) => s.logout);
   return useMutation({
     mutationFn: () => authApi.logout(),
     onSettled: () => {
       tokenStore.clear();
+      logout();
       qc.clear(); // entire query cache cleared on logout (SEC.9)
     },
   });
@@ -69,19 +71,33 @@ export function useForgotPasswordMutation() {
 }
 
 /**
- * Restores the session on a hard refresh. The access token lives only in
- * memory (tokenStore) and dies with the tab (R.9.1), but the httpOnly
- * refresh cookie survives — trade it for a new access token once at
- * startup and rebuild useAuthStore from that token's own claims, instead
- * of leaving isAuthenticated at its false default forever. A normal
- * refresh must not read as a logout.
+ * Restores the session on page refresh or initial mount.
+ * Checks tokenStore (backed by sessionStorage) and attempts a silent refresh via httpOnly cookie.
  */
 export function useSessionBootstrap() {
   const login = useAuthStore((s) => s.login);
+  const logout = useAuthStore((s) => s.logout);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+
+    const existingToken = tokenStore.get();
+    if (existingToken && !tokenStore.isExpired()) {
+      const claims = decodeAccessToken(existingToken);
+      if (claims) {
+        const roles = claims.authorities.filter((a) => !a.startsWith('PERM_') && !/\d/.test(a));
+        login({ username: claims.username, roles, permissions: claims.authorities });
+      }
+
+      // If token is still valid and not expiring soon, we are ready immediately
+      if (!tokenStore.expiresSoon()) {
+        setReady(true);
+        return;
+      }
+    }
+
+    // Try silent refresh using the httpOnly cookie
     authApi
       .refresh()
       .then((r) => {
@@ -89,24 +105,24 @@ export function useSessionBootstrap() {
         tokenStore.set(r.accessToken, r.expiresIn ?? 0);
         const claims = decodeAccessToken(r.accessToken);
         if (!claims) return;
-        // authorities merges role names and PERM_* grants (confirmed via
-        // the live login-token response); permissions needs the whole list
-        // for usePermission.can(). roles is display-only, so a best-effort
-        // split is enough — excluding digits too (not just the PERM_
-        // prefix) because this environment's seed data carries leftover
-        // e2e-test permission codes (PWTEST_...) that don't use the PERM_
-        // prefix but do carry a numeric id/hash, unlike real role names.
         const roles = claims.authorities.filter((a) => !a.startsWith('PERM_') && !/\d/.test(a));
         login({ username: claims.username, roles, permissions: claims.authorities });
       })
-      .catch(() => tokenStore.clear())
+      .catch(() => {
+        // If refresh fails and there is no active unexpired token, clear session
+        if (!tokenStore.get() || tokenStore.isExpired()) {
+          tokenStore.clear();
+          logout();
+        }
+      })
       .finally(() => {
         if (!cancelled) setReady(true);
       });
+
     return () => {
       cancelled = true;
     };
-  }, [login]);
+  }, [login, logout]);
 
   return ready;
 }

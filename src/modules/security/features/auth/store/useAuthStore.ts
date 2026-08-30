@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type { UserInfo } from '../api/authApi';
 export type { UserInfo };
 
@@ -16,7 +17,7 @@ export interface UserProfile {
   avatar: string;
 }
 
-interface AuthState {
+export interface AuthState {
   isAuthenticated: boolean;
   user: UserProfile;
   login: (info: UserInfo) => void;
@@ -34,22 +35,30 @@ const EMPTY_USER: UserProfile = {
   avatar: '',
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
-  isAuthenticated: false,
-  user: EMPTY_USER,
-  login: (info) =>
-    set({
-      isAuthenticated: true,
-      user: {
-        ...EMPTY_USER,
-        username: info.username ?? '',
-        nameEn: info.username ?? '',
-        nameAr: info.username ?? '',
-        roles: info.roles ?? [],
-        permissions: info.permissions ?? [],
-        roleTitleEn: info.roles?.join(', ') ?? '',
-        roleTitleAr: info.roles?.join('، ') ?? '',
-      },
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      isAuthenticated: false,
+      user: EMPTY_USER,
+      login: (info) =>
+        set({
+          isAuthenticated: true,
+          user: {
+            ...EMPTY_USER,
+            username: info.username ?? '',
+            nameEn: info.username ?? '',
+            nameAr: info.username ?? '',
+            roles: info.roles ?? [],
+            permissions: info.permissions ?? [],
+            roleTitleEn: info.roles?.join(', ') ?? '',
+            roleTitleAr: info.roles?.join('، ') ?? '',
+          },
+        }),
+      logout: () => set({ isAuthenticated: false, user: EMPTY_USER }),
     }),
-  logout: () => set({ isAuthenticated: false, user: EMPTY_USER }),
-}));
+    {
+      name: 'avelynq-auth-session',
+      storage: createJSONStorage(() => sessionStorage),
+    },
+  ),
+);

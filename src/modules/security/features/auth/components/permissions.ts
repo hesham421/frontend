@@ -1,4 +1,4 @@
-import { useAuthStore } from '@/stores/useAuthStore';
+import { useAuthStore } from '../store';
 
 /**
  * AD-6 — this is a UX layer only; the backend enforces every permission
