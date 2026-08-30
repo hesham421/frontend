@@ -12,7 +12,7 @@ import type { CreateBranchRequest, UpdateBranchRequest } from './branchesApi';
 // RULE-ORG-018 — Branch must belong to an active LegalEntity. The
 // legalEntityFk picker is already restricted to isActive=true records by
 // useLegalEntitiesOptions (src/legalEntities/hooks.ts, filters:
-// [{ field: 'isActive', operator: 'EQ', value: true }]), established in F2.
+// [{ field: 'isActiveFl', operator: 'EQ', value: true }]), established in F2.
 // This rule is satisfied structurally by that existing query filter — no
 // new filtering logic is added here, only the required (number) legalEntityFk
 // field below, matching CreateBranchRequest's shape.

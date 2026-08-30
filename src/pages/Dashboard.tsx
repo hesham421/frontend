@@ -3,7 +3,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { useNavigationStore, ScreenType } from '../stores/useNavigationStore';
 import { useUsersCount } from '../users/hooks';
 import { useRolesCount } from '../roles/hooks';
-import { useOrganizationStore } from '../stores/useOrganizationStore';
+import { useLegalEntitiesOptions } from '../legalEntities/hooks';
+import { useBranchesOptions } from '../branches/hooks';
 import { useNotificationsStore } from '../stores/useNotificationsStore';
 import { Stat, Card, Badge } from '../components/ui/DataDisplay';
 import { Button } from '../components/ui/Button';
@@ -19,13 +20,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
   const storeNavigate = useNavigationStore((state) => state.setCurrentScreen);
   const handleNavigate = onNavigate ?? storeNavigate;
 
-  // Real Security API counts — previously read from a mock store the
-  // Security screens themselves no longer use, so this KPI could show a
-  // number unrelated to what User Management / Roles & Permissions displayed.
+  // Real Security/Organization API counts — previously read from mock stores
+  // those screens themselves no longer use, so these KPIs could show a
+  // number unrelated to what the actual list screens displayed.
   const usersCount = useUsersCount().data ?? 0;
   const rolesCount = useRolesCount().data ?? 0;
-  const entitiesCount = useOrganizationStore((state) => state.legalEntities.length);
-  const branchesCount = useOrganizationStore((state) => state.branches.length);
+  const entitiesCount = useLegalEntitiesOptions().data?.length ?? 0;
+  const branchesCount = useBranchesOptions().data?.length ?? 0;
   const unreadCount = useNotificationsStore((state) => state.getUnreadCount());
 
   const [isFileDrawerOpen, setIsFileDrawerOpen] = useState(false);

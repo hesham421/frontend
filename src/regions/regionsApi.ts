@@ -3,11 +3,9 @@ import type { PagedResponse, SearchContractRequest } from '../data/searchContrac
 
 // Real API DTOs (region-management.md) — F2/SCR-ORG-003 (Regions).
 //
-// regionTypeIdFk: DEFERRED FK (FINDING-2/OQ-ORG-002) — real field is a genuine
-// FK to ENTITY-ORG-008 (RegionType) with no listing endpoint yet. Typed here
-// as `number | null` on the response (matches F1's model correction), with
-// the denormalized `regionTypeNameEn` carried alongside for read-only
-// display. No LOV hook exists for it — see hooks.ts.
+// regionTypeIdFk: real FK to ORG_REGION_TYPE (ENTITY-ORG-008), resolved via
+// GET /api/v1/org/regions/region-types (added to close FINDING-2/OQ-ORG-002 —
+// see useRegionTypeOptions in hooks.ts).
 export interface RegionResponse {
   id?: number;
   regionCode?: string;
@@ -44,11 +42,22 @@ export interface UpdateRegionRequest {
 
 export type RegionSearchContractRequest = SearchContractRequest;
 
+export interface RegionTypeResponse {
+  id: number;
+  code: string;
+  nameAr: string;
+  nameEn: string;
+}
+
 const BASE = '/api/v1/org/regions';
 
 export const regionsApi = {
   // API-ORG-018
   getById: (id: number, signal?: AbortSignal) => http.get<RegionResponse>(`${BASE}/${id}`, { signal }),
+
+  // Lists active region types for the create/edit form's picker.
+  getRegionTypes: (signal?: AbortSignal) =>
+    http.get<RegionTypeResponse[]>(`${BASE}/region-types`, { signal }),
 
   // API-ORG-015 — legalEntityFk/regionTypeIdFk absent from this request shape.
   update: (id: number, req: UpdateRegionRequest) => http.put<RegionResponse>(`${BASE}/${id}`, req),

@@ -28,9 +28,11 @@ SUPER_ADMIN account on the local backend):
    session file under `~/.testsprite/mcp/session-*.json`. Writes
    `testsprite_tests/tmp/config.json` (gitignored — pure session cache,
    never commit it). This is also where any run-specific
-   `additionalInstruction` gets recorded (e.g. the standing note that
-   Organization and Notifications screens are intentionally mock/local-state
-   only — see that file if a run behaves unexpectedly around those modules).
+   `additionalInstruction` gets recorded. As of 2026-08-29, the Organization
+   module (all 7 entities) was rewired from mock/local-state to real backend
+   APIs under `/api/v1/org/*` — only Notifications remains mock/local-state
+   only; update any run's `additionalInstruction` accordingly instead of
+   assuming Organization is still mock.
 2. **Code summary** (`testsprite_generate_code_summary`) — scans the React
    source and writes `testsprite_tests/tmp/code_summary.yaml` (gitignored).
 3. **Standardized PRD** (`testsprite_generate_standardized_prd`) — writes

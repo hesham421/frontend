@@ -1,137 +1,210 @@
-import React from 'react';
-import { useForm, Controller, type Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import React, { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { useOrganizationStore } from '../../stores/useOrganizationStore';
-import { usePermission } from '../../auth/permissions';
-import { Breadcrumb, Drawer, EmptyState } from '../../components/ui/OverlaysAndFeedback';
+import { useRegionsFacade } from '../../regions/hooks';
+import type { RegionResponse, CreateRegionRequest, UpdateRegionRequest } from '../../regions/regionsApi';
+import { mapApiError } from '../../lib/errors/mapApiError';
+import { Breadcrumb, Drawer, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
 import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select } from '../../components/ui/FormControls';
+import { Table, type TableColumn } from '../../components/ui/Table';
+import { Pagination } from '../../components/ui/Pagination';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
-import { Region } from '../../data/mockData';
-import { createRegionSchema, updateRegionSchema } from '../../regions/regions.schema';
-
-// regionTypeIdFk is FINDING-2/OQ-ORG-002 (deferred): no listing endpoint
-// exists yet, so this page has no create/edit picker for it — omit it from
-// client validation or the create flow becomes permanently unsubmittable.
-// legalEntityFk is z.number() in createRegionSchema (real API contract), but
-// this page's mock store and its <Select> both deal in string ids — override
-// just that field for this mock-store-bound form (regions.schema.ts itself
-// is out of scope, it correctly describes the real API).
-const regionFormSchema = createRegionSchema
-  .omit({ regionTypeIdFk: true })
-  .extend({ legalEntityFk: z.string().min(1, 'Legal entity is required.') });
-type RegionFormValues = z.infer<typeof regionFormSchema>;
 
 export const RegionsPage: React.FC = () => {
   const { t, lang } = useLanguage();
   const { showToast } = useToast();
   const {
-    regions,
-    legalEntities,
-    regionSearch,
-    regionEntityFilter,
-    regionTypeFilter,
-    regionStatusFilter,
-    selectedRegion,
-    isRegionDrawerOpen,
-    isConfirmDialogOpen,
-    confirmActionType,
-    setRegionSearch,
-    setRegionEntityFilter,
-    setRegionTypeFilter,
-    setRegionStatusFilter,
-    openRegionDrawer,
-    closeRegionDrawer,
-    saveRegion,
-    openConfirmDialog,
-    closeConfirmDialog,
-    executeConfirmAction,
-  } = useOrganizationStore();
+    regionList,
+    selectedItem,
+    isLoading,
+    isListLoading,
+    loadError,
+    legalEntityFkOptions,
+    regionTypeIdOptions,
+    page,
+    size,
+    totalElements,
+    canCreate,
+    canEdit,
+    selectItem,
+    setSearchFilters,
+    retry,
+    createRegion,
+    updateRegion,
+    deactivateRegion,
+    activateRegion,
+  } = useRegionsFacade();
 
-  const { can } = usePermission();
-  const canCreate = can('PERM_REGION_CREATE');
-  const canEdit = can('PERM_REGION_UPDATE');
-  // Editing an existing region needs UPDATE; the create-drawer branch needs CREATE.
-  const canSaveDrawer = selectedRegion ? canEdit : canCreate;
+  const canSaveDrawer = selectedItem ? canEdit : canCreate;
 
-  const isEditMode = !!selectedRegion;
-  const form = useForm<RegionFormValues>({
-    resolver: zodResolver(isEditMode ? updateRegionSchema : regionFormSchema) as unknown as Resolver<RegionFormValues>,
-    defaultValues: { nameEn: '', nameAr: '', legalEntityFk: 'le-1', notes: '' },
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
-  });
+  const [searchText, setSearchText] = useState('');
+  const [entityFilter, setEntityFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [confirmToggle, setConfirmToggle] = useState<{ region: RegionResponse; activate: boolean } | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [nameEn, setNameEn] = useState('');
+  const [nameAr, setNameAr] = useState('');
+  const [legalEntityFk, setLegalEntityFk] = useState('');
+  const [regionTypeIdFk, setRegionTypeIdFk] = useState('');
+  const [notes, setNotes] = useState('');
+
+  const applyFilters = (text: string, entity: string, status: 'ALL' | 'ACTIVE' | 'INACTIVE') => {
+    const filters: { field: string; operator: 'LIKE' | 'EQ'; value: unknown }[] = [];
+    if (text) filters.push({ field: 'nameEn', operator: 'LIKE', value: text });
+    if (entity !== 'ALL') filters.push({ field: 'legalEntityFk', operator: 'EQ', value: Number(entity) });
+    if (status !== 'ALL') filters.push({ field: 'isActiveFl', operator: 'EQ', value: status === 'ACTIVE' });
+    setSearchFilters({ filters, page: 0 });
+  };
 
   const handleOpenCreate = () => {
-    form.reset({ nameEn: '', nameAr: '', legalEntityFk: legalEntities[0]?.id || 'le-1', notes: '' });
-    openRegionDrawer(null);
+    setNameEn('');
+    setNameAr('');
+    setLegalEntityFk(legalEntityFkOptions[0]?.id != null ? String(legalEntityFkOptions[0].id) : '');
+    setRegionTypeIdFk(regionTypeIdOptions[0]?.id != null ? String(regionTypeIdOptions[0].id) : '');
+    setNotes('');
+    setErrorMessage(null);
+    selectItem(null);
+    setIsDrawerOpen(true);
   };
 
-  const handleOpenEdit = (region: Region) => {
-    form.reset({ nameEn: region.nameEn, nameAr: region.nameAr, legalEntityFk: region.legalEntityFk, notes: region.notes || '' });
-    openRegionDrawer(region);
+  const handleOpenEdit = (region: RegionResponse) => {
+    setNameEn(region.nameEn ?? '');
+    setNameAr(region.nameAr ?? '');
+    setLegalEntityFk(region.legalEntityFk != null ? String(region.legalEntityFk) : '');
+    setRegionTypeIdFk(region.regionTypeIdFk != null ? String(region.regionTypeIdFk) : '');
+    setNotes(region.notes ?? '');
+    setErrorMessage(null);
+    selectItem(region);
+    setIsDrawerOpen(true);
   };
 
-  const onValid = (values: RegionFormValues) => {
-    if (!canSaveDrawer) return;
-    const isEdit = !!selectedRegion;
-    // F1/SCR-ORG-003 — FINDING-2 / OQ-ORG-002 (deferred): regionTypeIdFk is
-    // intentionally omitted from the save payload — there is no create/edit
-    // picker until a real region-type listing endpoint exists.
-    saveRegion({
-      id: selectedRegion?.id,
-      ...values,
-    });
-    showToast(t(isEdit ? 'regionSavedSuccess' : 'regionCreatedSuccess'), 'success');
+  const handleSave = async () => {
+    setErrorMessage(null);
+    try {
+      if (selectedItem?.id != null) {
+        const req: UpdateRegionRequest = { nameEn, nameAr, notes };
+        await updateRegion(selectedItem.id, req);
+        showToast(t('regionSavedSuccess'), 'success');
+      } else {
+        const req: CreateRegionRequest = {
+          nameEn,
+          nameAr,
+          legalEntityFk: Number(legalEntityFk),
+          regionTypeIdFk: Number(regionTypeIdFk),
+          notes,
+        };
+        await createRegion(req);
+        showToast(t('regionCreatedSuccess'), 'success');
+      }
+      setIsDrawerOpen(false);
+    } catch (err) {
+      setErrorMessage(mapApiError(err, t));
+    }
   };
 
-  const handleConfirmDeactivate = () => {
-    if (!canEdit) return;
-    executeConfirmAction();
-    showToast(t('regionDeactivatedSuccess'), 'success');
+  const handleConfirmToggle = async () => {
+    if (!confirmToggle?.region.id) return;
+    try {
+      if (confirmToggle.activate) {
+        await activateRegion(confirmToggle.region.id);
+        showToast(t('regionActivatedSuccess'), 'success');
+      } else {
+        await deactivateRegion(confirmToggle.region.id);
+        showToast(t('regionDeactivatedSuccess'), 'success');
+      }
+    } catch (err) {
+      setErrorMessage(mapApiError(err, t));
+    }
+    setConfirmToggle(null);
   };
-
-  const filteredRegions = regions.filter((r) => {
-    const matchesSearch =
-      r.regionCode.toLowerCase().includes(regionSearch.toLowerCase()) ||
-      r.nameEn.toLowerCase().includes(regionSearch.toLowerCase()) ||
-      r.nameAr.includes(regionSearch);
-
-    const matchesEntity = regionEntityFilter === 'ALL' || r.legalEntityFk === regionEntityFilter;
-    // F1/SCR-ORG-003 — FINDING-2 / OQ-ORG-002 (deferred): regionTypeIdFk is now
-    // `number | null` (real API FK), so this filter compares it as a string
-    // against the Shell's pre-existing (non-authoritative) type option list.
-    const matchesType = regionTypeFilter === 'ALL' || String(r.regionTypeIdFk ?? '') === regionTypeFilter;
-    const matchesStatus =
-      regionStatusFilter === 'ALL' ||
-      (regionStatusFilter === 'ACTIVE' && r.isActive) ||
-      (regionStatusFilter === 'INACTIVE' && !r.isActive);
-
-    return matchesSearch && matchesEntity && matchesType && matchesStatus;
-  });
 
   const entityOptions = [
     { value: 'ALL', label: t('all') },
-    ...legalEntities.map((e) => ({ value: e.id, label: `${lang === 'ar' ? e.nameAr : e.nameEn} (${e.legalEntityCode})` })),
+    ...legalEntityFkOptions.map((e) => ({
+      value: String(e.id),
+      label: `${lang === 'ar' ? e.nameAr : e.nameEn} (${e.legalEntityCode})`,
+    })),
   ];
 
-  const regionTypeOptions = [
-    { value: 'ALL', label: t('all') },
-    { value: 'CENTRAL', label: 'Central Region (المنطقة الوسطى)' },
-    { value: 'WESTERN', label: 'Western Region (المنطقة الغربية)' },
-    { value: 'EASTERN', label: 'Eastern Region (المنطقة الشرقية)' },
-    { value: 'SOUTHERN', label: 'Southern Region (المنطقة الجنوبية)' },
-    { value: 'NORTHERN', label: 'Northern Region (المنطقة الشمالية)' },
-  ];
+  const regionTypeSelectOptions = regionTypeIdOptions.map((rt) => ({
+    value: String(rt.id),
+    label: lang === 'ar' ? rt.nameAr : rt.nameEn,
+  }));
 
   const statusOptions = [
     { value: 'ALL', label: t('all') },
     { value: 'ACTIVE', label: t('active') },
     { value: 'INACTIVE', label: t('inactive') },
+  ];
+
+  const columns: TableColumn<RegionResponse>[] = [
+    { key: 'code', header: t('code'), render: (r) => <Badge variant="neutral" size="sm">{r.regionCode}</Badge> },
+    {
+      key: 'name',
+      header: t('name'),
+      render: (r) => (
+        <div>
+          <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)', fontSize: '14px' }}>
+            {lang === 'ar' ? r.nameAr : r.nameEn}
+          </div>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted, #647488)' }}>
+            {lang === 'ar' ? r.nameEn : r.nameAr}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'legalEntity',
+      header: t('legalEntity'),
+      render: (r) => <span style={{ fontSize: '13px', color: 'var(--text-body, #354456)' }}>{r.legalEntityCode ?? '—'}</span>,
+    },
+    {
+      key: 'regionType',
+      header: t('regionType'),
+      render: (r) => <Badge variant="primary" size="sm">{r.regionTypeNameEn || '—'}</Badge>,
+    },
+    {
+      key: 'status',
+      header: t('status'),
+      render: (r) => (
+        <Badge variant={r.isActive ? 'success' : 'danger'} size="sm">
+          {r.isActive ? t('active') : t('inactive')}
+        </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      header: t('actions'),
+      align: 'end',
+      render: (r) => (
+        <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
+          {canEdit && (
+            <IconButton icon="ti ti-edit" label={t('edit')} variant="ghost" size="sm" onClick={() => handleOpenEdit(r)} />
+          )}
+          {canEdit && (r.isActive ? (
+            <IconButton
+              icon="ti ti-ban"
+              label={t('deactivate')}
+              variant="ghost"
+              size="sm"
+              onClick={() => setConfirmToggle({ region: r, activate: false })}
+            />
+          ) : (
+            <IconButton
+              icon="ti ti-check"
+              label={t('reactivate')}
+              variant="ghost"
+              size="sm"
+              onClick={() => setConfirmToggle({ region: r, activate: true })}
+            />
+          ))}
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -146,15 +219,7 @@ export const RegionsPage: React.FC = () => {
               { label: t('navRegions') },
             ]}
           />
-          <h1
-            style={{
-              fontSize: '22px',
-              fontWeight: 700,
-              color: 'var(--text-strong, #14222F)',
-              margin: '4px 0 0 0',
-              textAlign: 'start',
-            }}
-          >
+          <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-strong, #14222F)', margin: '4px 0 0 0', textAlign: 'start' }}>
             {t('orgRegionsTitle')}
           </h1>
         </div>
@@ -171,41 +236,44 @@ export const RegionsPage: React.FC = () => {
           <div style={{ flex: '1 1 240px', minWidth: '200px' }}>
             <Input
               placeholder={t('searchPlaceholder')}
-              value={regionSearch}
-              onChange={(e) => setRegionSearch(e.target.value)}
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value);
+                applyFilters(e.target.value, entityFilter, statusFilter);
+              }}
               iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
           <div style={{ width: '200px' }}>
             <Select
               options={entityOptions}
-              value={regionEntityFilter}
-              onChange={(e) => setRegionEntityFilter(e.target.value)}
-            />
-          </div>
-          <div style={{ width: '220px' }}>
-            <Select
-              options={regionTypeOptions}
-              value={regionTypeFilter}
-              onChange={(e) => setRegionTypeFilter(e.target.value)}
+              value={entityFilter}
+              onChange={(e) => {
+                setEntityFilter(e.target.value);
+                applyFilters(searchText, e.target.value, statusFilter);
+              }}
             />
           </div>
           <div style={{ width: '140px' }}>
             <Select
               options={statusOptions}
-              value={regionStatusFilter}
-              onChange={(e) => setRegionStatusFilter(e.target.value)}
+              value={statusFilter}
+              onChange={(e) => {
+                const next = e.target.value as 'ALL' | 'ACTIVE' | 'INACTIVE';
+                setStatusFilter(next);
+                applyFilters(searchText, entityFilter, next);
+              }}
             />
           </div>
-          {(regionSearch || regionEntityFilter !== 'ALL' || regionTypeFilter !== 'ALL' || regionStatusFilter !== 'ALL') && (
+          {(searchText || entityFilter !== 'ALL' || statusFilter !== 'ALL') && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => {
-                setRegionSearch('');
-                setRegionEntityFilter('ALL');
-                setRegionTypeFilter('ALL');
-                setRegionStatusFilter('ALL');
+                setSearchText('');
+                setEntityFilter('ALL');
+                setStatusFilter('ALL');
+                applyFilters('', 'ALL', 'ALL');
               }}
             >
               {t('clear')}
@@ -214,224 +282,80 @@ export const RegionsPage: React.FC = () => {
         </div>
       </Card>
 
-      {/* 4. Data Grid */}
+      {errorMessage && <Alert variant="danger" message={errorMessage} />}
+
+      {/* 3. Data Grid */}
       <Card variant="flat" padding="none">
-        {filteredRegions.length === 0 ? (
-          <EmptyState
-            icon="ti ti-map-pin-off"
-            title={t('noRecordsFound')}
-            description={t('noRecordsDesc')}
-            action={canCreate ? { label: t('new'), onClick: handleOpenCreate } : undefined}
-          />
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'start' }}>
-              <thead>
-                <tr style={{ background: 'var(--surface-page, #F8FAFC)', borderBottom: '1px solid var(--border-subtle, #E6ECF3)' }}>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('code')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('name')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('legalEntity')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('regionType')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'start' }}>
-                    {t('status')}
-                  </th>
-                  <th style={{ padding: '12px 18px', fontSize: '12px', fontWeight: 600, color: 'var(--text-subtle, #8C9AAC)', textAlign: 'end' }}>
-                    {t('actions')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRegions.map((r) => {
-                  const entity = legalEntities.find((e) => e.id === r.legalEntityFk);
-                  return (
-                    <tr
-                      key={r.id}
-                      style={{
-                        borderBottom: '1px solid var(--border-subtle, #E6ECF3)',
-                        transition: 'background 120ms ease',
-                      }}
-                    >
-                      <td style={{ padding: '14px 18px' }}>
-                        <Badge variant="neutral" size="sm">
-                          {r.regionCode}
-                        </Badge>
-                      </td>
-                      <td style={{ padding: '14px 18px' }}>
-                        <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)', fontSize: '14px' }}>
-                          {lang === 'ar' ? r.nameAr : r.nameEn}
-                        </div>
-                        <div style={{ fontSize: '11px', color: 'var(--text-muted, #647488)' }}>
-                          {lang === 'ar' ? r.nameEn : r.nameAr}
-                        </div>
-                      </td>
-                      <td style={{ padding: '14px 18px', fontSize: '13px', color: 'var(--text-body, #354456)' }}>
-                        {entity ? (lang === 'ar' ? entity.nameAr : entity.nameEn) : '—'}
-                      </td>
-                      <td style={{ padding: '14px 18px' }}>
-                        {/* F1/SCR-ORG-003 — FINDING-2 / OQ-ORG-002 (deferred): display the
-                            real API's denormalized regionTypeNameEn, not the raw FK id. */}
-                        <Badge variant="primary" size="sm">
-                          {r.regionTypeNameEn || '—'}
-                        </Badge>
-                      </td>
-                      <td style={{ padding: '14px 18px' }}>
-                        <Badge variant={r.isActive ? 'success' : 'danger'} size="sm">
-                          {r.isActive ? t('active') : t('inactive')}
-                        </Badge>
-                      </td>
-                      <td style={{ padding: '14px 18px', textAlign: 'end' }}>
-                        <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
-                          {canEdit && (
-                            <IconButton
-                              icon="ti ti-edit"
-                              label={t('edit')}
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleOpenEdit(r)}
-                            />
-                          )}
-                          {r.isActive && canEdit && (
-                            <IconButton
-                              icon="ti ti-ban"
-                              label={t('deactivate')}
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => openConfirmDialog('DEACTIVATE_REGION', r.id)}
-                            />
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <Table<RegionResponse>
+          columns={columns}
+          rows={regionList}
+          getRowKey={(r) => r.id!}
+          isLoading={isListLoading}
+          loadError={loadError}
+          onRetry={retry}
+          emptyIcon="ti ti-map-pin-off"
+          emptyTitle={t('noRecordsFound')}
+          emptyDescription={t('noRecordsDesc')}
+          emptyAction={canCreate ? { label: t('new'), onClick: handleOpenCreate } : undefined}
+        />
+        {!loadError && <Pagination page={page} size={size} totalElements={totalElements} onPageChange={(p) => setSearchFilters({ page: p })} />}
       </Card>
 
-      {/* 5. Drawer */}
-      <form onSubmit={form.handleSubmit(onValid)} noValidate>
-        <Drawer
-          isOpen={isRegionDrawerOpen}
-          onClose={closeRegionDrawer}
-          title={selectedRegion ? `${t('edit')}: ${lang === 'ar' ? selectedRegion.nameAr : selectedRegion.nameEn}` : t('new')}
-          width="md"
-          footer={
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <Button type="button" variant="secondary" onClick={closeRegionDrawer}>
-                {t('cancel')}
+      {/* 4. Create / Edit Drawer */}
+      <Drawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        title={selectedItem ? `${t('edit')}: ${lang === 'ar' ? selectedItem.nameAr : selectedItem.nameEn}` : t('new')}
+        width="md"
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+            <Button type="button" variant="secondary" onClick={() => setIsDrawerOpen(false)}>
+              {t('cancel')}
+            </Button>
+            {canSaveDrawer && (
+              <Button variant="primary" onClick={handleSave} loading={isLoading}>
+                {t('save')}
               </Button>
-              {canSaveDrawer && (
-                <Button type="submit" variant="primary" loading={form.formState.isSubmitting}>
-                  {t('save')}
-                </Button>
-              )}
-            </div>
-          }
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {selectedRegion && (
-              <Input
-                label={t('code')}
-                value={selectedRegion.regionCode}
-                disabled
-                helperText={t('readOnlyCodeHint')}
-              />
             )}
-            <Controller
-              control={form.control}
-              name="nameEn"
-              render={({ field, fieldState }) => (
-                <Input
-                  label={`${t('nameEn')} *`}
-                  value={field.value ?? ''}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  onBlur={field.onBlur}
-                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-                  error={fieldState.error?.message}
-                  disabled={!canSaveDrawer}
-                  required
-                />
-              )}
-            />
-            <Controller
-              control={form.control}
-              name="nameAr"
-              render={({ field, fieldState }) => (
-                <Input
-                  label={`${t('nameAr')} *`}
-                  value={field.value ?? ''}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  onBlur={field.onBlur}
-                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-                  error={fieldState.error?.message}
-                  disabled={!canSaveDrawer}
-                  required
-                />
-              )}
-            />
-            <Controller
-              control={form.control}
-              name="legalEntityFk"
-              render={({ field, fieldState }) => (
-                <Select
-                  label={`${t('legalEntity')} *`}
-                  options={entityOptions.filter((opt) => opt.value !== 'ALL')}
-                  value={field.value ?? ''}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  onBlur={field.onBlur}
-                  onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-                  error={fieldState.error?.message}
-                  disabled={!canSaveDrawer}
-                />
-              )}
-            />
-            {/* F1/SCR-ORG-003 — FINDING-2 / OQ-ORG-002 (deferred): regionTypeIdFk has
-                no real listing endpoint (ENTITY-ORG-008 / RegionType), so there is no
-                create/edit picker for it. Rendered as a read-only display of the real
-                API's denormalized regionTypeNameEn until OQ-ORG-002 resolves. */}
-            <Input
-              label={t('regionType')}
-              value={selectedRegion?.regionTypeNameEn || '—'}
-              disabled
-            />
-            <Controller
-              control={form.control}
-              name="notes"
-              render={({ field, fieldState }) => (
-                <Input
-                  label={t('notes')}
-                  value={field.value ?? ''}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  onBlur={field.onBlur}
-                  error={fieldState.error?.message}
-                  disabled={!canSaveDrawer}
-                />
-              )}
-            />
           </div>
-        </Drawer>
-      </form>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {selectedItem && (
+            <Input label={t('code')} value={selectedItem.regionCode ?? ''} disabled helperText={t('readOnlyCodeHint')} />
+          )}
+          <Input label={`${t('nameEn')} *`} value={nameEn} onChange={(e) => setNameEn(e.target.value)} disabled={!canSaveDrawer} required />
+          <Input label={`${t('nameAr')} *`} value={nameAr} onChange={(e) => setNameAr(e.target.value)} disabled={!canSaveDrawer} required />
+          <Select
+            label={`${t('legalEntity')} *`}
+            options={entityOptions.filter((opt) => opt.value !== 'ALL')}
+            value={legalEntityFk}
+            onChange={(e) => setLegalEntityFk(e.target.value)}
+            disabled={!canSaveDrawer || !!selectedItem}
+            helperText={selectedItem ? t('readOnlyCodeHint') : undefined}
+          />
+          <Select
+            label={`${t('regionType')} *`}
+            options={regionTypeSelectOptions}
+            value={regionTypeIdFk}
+            onChange={(e) => setRegionTypeIdFk(e.target.value)}
+            disabled={!canSaveDrawer || !!selectedItem}
+            helperText={selectedItem ? t('readOnlyCodeHint') : undefined}
+          />
+          <Input label={t('notes')} value={notes} onChange={(e) => setNotes(e.target.value)} disabled={!canSaveDrawer} />
+        </div>
+      </Drawer>
 
-      {/* 6. Deactivation Dialog */}
+      {/* 5. Confirm Dialog */}
       <ConfirmDialog
-        isOpen={isConfirmDialogOpen && confirmActionType === 'DEACTIVATE_REGION'}
-        onClose={closeConfirmDialog}
-        onConfirm={handleConfirmDeactivate}
+        isOpen={confirmToggle != null}
+        onClose={() => setConfirmToggle(null)}
+        onConfirm={handleConfirmToggle}
         title={t('confirmActionTitle')}
-        message={t('confirmDeactivate')}
-        confirmLabel={t('deactivate')}
+        message={confirmToggle?.activate ? t('confirmReactivate') : t('confirmDeactivate')}
+        confirmLabel={confirmToggle?.activate ? t('reactivate') : t('deactivate')}
         cancelLabel={t('cancel')}
-        tone="danger"
+        tone={confirmToggle?.activate ? 'primary' : 'danger'}
       />
     </div>
   );

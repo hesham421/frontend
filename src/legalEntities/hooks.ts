@@ -52,7 +52,7 @@ export function useLegalEntitiesOptions() {
     queryFn: ({ signal }) =>
       legalEntitiesApi.search(
         {
-          filters: [{ field: 'isActive', operator: 'EQ', value: true }],
+          filters: [{ field: 'isActiveFl', operator: 'EQ', value: true }],
           sorts: [{ field: 'nameEn', direction: 'ASC' }],
           page: 0,
           size: MAX_PAGE_SIZE,

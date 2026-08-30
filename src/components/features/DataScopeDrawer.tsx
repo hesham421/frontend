@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { useOrganizationStore } from '../../stores/useOrganizationStore';
+import { useBranchesOptions } from '../../branches/hooks';
 import { useRolesOptions } from '../../roles/hooks';
 import { useRoleDataScopeFacade } from '../../roleDataScope/hooks';
 import { DATA_ACCESS_LEVELS, type DataAccessLevel } from '../../roleDataScope/dataAccessLevel';
@@ -8,7 +8,6 @@ import type { SecRoleBranchDto } from '../../roleDataScope/roleDataScopeApi';
 import { Drawer, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button } from '../../components/ui/Button';
 import { Select } from '../../components/ui/FormControls';
-import { branchIdToNumber } from '../../lib/branchId';
 import { mapApiError } from '../../lib/errors/mapApiError';
 import { useToast } from '../../components/ui/Toast';
 
@@ -23,7 +22,7 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
   const { t, lang } = useLanguage();
   const { showToast } = useToast();
   const roleOptions = useRolesOptions();
-  const branches = useOrganizationStore((state) => state.branches);
+  const branchOptions = useBranchesOptions();
 
   const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(roleId ?? initialScope?.roleIdFk);
   const [selectedBranchId, setSelectedBranchId] = useState<number | undefined>(initialScope?.branchIdFk);
@@ -90,10 +89,10 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
     { value: '', label: t('selectRolePlaceholder') },
     ...(roleOptions.data ?? []).map((r) => ({ value: String(r.id), label: `${r.roleName} (${r.roleCode})` })),
   ];
-  const branchOptions = [
+  const branchSelectOptions = [
     { value: '', label: t('selectBranchPlaceholder') },
-    ...branches.map((b) => ({
-      value: String(branchIdToNumber(b.id)),
+    ...(branchOptions.data ?? []).map((b) => ({
+      value: String(b.id),
       label: lang === 'ar' ? `${b.nameAr} - ${b.nameEn}` : `${b.nameEn} - ${b.nameAr}`,
     })),
   ];
@@ -141,7 +140,7 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
         />
         <Select
           label={`${t('assignedBranch')} *`}
-          options={branchOptions}
+          options={branchSelectOptions}
           value={selectedBranchId != null ? String(selectedBranchId) : ''}
           onChange={(e) => setSelectedBranchId(Number(e.target.value))}
         />

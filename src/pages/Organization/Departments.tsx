@@ -1,148 +1,171 @@
-import React, { useState } from 'react';
-import { useForm, Controller, type Resolver } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { useOrganizationStore } from '../../stores/useOrganizationStore';
-import { usePermission } from '../../auth/permissions';
+import { useDepartmentsFacade, useDepartment } from '../../departments/hooks';
+import type { DepartmentTreeNodeResponse, CreateDepartmentRequest, UpdateDepartmentRequest } from '../../departments/departmentsApi';
+import { mapApiError } from '../../lib/errors/mapApiError';
 import { Breadcrumb, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '../../components/ui/Button';
 import { Card, Badge } from '../../components/ui/DataDisplay';
 import { Input, Select } from '../../components/ui/FormControls';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { useToast } from '../../components/ui/Toast';
-import { DepartmentNode } from '../../data/mockData';
-import { createDepartmentSchema, updateDepartmentSchema } from '../../departments/departments.schema';
-
-// branchFk is required in createDepartmentSchema, but this page never
-// collects it via a form field — it comes from the separate branch-filter
-// <Select> above the tree (deptBranchFilter), merged in manually at save.
-// parentDepartmentFk is z.number().optional() in both schemas, but the mock
-// store's actual type is string | null — overridden here in both variants.
-const departmentFormSchema = createDepartmentSchema
-  .omit({ branchFk: true })
-  .extend({ parentDepartmentFk: z.string().nullable().optional() });
-type DepartmentFormValues = z.infer<typeof departmentFormSchema>;
-
-const departmentUpdateFormSchema = updateDepartmentSchema.extend({
-  parentDepartmentFk: z.string().nullable().optional(),
-});
 
 export const DepartmentsPage: React.FC = () => {
   const { t, lang } = useLanguage();
   const { showToast } = useToast();
   const {
-    departments,
-    branches,
-    deptBranchFilter,
-    selectedDepartment,
-    isConfirmDialogOpen,
-    confirmActionType,
-    setDeptBranchFilter,
-    setSelectedDepartment,
-    saveDepartment,
-    openConfirmDialog,
-    closeConfirmDialog,
-    executeConfirmAction,
-  } = useOrganizationStore();
+    departmentTree,
+    isLoading,
+    isTreeLoading,
+    selectedBranchFk,
+    nodeTypeIdOptions,
+    branchFkOptions,
+    parentDepartmentFkOptions,
+    canCreate,
+    canEdit,
+    setSelectedBranchFk,
+    selectItem,
+    createDepartment,
+    updateDepartment,
+    deactivateDepartment,
+    activateDepartment,
+  } = useDepartmentsFacade();
 
-  const [expandedNodeIds, setExpandedNodeIds] = useState<Record<string, boolean>>({ 'dept-1': true, 'dept-2': true, 'dept-5': true, 'dept-8': true });
+  const [expandedNodeIds, setExpandedNodeIds] = useState<Record<number, boolean>>({});
+  const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
   const [isCreatingChild, setIsCreatingChild] = useState(false);
   const [isCreatingRoot, setIsCreatingRoot] = useState(false);
+  const [createParentId, setCreateParentId] = useState<number | null>(null);
+  const [confirmToggle, setConfirmToggle] = useState<{ node: DepartmentTreeNodeResponse; activate: boolean } | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { can } = usePermission();
-  const canCreate = can('PERM_DEPARTMENT_CREATE');
-  const canEdit = can('PERM_DEPARTMENT_UPDATE');
-  // Creating a root or child department needs CREATE; editing an existing node needs UPDATE.
+  const detail = useDepartment(selectedNodeId ?? undefined);
+
   const canSaveForm = (isCreatingRoot || isCreatingChild) ? canCreate : canEdit;
+  const isEditMode = !isCreatingRoot && !isCreatingChild && selectedNodeId != null;
 
-  const isEditMode = !isCreatingRoot && !isCreatingChild && !!selectedDepartment;
-  const form = useForm<DepartmentFormValues>({
-    resolver: zodResolver(isEditMode ? departmentUpdateFormSchema : departmentFormSchema) as unknown as Resolver<DepartmentFormValues>,
-    defaultValues: { nameEn: '', nameAr: '', nodeTypeId: 'DETAIL', parentDepartmentFk: null, notes: '' },
-    mode: 'onTouched',
-    reValidateMode: 'onChange',
-  });
+  const [nameEn, setNameEn] = useState('');
+  const [nameAr, setNameAr] = useState('');
+  const [nodeTypeId, setNodeTypeId] = useState('');
+  const [parentDepartmentFk, setParentDepartmentFk] = useState<number | null>(null);
+  const [notes, setNotes] = useState('');
 
-  const toggleExpand = (id: string) => {
+  // Sync the entry-panel form with the freshly-fetched full record once a
+  // tree node is selected — the tree itself only carries the lighter
+  // DepartmentTreeNodeResponse shape (no parentDepartmentFk/branchFk/notes).
+  useEffect(() => {
+    if (isEditMode && detail.data) {
+      setNameEn(detail.data.nameEn ?? '');
+      setNameAr(detail.data.nameAr ?? '');
+      setNodeTypeId(detail.data.nodeTypeId ?? '');
+      setParentDepartmentFk(detail.data.parentDepartmentFk ?? null);
+      setNotes(detail.data.notes ?? '');
+    }
+  }, [isEditMode, detail.data]);
+
+  const toggleExpand = (id: number) => {
     setExpandedNodeIds((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const handleSelectNode = (node: DepartmentNode) => {
+  const handleSelectNode = (node: DepartmentTreeNodeResponse) => {
     setIsCreatingRoot(false);
     setIsCreatingChild(false);
-    setSelectedDepartment(node);
-    form.reset({
-      nameEn: node.nameEn,
-      nameAr: node.nameAr,
-      nodeTypeId: node.nodeTypeId,
-      parentDepartmentFk: node.parentDepartmentFk || null,
-      notes: node.notes || '',
-    });
+    setErrorMessage(null);
+    setSelectedNodeId(node.id ?? null);
+    selectItem(null);
   };
 
-  const handleStartAddChild = (parent: DepartmentNode) => {
-    setSelectedDepartment(parent);
+  const handleStartAddChild = (parent: DepartmentTreeNodeResponse) => {
+    setSelectedNodeId(null);
     setIsCreatingChild(true);
     setIsCreatingRoot(false);
-    setExpandedNodeIds((prev) => ({ ...prev, [parent.id]: true }));
-    form.reset({
-      nameEn: '',
-      nameAr: '',
-      nodeTypeId: 'DETAIL',
-      parentDepartmentFk: parent.id,
-      notes: '',
-    });
+    setCreateParentId(parent.id ?? null);
+    setErrorMessage(null);
+    if (parent.id != null) setExpandedNodeIds((prev) => ({ ...prev, [parent.id!]: true }));
+    setNameEn('');
+    setNameAr('');
+    setNodeTypeId(nodeTypeIdOptions[0]?.code ?? 'DETAIL');
+    setParentDepartmentFk(parent.id ?? null);
+    setNotes('');
   };
 
   const handleStartAddRoot = () => {
-    setSelectedDepartment(null);
+    setSelectedNodeId(null);
     setIsCreatingRoot(true);
     setIsCreatingChild(false);
-    form.reset({
-      nameEn: '',
-      nameAr: '',
-      nodeTypeId: 'SUMMARY',
-      parentDepartmentFk: null,
-      notes: '',
-    });
+    setCreateParentId(null);
+    setErrorMessage(null);
+    setNameEn('');
+    setNameAr('');
+    setNodeTypeId(nodeTypeIdOptions[0]?.code ?? 'SUMMARY');
+    setParentDepartmentFk(null);
+    setNotes('');
   };
 
-  const onValid = (values: DepartmentFormValues) => {
+  const handleSave = async () => {
     if (!canSaveForm) return;
-    const isEdit = !isCreatingChild && !isCreatingRoot;
-    saveDepartment({
-      id: isEdit ? selectedDepartment?.id : undefined,
-      ...values,
-      branchFk: deptBranchFilter,
-      nodeTypeId: values.nodeTypeId as DepartmentNode['nodeTypeId'],
-    });
-    setIsCreatingChild(false);
-    setIsCreatingRoot(false);
-    showToast(t(isEdit ? 'departmentSavedSuccess' : 'departmentCreatedSuccess'), 'success');
+    setErrorMessage(null);
+    try {
+      if (isEditMode && selectedNodeId != null) {
+        const req: UpdateDepartmentRequest = { nameEn, nameAr, parentDepartmentFk: parentDepartmentFk ?? undefined, notes };
+        await updateDepartment(selectedNodeId, req);
+        showToast(t('departmentSavedSuccess'), 'success');
+      } else if (selectedBranchFk != null) {
+        const req: CreateDepartmentRequest = {
+          nameEn,
+          nameAr,
+          branchFk: selectedBranchFk,
+          parentDepartmentFk: createParentId ?? undefined,
+          nodeTypeId,
+          notes,
+        };
+        await createDepartment(req);
+        showToast(t('departmentCreatedSuccess'), 'success');
+        setIsCreatingChild(false);
+        setIsCreatingRoot(false);
+      }
+    } catch (err) {
+      setErrorMessage(mapApiError(err, t));
+    }
   };
 
-  const handleConfirmToggleActive = () => {
-    if (!canEdit) return;
-    const wasActivating = confirmActionType === 'ACTIVATE_DEPT';
-    executeConfirmAction();
-    showToast(t(wasActivating ? 'departmentActivatedSuccess' : 'departmentDeactivatedSuccess'), 'success');
+  const handleConfirmToggle = async () => {
+    if (!confirmToggle?.node.id) return;
+    try {
+      if (confirmToggle.activate) {
+        await activateDepartment(confirmToggle.node.id);
+        showToast(t('departmentActivatedSuccess'), 'success');
+      } else {
+        await deactivateDepartment(confirmToggle.node.id);
+        showToast(t('departmentDeactivatedSuccess'), 'success');
+      }
+    } catch (err) {
+      setErrorMessage(mapApiError(err, t));
+    }
+    setConfirmToggle(null);
   };
 
-  // Branch options
   const branchOptions = [
     { value: '', label: `-- ${t('assignedBranch')} --` },
-    ...branches.map((b) => ({ value: b.id, label: `${lang === 'ar' ? b.nameAr : b.nameEn} (${b.branchCode})` })),
+    ...branchFkOptions.map((b) => ({ value: String(b.id), label: `${lang === 'ar' ? b.nameAr : b.nameEn} (${b.branchCode})` })),
   ];
 
-  // Filter department tree by selected branch
-  const branchDepts = departments.filter((d) => d.branchFk === deptBranchFilter);
+  const nodeTypeSelectOptions = nodeTypeIdOptions.map((opt) => ({
+    value: opt.code ?? '',
+    label: lang === 'ar' ? (opt.label ?? opt.code ?? '') : (opt.labelEn ?? opt.code ?? ''),
+  }));
 
-  // Recursive Tree Node Renderer
-  const renderTreeNode = (node: DepartmentNode, level: number = 0) => {
-    const isExpanded = expandedNodeIds[node.id];
-    const hasChildren = node.children && node.children.length > 0;
-    const isSelected = selectedDepartment?.id === node.id && !isCreatingChild && !isCreatingRoot;
+  const parentOptions = [
+    { value: '', label: `-- ${t('noneOption')} --` },
+    ...parentDepartmentFkOptions
+      .filter((n) => n.id !== selectedNodeId)
+      .map((n) => ({ value: String(n.id), label: lang === 'ar' ? n.nameAr! : n.nameEn! })),
+  ];
+
+  const renderTreeNode = (node: DepartmentTreeNodeResponse, level: number = 0) => {
+    const isExpanded = expandedNodeIds[node.id ?? -1];
+    const hasChildren = !!node.children && node.children.length > 0;
+    const isSelected = selectedNodeId === node.id && !isCreatingChild && !isCreatingRoot;
 
     return (
       <div key={node.id} style={{ display: 'flex', flexDirection: 'column' }}>
@@ -166,16 +189,9 @@ export const DepartmentsPage: React.FC = () => {
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
-                toggleExpand(node.id);
+                if (node.id != null) toggleExpand(node.id);
               }}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '2px',
-                color: 'var(--text-muted, #647488)',
-                display: 'inline-flex',
-              }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--text-muted, #647488)', display: 'inline-flex' }}
             >
               <i className={isExpanded ? 'ti ti-chevron-down' : 'ti ti-chevron-right'} style={{ fontSize: '14px' }} />
             </button>
@@ -185,10 +201,7 @@ export const DepartmentsPage: React.FC = () => {
 
           <i
             className={node.nodeTypeId === 'SUMMARY' ? 'ti ti-folder' : 'ti ti-file-text'}
-            style={{
-              color: node.nodeTypeId === 'SUMMARY' ? 'var(--brand-primary, #2466D8)' : 'var(--teal-400, #1FBBAD)',
-              fontSize: '16px',
-            }}
+            style={{ color: node.nodeTypeId === 'SUMMARY' ? 'var(--brand-primary, #2466D8)' : 'var(--teal-400, #1FBBAD)', fontSize: '16px' }}
           />
 
           <span style={{ fontWeight: isSelected ? 700 : 500, fontSize: '13px', color: 'var(--text-strong, #14222F)', flex: 1, textAlign: 'start' }}>
@@ -205,22 +218,10 @@ export const DepartmentsPage: React.FC = () => {
 
           <div style={{ display: 'inline-flex', gap: '4px' }} onClick={(e) => e.stopPropagation()}>
             {node.nodeTypeId === 'SUMMARY' && canCreate && (
-              <IconButton
-                icon="ti ti-plus"
-                label={t('addChild')}
-                variant="ghost"
-                size="sm"
-                onClick={() => handleStartAddChild(node)}
-              />
+              <IconButton icon="ti ti-plus" label={t('addChild')} variant="ghost" size="sm" onClick={() => handleStartAddChild(node)} />
             )}
             {canEdit && (
-              <IconButton
-                icon="ti ti-edit"
-                label={t('edit')}
-                variant="ghost"
-                size="sm"
-                onClick={() => handleSelectNode(node)}
-              />
+              <IconButton icon="ti ti-edit" label={t('edit')} variant="ghost" size="sm" onClick={() => handleSelectNode(node)} />
             )}
             {canEdit && (node.isActive ? (
               <IconButton
@@ -228,7 +229,7 @@ export const DepartmentsPage: React.FC = () => {
                 label={t('deactivate')}
                 variant="ghost"
                 size="sm"
-                onClick={() => openConfirmDialog('DEACTIVATE_DEPT', node.id)}
+                onClick={() => setConfirmToggle({ node, activate: false })}
               />
             ) : (
               <IconButton
@@ -236,7 +237,7 @@ export const DepartmentsPage: React.FC = () => {
                 label={t('reactivate')}
                 variant="ghost"
                 size="sm"
-                onClick={() => openConfirmDialog('ACTIVATE_DEPT', node.id)}
+                onClick={() => setConfirmToggle({ node, activate: true })}
               />
             ))}
           </div>
@@ -263,15 +264,7 @@ export const DepartmentsPage: React.FC = () => {
               { label: t('navDepartments') },
             ]}
           />
-          <h1
-            style={{
-              fontSize: '22px',
-              fontWeight: 700,
-              color: 'var(--text-strong, #14222F)',
-              margin: '4px 0 0 0',
-              textAlign: 'start',
-            }}
-          >
+          <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-strong, #14222F)', margin: '4px 0 0 0', textAlign: 'start' }}>
             {t('orgDeptsTitle')}
           </h1>
         </div>
@@ -284,8 +277,13 @@ export const DepartmentsPage: React.FC = () => {
             <Select
               label={`${t('branch')} *`}
               options={branchOptions}
-              value={deptBranchFilter}
-              onChange={(e) => setDeptBranchFilter(e.target.value)}
+              value={selectedBranchFk != null ? String(selectedBranchFk) : ''}
+              onChange={(e) => {
+                setSelectedBranchFk(e.target.value ? Number(e.target.value) : null);
+                setSelectedNodeId(null);
+                setIsCreatingChild(false);
+                setIsCreatingRoot(false);
+              }}
             />
           </div>
           <div style={{ marginInlineStart: 'auto', display: 'flex', gap: '8px' }}>
@@ -295,7 +293,7 @@ export const DepartmentsPage: React.FC = () => {
                 size="md"
                 iconLeft={<i className="ti ti-folder-plus" />}
                 onClick={handleStartAddRoot}
-                disabled={!deptBranchFilter}
+                disabled={!selectedBranchFk}
               >
                 {t('addRoot')}
               </Button>
@@ -304,42 +302,42 @@ export const DepartmentsPage: React.FC = () => {
         </div>
       </Card>
 
-      {!deptBranchFilter ? (
+      {errorMessage && <Alert variant="danger" message={errorMessage} />}
+
+      {!selectedBranchFk ? (
         <Alert variant="info" message={t('selectBranchToLoadTree')} />
       ) : (
-        /* Two-Column Layout: Tree Panel (Left) + Entry Panel (Right) */
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px', alignItems: 'start' }}>
           {/* Left: Tree Panel */}
           <Card variant="flat" padding="md">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-strong, #14222F)' }}>
-                {t('orgDeptsTitle')}
-              </div>
+              <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-strong, #14222F)' }}>{t('orgDeptsTitle')}</div>
               <div style={{ display: 'flex', gap: '6px' }}>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setExpandedNodeIds({ 'dept-1': true, 'dept-2': true, 'dept-5': true, 'dept-8': true })}
+                  onClick={() => {
+                    const all: Record<number, boolean> = {};
+                    const walk = (nodes: DepartmentTreeNodeResponse[]) => nodes.forEach((n) => { if (n.id != null) all[n.id] = true; walk(n.children ?? []); });
+                    walk(departmentTree);
+                    setExpandedNodeIds(all);
+                  }}
                 >
                   {t('expandAll')}
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setExpandedNodeIds({})}
-                >
+                <Button variant="ghost" size="sm" onClick={() => setExpandedNodeIds({})}>
                   {t('collapseAll')}
                 </Button>
               </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minHeight: '320px', maxHeight: '550px', overflowY: 'auto' }}>
-              {branchDepts.length === 0 ? (
-                <div style={{ padding: '30px 10px', textAlign: 'center', color: 'var(--text-muted, #647488)' }}>
-                  {t('noRecordsFound')}
-                </div>
+              {isTreeLoading ? (
+                <div style={{ padding: '30px 10px', textAlign: 'center', color: 'var(--text-muted, #647488)' }}>{t('loading')}</div>
+              ) : departmentTree.length === 0 ? (
+                <div style={{ padding: '30px 10px', textAlign: 'center', color: 'var(--text-muted, #647488)' }}>{t('noRecordsFound')}</div>
               ) : (
-                branchDepts.map((rootNode) => renderTreeNode(rootNode))
+                departmentTree.map((rootNode) => renderTreeNode(rootNode))
               )}
             </div>
           </Card>
@@ -349,96 +347,43 @@ export const DepartmentsPage: React.FC = () => {
             <div style={{ marginBottom: '16px', borderBottom: '1px solid var(--border-subtle, #E6ECF3)', paddingBottom: '12px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--text-strong, #14222F)', textAlign: 'start' }}>
                 {isCreatingRoot && t('addRoot')}
-                {isCreatingChild && `${t('addChild')} (${selectedDepartment ? (lang === 'ar' ? selectedDepartment.nameAr : selectedDepartment.nameEn) : ''})`}
-                {!isCreatingRoot && !isCreatingChild && selectedDepartment && `${t('edit')}: ${lang === 'ar' ? selectedDepartment.nameAr : selectedDepartment.nameEn}`}
-                {!isCreatingRoot && !isCreatingChild && !selectedDepartment && t('details')}
+                {isCreatingChild && t('addChild')}
+                {isEditMode && detail.data && `${t('edit')}: ${lang === 'ar' ? detail.data.nameAr : detail.data.nameEn}`}
+                {!isCreatingRoot && !isCreatingChild && !isEditMode && t('details')}
               </h2>
             </div>
 
-            {!selectedDepartment && !isCreatingRoot && !isCreatingChild ? (
+            {!isEditMode && !isCreatingRoot && !isCreatingChild ? (
               <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted, #647488)', fontSize: '13px' }}>
-                Select a department node from the tree on the left or click <strong>+ Add Root Node</strong> to begin.
+                {t('selectDepartmentPrompt')}
               </div>
             ) : (
-              <form onSubmit={form.handleSubmit(onValid)} noValidate style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {selectedDepartment && !isCreatingChild && !isCreatingRoot && (
-                  <Input
-                    label={t('code')}
-                    value={selectedDepartment.deptCode}
-                    disabled
-                    helperText={t('readOnlyCodeHint')}
-                  />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {isEditMode && detail.data && (
+                  <Input label={t('code')} value={detail.data.departmentCode ?? ''} disabled helperText={t('readOnlyCodeHint')} />
                 )}
 
-                <Controller
-                  control={form.control}
-                  name="nameEn"
-                  render={({ field, fieldState }) => (
-                    <Input
-                      label={`${t('nameEn')} *`}
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.value)}
-                      onBlur={field.onBlur}
-                      onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-                      error={fieldState.error?.message}
-                      disabled={!canSaveForm}
-                      required
-                    />
-                  )}
+                <Input label={`${t('nameEn')} *`} value={nameEn} onChange={(e) => setNameEn(e.target.value)} disabled={!canSaveForm} required />
+                <Input label={`${t('nameAr')} *`} value={nameAr} onChange={(e) => setNameAr(e.target.value)} disabled={!canSaveForm} required />
+
+                <Select
+                  label={`${t('nodeType')} *`}
+                  options={nodeTypeSelectOptions}
+                  value={nodeTypeId}
+                  disabled={isEditMode || !canSaveForm}
+                  helperText={isEditMode ? t('nodeTypeLockedHint') : undefined}
+                  onChange={(e) => setNodeTypeId(e.target.value)}
                 />
 
-                <Controller
-                  control={form.control}
-                  name="nameAr"
-                  render={({ field, fieldState }) => (
-                    <Input
-                      label={`${t('nameAr')} *`}
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.value)}
-                      onBlur={field.onBlur}
-                      onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-                      error={fieldState.error?.message}
-                      disabled={!canSaveForm}
-                      required
-                    />
-                  )}
+                <Select
+                  label={t('parentDepartment')}
+                  options={parentOptions}
+                  value={parentDepartmentFk != null ? String(parentDepartmentFk) : ''}
+                  disabled={!canSaveForm || isCreatingChild}
+                  onChange={(e) => setParentDepartmentFk(e.target.value ? Number(e.target.value) : null)}
                 />
 
-                <Controller
-                  control={form.control}
-                  name="nodeTypeId"
-                  render={({ field, fieldState }) => (
-                    <Select
-                      label={`${t('nodeType')} *`}
-                      options={[
-                        { value: 'SUMMARY', label: t('summaryNode') },
-                        { value: 'DETAIL', label: t('detailNode') },
-                      ]}
-                      value={field.value ?? ''}
-                      disabled={(!isCreatingRoot && !isCreatingChild && !!selectedDepartment) || !canSaveForm}
-                      helperText={!isCreatingRoot && !isCreatingChild ? t('nodeTypeLockedHint') : undefined}
-                      onChange={(e) => field.onChange(e.target.value as 'SUMMARY' | 'DETAIL')}
-                      onBlur={field.onBlur}
-                      onKeyDown={(e) => { if (e.key === 'Enter') e.preventDefault(); }}
-                      error={fieldState.error?.message}
-                    />
-                  )}
-                />
-
-                <Controller
-                  control={form.control}
-                  name="notes"
-                  render={({ field, fieldState }) => (
-                    <Input
-                      label={t('notes')}
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.value)}
-                      onBlur={field.onBlur}
-                      error={fieldState.error?.message}
-                      disabled={!canSaveForm}
-                    />
-                  )}
-                />
+                <Input label={t('notes')} value={notes} onChange={(e) => setNotes(e.target.value)} disabled={!canSaveForm} />
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
                   <Button
@@ -447,18 +392,18 @@ export const DepartmentsPage: React.FC = () => {
                     onClick={() => {
                       setIsCreatingChild(false);
                       setIsCreatingRoot(false);
-                      setSelectedDepartment(null);
+                      setSelectedNodeId(null);
                     }}
                   >
                     {t('cancel')}
                   </Button>
                   {canSaveForm && (
-                    <Button variant="primary" type="submit" loading={form.formState.isSubmitting}>
+                    <Button variant="primary" onClick={handleSave} loading={isLoading}>
                       {t('save')}
                     </Button>
                   )}
                 </div>
-              </form>
+              </div>
             )}
           </Card>
         </div>
@@ -466,14 +411,14 @@ export const DepartmentsPage: React.FC = () => {
 
       {/* Confirmation Dialog */}
       <ConfirmDialog
-        isOpen={isConfirmDialogOpen && (confirmActionType === 'DEACTIVATE_DEPT' || confirmActionType === 'ACTIVATE_DEPT')}
-        onClose={closeConfirmDialog}
-        onConfirm={handleConfirmToggleActive}
+        isOpen={confirmToggle != null}
+        onClose={() => setConfirmToggle(null)}
+        onConfirm={handleConfirmToggle}
         title={t('confirmActionTitle')}
-        message={confirmActionType === 'ACTIVATE_DEPT' ? t('confirmReactivate') : t('confirmDeactivate')}
-        confirmLabel={confirmActionType === 'ACTIVATE_DEPT' ? t('reactivate') : t('deactivate')}
+        message={confirmToggle?.activate ? t('confirmReactivate') : t('confirmDeactivate')}
+        confirmLabel={confirmToggle?.activate ? t('reactivate') : t('deactivate')}
         cancelLabel={t('cancel')}
-        tone={confirmActionType === 'ACTIVATE_DEPT' ? 'primary' : 'danger'}
+        tone={confirmToggle?.activate ? 'primary' : 'danger'}
       />
     </div>
   );

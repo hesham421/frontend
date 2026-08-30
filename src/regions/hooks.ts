@@ -11,11 +11,10 @@ import { useLegalEntitiesOptions } from '../legalEntities/hooks';
 import { usePermission } from '../auth/permissions';
 import { DEFAULT_PAGE_SIZE } from '../data/searchContract';
 
-// F2-QUERY blocks API-ORG-013..018 (F2/SCR-ORG-003). NO F2-LOV-QUERY block for
-// this screen — regionTypeIdFk has no LOV-ID and no real listing endpoint
-// (FINDING-2/OQ-ORG-002), DEFERRED. Do not invent one here; the field renders
-// read-only from `regionTypeNameEn` on the response — a create/edit-form
-// concern for a later phase, not this data layer.
+// F2-QUERY blocks API-ORG-013..018 (F2/SCR-ORG-003). regionTypeIdFk's picker
+// (previously FINDING-2/OQ-ORG-002, DEFERRED) is now backed by
+// useRegionTypeOptions below, once GET /api/v1/org/regions/region-types was
+// added to expose the already-seeded ORG_REGION_TYPE table.
 
 export const regionKeys = {
   all: ['regions'] as const,
@@ -86,6 +85,16 @@ export function useActivateRegion() {
   });
 }
 
+/** Backs the create/edit form's Region Type picker — see GET /region-types added to regionsApi. */
+export function useRegionTypeOptions() {
+  return useQuery({
+    queryKey: [...regionKeys.all, 'types'] as const,
+    queryFn: ({ signal }) => regionsApi.getRegionTypes(signal),
+    staleTime: STALE,
+    gcTime: GC,
+  });
+}
+
 export interface RegionSearchFilters extends RegionSearchContractRequest {
   page: number;
   size: number;
@@ -96,10 +105,10 @@ const DEFAULT_FILTERS: RegionSearchFilters = { filters: [], sorts: [], page: 0, 
 /**
  * F2-FACADE-HOOK — SCR-ORG-003. Components call this facade only; it composes
  * useSearchRegions, useCreateRegion, useUpdateRegion, useDeactivateRegion,
- * useActivateRegion, and the cross-entity useLegalEntitiesOptions
- * (legalEntities/hooks.ts) for the legalEntityFk picker. No toasts, dialogs,
- * or navigation here — same convention as useBranchesFacade
- * (src/branches/hooks.ts). No regionTypeIdOptions here — deferred, no picker.
+ * useActivateRegion, useRegionTypeOptions, and the cross-entity
+ * useLegalEntitiesOptions (legalEntities/hooks.ts) for the legalEntityFk
+ * picker. No toasts, dialogs, or navigation here — same convention as
+ * useBranchesFacade (src/branches/hooks.ts).
  *
  * canEdit (REGION_UPDATE) — NOT canDelete — is what actually gates
  * Deactivate/Activate on the real backend (SEC-FE SCR-ORG-003 FINDING-4);
@@ -120,6 +129,7 @@ export function useRegionsFacade() {
   const deactivateMutation = useDeactivateRegion();
   const activateMutation = useActivateRegion();
   const legalEntityOptions = useLegalEntitiesOptions();
+  const regionTypeOptions = useRegionTypeOptions();
 
   // DRV: API-ORG-014 is a mutation, not a query (POST-as-query, same as
   // branches' useSearchBranches) — the Facade re-triggers it on mount and
@@ -135,7 +145,7 @@ export function useRegionsFacade() {
 
   const isLoading = [search, createMutation, updateMutation, deactivateMutation, activateMutation].some(
     (m) => m.isPending,
-  ) || legalEntityOptions.isLoading;
+  ) || legalEntityOptions.isLoading || regionTypeOptions.isLoading;
 
   return {
     regionList,
@@ -145,6 +155,7 @@ export function useRegionsFacade() {
     loadError: search.isError ? search.error : null,
     searchFilters,
     legalEntityFkOptions: legalEntityOptions.data ?? [],
+    regionTypeIdOptions: regionTypeOptions.data ?? [],
     page: searchFilters.page,
     size: searchFilters.size,
     totalElements,

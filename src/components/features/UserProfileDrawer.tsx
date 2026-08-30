@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
-import { useOrganizationStore } from '../../stores/useOrganizationStore';
+import { useBranchesOptions } from '../../branches/hooks';
 import { useUserProfileFacade } from '../../userProfiles/hooks';
 import type { UserDto } from '../../users/usersApi';
 import { Drawer, Alert } from '../../components/ui/OverlaysAndFeedback';
 import { Button } from '../../components/ui/Button';
 import { Input, Select } from '../../components/ui/FormControls';
 import { Badge } from '../../components/ui/DataDisplay';
-import { branchIdToNumber } from '../../lib/branchId';
 import { mapApiError } from '../../lib/errors/mapApiError';
 import { useToast } from '../../components/ui/Toast';
 
@@ -20,7 +19,7 @@ export interface UserProfileDrawerProps {
 export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, onClose, user }) => {
   const { t, lang } = useLanguage();
   const { showToast } = useToast();
-  const branches = useOrganizationStore((state) => state.branches);
+  const branchOptions = useBranchesOptions();
   const { profile, canCreate, canEdit, isLoading, saveProfile } = useUserProfileFacade(user?.id);
   // Update needs USER_PROFILE_UPDATE; the create branch (no profile yet) needs USER_PROFILE_CREATE.
   const canSaveProfile = profile ? canEdit : canCreate;
@@ -77,9 +76,7 @@ export const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({ isOpen, on
   // when the underlying state is still empty, masking why Save silently fails.
   const activeBranches = [
     { value: '', label: t('selectBranchPlaceholder') },
-    ...branches
-      .filter((b) => b.isActive || branchIdToNumber(b.id) === branchId)
-      .map((b) => ({ value: String(branchIdToNumber(b.id)), label: `${lang === 'ar' ? b.nameAr : b.nameEn} (${b.branchCode})` })),
+    ...(branchOptions.data ?? []).map((b) => ({ value: String(b.id), label: `${lang === 'ar' ? b.nameAr : b.nameEn} (${b.branchCode})` })),
   ];
 
   const langOptions = [

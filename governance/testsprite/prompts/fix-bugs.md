@@ -72,11 +72,13 @@ STEP 2 — Fix, respecting governance, only for REAL BUG.
     model, the state-management rules, or a documented business rule from
     the backend's master-registry.md — that's not a UI bug, it's a
     requirements conflict. STOP and flag it instead of forcing a change.
-  - Note: Organization and Notifications screens are intentionally
-    mock/local-state only as of this writing (create/update/delete resets
-    on refresh) — that is expected behavior per the TestSprite bootstrap
-    config, not a bug. Don't "fix" a failure there by wiring it to a real
-    API without an explicit human decision to do so.
+  - Note: Notifications screens are intentionally mock/local-state only as
+    of this writing (create/update/delete resets on refresh) — that is
+    expected behavior per the TestSprite bootstrap config, not a bug. Don't
+    "fix" a failure there by wiring it to a real API without an explicit
+    human decision to do so. Organization was mock/local-state too, but was
+    rewired to real backend APIs (all 7 entities) on 2026-08-29 — treat its
+    screens as real-API-backed like Security, not mock.
   - Keep the fix minimal and targeted at the one root cause — no unrelated
     refactoring while you're in a bug-fix pass.
 
