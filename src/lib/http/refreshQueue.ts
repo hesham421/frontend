@@ -1,7 +1,7 @@
-import { tokenStore } from '../../auth/tokenStore';
-import { authApi } from '../../auth/authApi';
-import { useAuthStore } from '../../stores/useAuthStore';
-import { useNavigationStore } from '../../stores/useNavigationStore';
+import { tokenStore } from '@/features/auth/api/tokenStore';
+import { authApi, type AuthResponse } from '@/features/auth/api/authApi';
+import { useAuthStore } from '@/features/auth';
+import { useNavigationStore } from '@/stores/useNavigationStore';
 
 // Single-flight refresh (R.9.5, R.9.6): every concurrent 401 awaits the same
 // promise instead of starting its own; a failed refresh clears the token
@@ -13,10 +13,10 @@ let inFlight: Promise<void> | null = null;
 export function refreshOnce(): Promise<void> {
   inFlight ??= authApi
     .refresh()
-    .then((r) => {
+    .then((r: AuthResponse) => {
       if (r.accessToken) tokenStore.set(r.accessToken, r.expiresIn ?? 0);
     })
-    .catch((e) => {
+    .catch((e: unknown) => {
       tokenStore.clear();
       useAuthStore.getState().logout();
       useNavigationStore.getState().setCurrentScreen('dashboard');
@@ -25,5 +25,5 @@ export function refreshOnce(): Promise<void> {
     .finally(() => {
       inFlight = null;
     });
-  return inFlight;
+  return inFlight!;
 }

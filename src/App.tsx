@@ -1,36 +1,37 @@
 import React from 'react';
 import { useLanguage } from './context/LanguageContext';
-import { useAuthStore } from './stores/useAuthStore';
 import { useNavigationStore } from './stores/useNavigationStore';
-import { useLogoutMutation, useSessionBootstrap } from './auth/hooks';
-import { usePermission } from './auth/permissions';
 import { AppShell } from './layout/AppShell';
-import { Login } from './pages/Login';
-import { Dashboard } from './pages/Dashboard';
-import { Unauthorized } from './pages/Unauthorized';
 
-// Module 1: Security Pages
-import { UsersPage } from './pages/Security/Users';
-import { RolesPage } from './pages/Security/Roles';
-import { PermissionsPage } from './pages/Security/Permissions';
-import { PagesRegistryPage } from './pages/Security/Pages';
+// Features: Auth, Session, Core
+import { useAuthStore, useLogoutMutation, useSessionBootstrap, usePermission, LoginPage } from './features/auth';
+import { DashboardPage } from './features/dashboard';
+import { UnauthorizedPage } from './features/unauthorized';
 
-// Module 2: Organization Pages
-import { LegalEntitiesPage } from './pages/Organization/LegalEntities';
-import { BranchesPage } from './pages/Organization/Branches';
-import { RegionsPage } from './pages/Organization/Regions';
-import { DepartmentsPage } from './pages/Organization/Departments';
-import { CostCentersPage } from './pages/Organization/CostCenters';
-import { ProfitCentersPage } from './pages/Organization/ProfitCenters';
-import { LocationSitesPage } from './pages/Organization/LocationSites';
+// Features: Security
+import { UsersPage } from './features/users';
+import { RolesPage } from './features/roles';
+import { PermissionsPage } from './features/permissions';
+import { PagesRegistryPage } from './features/pageRegistry';
 
-// Module 3: Master Data Pages
-import { MasterLookupsPage } from './pages/MasterData/MasterLookups';
+// Features: Organization
+import { LegalEntitiesPage } from './features/legalEntities';
+import { BranchesPage } from './features/branches';
+import { RegionsPage } from './features/regions';
+import { DepartmentsPage } from './features/departments';
+import { CostCentersPage } from './features/costCenters';
+import { ProfitCentersPage } from './features/profitCenters';
+import { LocationSitesPage } from './features/locationSites';
 
-// Module 4: Notification Pages
-import { NotificationInboxPage } from './pages/Notifications/NotificationInbox';
-import { NotificationTemplatesPage } from './pages/Notifications/NotificationTemplates';
-import { NotificationChannelsPage } from './pages/Notifications/NotificationChannels';
+// Features: Master Data
+import { MasterLookupsPage } from './features/masterLookups';
+
+// Features: Notifications
+import {
+  NotificationInboxPage,
+  NotificationTemplatesPage,
+  NotificationChannelsPage,
+} from './features/notifications';
 
 export const App: React.FC = () => {
   const sessionReady = useSessionBootstrap();
@@ -93,20 +94,20 @@ export const App: React.FC = () => {
   const hasEmailToken = new URLSearchParams(window.location.search).has('token');
 
   if (!isAuthenticated || hasEmailToken) {
-    return <Login onLogin={login} />;
+    return <LoginPage onLogin={login} />;
   }
 
   const renderCurrentScreen = () => {
     switch (currentScreen) {
       // General
       case 'dashboard':
-        return <Dashboard onNavigate={setCurrentScreen} />;
+        return <DashboardPage onNavigate={setCurrentScreen} />;
 
       // Module 1: Security
       // SEC-FE/SCR-SEC-002: PERM_USER_VIEW is a CONFIRMED real literal
       // (permissionmanagement.md response example: pageCode "USER").
       case 'sec-users':
-        return can('PERM_USER_VIEW') ? <UsersPage /> : <Unauthorized />;
+        return can('PERM_USER_VIEW') ? <UsersPage /> : <UnauthorizedPage />;
       // BLOCKED (OQ-SEC-FE-003): Roles' own pageCode is unconfirmed, so the
       // PERM_ROLE_* frontend-gating literal cannot be constructed — do not
       // invent it. Screen stays open pending resolution; server-side ROLE_*
@@ -126,38 +127,38 @@ export const App: React.FC = () => {
       // F4/SCR-ORG-001: PERM_LEGAL_ENTITY_VIEW is a CONFIRMED real literal
       // (legalEntities/hooks.ts' useLegalEntitiesFacade already uses it).
       case 'org-entities':
-        return can('PERM_LEGAL_ENTITY_VIEW') ? <LegalEntitiesPage /> : <Unauthorized />;
+        return can('PERM_LEGAL_ENTITY_VIEW') ? <LegalEntitiesPage /> : <UnauthorizedPage />;
       // F4/SCR-ORG-002: PERM_BRANCH_VIEW is a CONFIRMED real literal
       // (branches/hooks.ts' useBranchesFacade already uses it).
       case 'org-branches':
-        return can('PERM_BRANCH_VIEW') ? <BranchesPage /> : <Unauthorized />;
+        return can('PERM_BRANCH_VIEW') ? <BranchesPage /> : <UnauthorizedPage />;
       // F4/SCR-ORG-003: PERM_REGION_VIEW is a CONFIRMED real literal
       // (regions/hooks.ts' useRegionsFacade already uses it).
       case 'org-regions':
-        return can('PERM_REGION_VIEW') ? <RegionsPage /> : <Unauthorized />;
+        return can('PERM_REGION_VIEW') ? <RegionsPage /> : <UnauthorizedPage />;
       // F4/SCR-ORG-004: PERM_DEPARTMENT_VIEW is a CONFIRMED real literal
       // (departments/hooks.ts' useDepartmentsFacade already uses it).
       case 'org-departments':
-        return can('PERM_DEPARTMENT_VIEW') ? <DepartmentsPage /> : <Unauthorized />;
+        return can('PERM_DEPARTMENT_VIEW') ? <DepartmentsPage /> : <UnauthorizedPage />;
       // F4/SCR-ORG-005: PERM_COST_CENTER_VIEW is a CONFIRMED real literal
       // (costCenters/hooks.ts' useCostCentersFacade already uses it).
       case 'org-cost-centers':
-        return can('PERM_COST_CENTER_VIEW') ? <CostCentersPage /> : <Unauthorized />;
+        return can('PERM_COST_CENTER_VIEW') ? <CostCentersPage /> : <UnauthorizedPage />;
       // F4/SCR-ORG-006: PERM_PROFIT_CENTER_VIEW is a CONFIRMED real literal
       // (profitCenters/hooks.ts' useProfitCentersFacade already uses it).
       case 'org-profit-centers':
-        return can('PERM_PROFIT_CENTER_VIEW') ? <ProfitCentersPage /> : <Unauthorized />;
+        return can('PERM_PROFIT_CENTER_VIEW') ? <ProfitCentersPage /> : <UnauthorizedPage />;
       // F4/SCR-ORG-007: PERM_LOCATION_SITE_VIEW is a CONFIRMED real literal
       // (locationSites/hooks.ts' useLocationSitesFacade already uses it).
       case 'org-locations':
-        return can('PERM_LOCATION_SITE_VIEW') ? <LocationSitesPage /> : <Unauthorized />;
+        return can('PERM_LOCATION_SITE_VIEW') ? <LocationSitesPage /> : <UnauthorizedPage />;
 
       // Module 3: Master Data
       // api-docs/index.md documents MASTER_LOOKUP_VIEW as a real required
       // permission for this screen's own read endpoints — PERM_-prefixed per
       // this app's confirmed authority-naming convention (see roles/hooks.ts).
       case 'md-master-lookups':
-        return can('PERM_MASTER_LOOKUP_VIEW') ? <MasterLookupsPage /> : <Unauthorized />;
+        return can('PERM_MASTER_LOOKUP_VIEW') ? <MasterLookupsPage /> : <UnauthorizedPage />;
 
       // Module 4: Notifications
       case 'notif-inbox':
@@ -168,7 +169,7 @@ export const App: React.FC = () => {
         return <NotificationChannelsPage />;
 
       default:
-        return <Dashboard onNavigate={setCurrentScreen} />;
+        return <DashboardPage onNavigate={setCurrentScreen} />;
     }
   };
 

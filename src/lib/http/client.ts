@@ -1,4 +1,4 @@
-import { tokenStore } from '../../auth/tokenStore';
+import { tokenStore } from '@/features/auth/api/tokenStore';
 import { ApiError, kindFromStatus } from '../errors/ApiError';
 import { refreshOnce } from './refreshQueue';
 

@@ -1,10 +1,10 @@
 import React, { useRef, useEffect } from 'react';
-import { useLanguage } from '../context/LanguageContext';
-import { useAuthStore } from '../stores/useAuthStore';
-import { useNotificationsStore } from '../stores/useNotificationsStore';
-import { useNavigationStore } from '../stores/useNavigationStore';
-import { Avatar, Badge, Card } from '../components/ui/DataDisplay';
-import { Button, IconButton } from '../components/ui/Button';
+import { useLanguage } from '@/context/LanguageContext';
+import { useAuthStore } from '@/features/auth';
+import { useNotificationsStore } from '@/features/notifications';
+import { useNavigationStore } from '@/stores/useNavigationStore';
+import { Avatar, Badge, Card } from '@/components/ui/DataDisplay';
+import { Button, IconButton } from '@/components/ui/Button';
 
 export interface TopbarProps {
   title: string;
