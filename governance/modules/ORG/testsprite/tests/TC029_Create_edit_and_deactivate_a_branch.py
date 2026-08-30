@@ -50,7 +50,7 @@ async def run_test():
         # •••••••••••• password field
         elem = page.locator('[id="avl-password"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("admin")
+        await elem.fill("admin123")
         
         # -> Fill 'admin' into the username field, fill 'admin' into the password field, and click the 'Sign In to ERP' button.
         # Sign In to ERP button

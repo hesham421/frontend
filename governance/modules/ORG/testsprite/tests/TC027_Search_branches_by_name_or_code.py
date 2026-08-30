@@ -50,7 +50,7 @@ async def run_test():
         # •••••••••••• password field
         elem = page.locator('[id="avl-كلمة-المرور"]')
         await elem.wait_for(state="visible", timeout=10000)
-        await elem.fill("admin")
+        await elem.fill("admin123")
         
         # -> Fill the username and password fields with the admin credentials and click the 'دخول لوحة التحكم' (Login to dashboard) button.
         # دخول لوحة التحكم button
