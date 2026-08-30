@@ -156,7 +156,7 @@ export const LegalEntitiesPage: React.FC = () => {
       align: 'end',
       render: (e) => (
         <div style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
-          <Button variant="ghost" size="sm" onClick={() => setCurrentScreen('org-branches')} iconRight={<i className="ti ti-arrow-right" />}>
+          <Button variant="ghost" size="sm" onClick={() => setCurrentScreen('org-branches')} iconRight={<i className="ti ti-arrow-right" aria-hidden="true" />}>
             {t('viewBranches')}
           </Button>
           {canEdit && (
@@ -201,7 +201,7 @@ export const LegalEntitiesPage: React.FC = () => {
           </h1>
         </div>
         {canCreate && (
-          <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+          <Button variant="primary" iconLeft={<i className="ti ti-plus" aria-hidden="true" />} onClick={handleOpenCreate}>
             {t('new')}
           </Button>
         )}
@@ -218,7 +218,7 @@ export const LegalEntitiesPage: React.FC = () => {
                 setSearchText(e.target.value);
                 applyFilters(e.target.value, statusFilter);
               }}
-              iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+              iconLeft={<i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
           <div style={{ width: '150px' }}>

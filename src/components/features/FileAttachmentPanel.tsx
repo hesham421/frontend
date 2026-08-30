@@ -121,7 +121,7 @@ export const FileAttachmentPanel: React.FC<FileAttachmentPanelProps> = ({
             style={{ display: 'none' }}
             onChange={(e) => handleFilesSelected(e.target.files)}
           />
-          <i className="ti ti-cloud-upload" style={{ fontSize: '32px', color: 'var(--brand-primary, #2466D8)', marginBottom: '8px', display: 'inline-block' }} />
+          <i className="ti ti-cloud-upload" aria-hidden="true" style={{ fontSize: '32px', color: 'var(--brand-primary, #2466D8)', marginBottom: '8px', display: 'inline-block' }} />
           <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-strong, #14222F)', marginBottom: '4px' }}>
             {t('dragDropFile')}
           </div>
@@ -197,6 +197,7 @@ export const FileAttachmentPanel: React.FC<FileAttachmentPanelProps> = ({
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <i
                             className={isPdf ? 'ti ti-file-type-pdf' : 'ti ti-file-text'}
+                            aria-hidden="true"
                             style={{
                               color: isPdf ? 'var(--red-500, #CB3A2D)' : 'var(--brand-primary, #2466D8)',
                               fontSize: '18px',

@@ -114,7 +114,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
             <Button
               variant="secondary"
               size="sm"
-              iconLeft={<i className="ti ti-paperclip" />}
+              iconLeft={<i className="ti ti-paperclip" aria-hidden="true" />}
               onClick={() => setIsFileDrawerOpen(true)}
             >
               {t('fileAttachments')}
@@ -134,27 +134,27 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
         <Stat
           label={t('totalUsers')}
           value={usersCount}
-          icon={<i className="ti ti-users" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
+          icon={<i className="ti ti-users" aria-hidden="true" style={{ color: 'var(--brand-primary, #2466D8)', fontSize: '20px' }} />}
         />
         <Stat
           label={t('totalRoles')}
           value={rolesCount}
-          icon={<i className="ti ti-shield-lock" style={{ color: 'var(--teal-400, #1FBBAD)', fontSize: '20px' }} />}
+          icon={<i className="ti ti-shield-lock" aria-hidden="true" style={{ color: 'var(--teal-400, #1FBBAD)', fontSize: '20px' }} />}
         />
         <Stat
           label={t('totalEntities')}
           value={entitiesCount}
-          icon={<i className="ti ti-building" style={{ color: 'var(--amber-500, #DF8B17)', fontSize: '20px' }} />}
+          icon={<i className="ti ti-building" aria-hidden="true" style={{ color: 'var(--amber-500, #DF8B17)', fontSize: '20px' }} />}
         />
         <Stat
           label={t('totalBranches')}
           value={branchesCount}
-          icon={<i className="ti ti-git-branch" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
+          icon={<i className="ti ti-git-branch" aria-hidden="true" style={{ color: 'var(--green-500, #1D9A6C)', fontSize: '20px' }} />}
         />
         <Stat
           label={t('unreadNotifications')}
           value={unreadCount}
-          icon={<i className="ti ti-bell-ringing" style={{ color: 'var(--red-500, #CB3A2D)', fontSize: '20px' }} />}
+          icon={<i className="ti ti-bell-ringing" aria-hidden="true" style={{ color: 'var(--red-500, #CB3A2D)', fontSize: '20px' }} />}
         />
       </div>
 
@@ -168,13 +168,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           variant="flat"
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
-            <Button variant="secondary" onClick={() => handleNavigate('sec-users')} block iconLeft={<i className="ti ti-users" />}>
+            <Button variant="secondary" onClick={() => handleNavigate('sec-users')} block iconLeft={<i className="ti ti-users" aria-hidden="true" />}>
               {t('navUsers')} →
             </Button>
-            <Button variant="secondary" onClick={() => handleNavigate('sec-roles')} block iconLeft={<i className="ti ti-shield-lock" />}>
+            <Button variant="secondary" onClick={() => handleNavigate('sec-roles')} block iconLeft={<i className="ti ti-shield-lock" aria-hidden="true" />}>
               {t('navRoles')} →
             </Button>
-            <Button variant="secondary" onClick={() => handleNavigate('sec-pages')} block iconLeft={<i className="ti ti-layout-grid" />}>
+            <Button variant="secondary" onClick={() => handleNavigate('sec-pages')} block iconLeft={<i className="ti ti-layout-grid" aria-hidden="true" />}>
               {t('navPages')} →
             </Button>
           </div>
@@ -188,16 +188,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           variant="flat"
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
-            <Button variant="secondary" onClick={() => handleNavigate('org-entities')} block iconLeft={<i className="ti ti-building" />}>
+            <Button variant="secondary" onClick={() => handleNavigate('org-entities')} block iconLeft={<i className="ti ti-building" aria-hidden="true" />}>
               {t('navLegalEntities')} →
             </Button>
-            <Button variant="secondary" onClick={() => handleNavigate('org-branches')} block iconLeft={<i className="ti ti-git-branch" />}>
+            <Button variant="secondary" onClick={() => handleNavigate('org-branches')} block iconLeft={<i className="ti ti-git-branch" aria-hidden="true" />}>
               {t('navBranches')} →
             </Button>
-            <Button variant="secondary" onClick={() => handleNavigate('org-departments')} block iconLeft={<i className="ti ti-sitemap" />}>
+            <Button variant="secondary" onClick={() => handleNavigate('org-departments')} block iconLeft={<i className="ti ti-sitemap" aria-hidden="true" />}>
               {t('navDepartments')} (Tree) →
             </Button>
-            <Button variant="secondary" onClick={() => handleNavigate('org-cost-centers')} block iconLeft={<i className="ti ti-calculator" />}>
+            <Button variant="secondary" onClick={() => handleNavigate('org-cost-centers')} block iconLeft={<i className="ti ti-calculator" aria-hidden="true" />}>
               {t('navCostCenters')} (Tree) →
             </Button>
           </div>
@@ -211,13 +211,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
           variant="flat"
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
-            <Button variant="secondary" onClick={() => handleNavigate('notif-inbox')} block iconLeft={<i className="ti ti-bell" />}>
+            <Button variant="secondary" onClick={() => handleNavigate('notif-inbox')} block iconLeft={<i className="ti ti-bell" aria-hidden="true" />}>
               {t('navNotificationInbox')} →
             </Button>
-            <Button variant="secondary" onClick={() => handleNavigate('notif-templates')} block iconLeft={<i className="ti ti-template" />}>
+            <Button variant="secondary" onClick={() => handleNavigate('notif-templates')} block iconLeft={<i className="ti ti-template" aria-hidden="true" />}>
               {t('navNotificationTemplates')} →
             </Button>
-            <Button variant="secondary" onClick={() => handleNavigate('notif-channels')} block iconLeft={<i className="ti ti-adjustments-horizontal" />}>
+            <Button variant="secondary" onClick={() => handleNavigate('notif-channels')} block iconLeft={<i className="ti ti-adjustments-horizontal" aria-hidden="true" />}>
               {t('navNotificationChannels')} →
             </Button>
           </div>

@@ -141,7 +141,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
       }}
       {...rest}
     >
-      {typeof icon === 'string' ? <i className={icon} /> : icon}
+      {typeof icon === 'string' ? <i className={icon} aria-hidden="true" /> : icon}
     </button>
   );
 };

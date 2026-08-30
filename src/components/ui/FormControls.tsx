@@ -75,7 +75,7 @@ export const Input: React.FC<InputProps> = ({
       >
         {iconLeft && (
           <span style={{ color: 'var(--text-subtle, #8C9AAC)', fontSize: '16px', display: 'inline-flex' }}>
-            {typeof iconLeft === 'string' ? <i className={iconLeft} /> : iconLeft}
+            {typeof iconLeft === 'string' ? <i className={iconLeft} aria-hidden="true" /> : iconLeft}
           </span>
         )}
         <input
@@ -219,6 +219,7 @@ export const Select: React.FC<SelectProps> = ({
         </select>
         <i
           className="ti ti-chevron-down"
+          aria-hidden="true"
           style={{
             position: 'absolute',
             insetInlineEnd: '12px',

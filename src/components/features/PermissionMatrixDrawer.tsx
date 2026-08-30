@@ -86,7 +86,7 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
               value={filterText}
               onChange={(e) => setFilterText(e.target.value)}
               placeholder={t('searchPlaceholder')}
-              iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+              iconLeft={<i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
           {canEdit && (

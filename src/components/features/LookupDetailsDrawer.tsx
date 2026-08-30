@@ -241,7 +241,7 @@ export const LookupDetailsDrawer: React.FC<LookupDetailsDrawerProps> = ({ isOpen
                   setSearchText(e.target.value);
                   applySearch(e.target.value);
                 }}
-                iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+                iconLeft={<i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
               />
             </div>
             <div style={{ width: '150px' }}>
@@ -253,7 +253,7 @@ export const LookupDetailsDrawer: React.FC<LookupDetailsDrawerProps> = ({ isOpen
             </div>
           </div>
           {canCreate && (
-            <Button variant="primary" size="sm" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+            <Button variant="primary" size="sm" iconLeft={<i className="ti ti-plus" aria-hidden="true" />} onClick={handleOpenCreate}>
               {t('new')}
             </Button>
           )}

@@ -13,6 +13,7 @@ export const Unauthorized: React.FC = () => {
       <Card variant="flat" padding="lg" style={{ maxWidth: '440px', textAlign: 'center' }}>
         <i
           className="ti ti-lock-square-rounded"
+          aria-hidden="true"
           style={{ fontSize: '40px', color: 'var(--danger-600, #D92D20)' }}
         />
         <h2

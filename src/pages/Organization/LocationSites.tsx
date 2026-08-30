@@ -215,7 +215,7 @@ export const LocationSitesPage: React.FC = () => {
           </h1>
         </div>
         {canCreate && (
-          <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+          <Button variant="primary" iconLeft={<i className="ti ti-plus" aria-hidden="true" />} onClick={handleOpenCreate}>
             {t('new')}
           </Button>
         )}
@@ -232,7 +232,7 @@ export const LocationSitesPage: React.FC = () => {
                 setSearchText(e.target.value);
                 applyFilters(e.target.value, branchFilter, statusFilter);
               }}
-              iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+              iconLeft={<i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
           <div style={{ width: '200px' }}>

@@ -87,11 +87,11 @@ export const NotificationChannelsPage: React.FC = () => {
                       fontSize: '20px',
                     }}
                   >
-                    {channel.channelCode === 'EMAIL' && <i className="ti ti-mail" />}
-                    {channel.channelCode === 'SMS' && <i className="ti ti-message" />}
-                    {channel.channelCode === 'WHATSAPP' && <i className="ti ti-brand-whatsapp" />}
-                    {channel.channelCode === 'PUSH' && <i className="ti ti-device-mobile" />}
-                    {channel.channelCode === 'INTERNAL' && <i className="ti ti-broadcast" />}
+                    {channel.channelCode === 'EMAIL' && <i className="ti ti-mail" aria-hidden="true" />}
+                    {channel.channelCode === 'SMS' && <i className="ti ti-message" aria-hidden="true" />}
+                    {channel.channelCode === 'WHATSAPP' && <i className="ti ti-brand-whatsapp" aria-hidden="true" />}
+                    {channel.channelCode === 'PUSH' && <i className="ti ti-device-mobile" aria-hidden="true" />}
+                    {channel.channelCode === 'INTERNAL' && <i className="ti ti-broadcast" aria-hidden="true" />}
                   </span>
 
                   <div>
@@ -113,7 +113,7 @@ export const NotificationChannelsPage: React.FC = () => {
                   <Button
                     variant="secondary"
                     size="sm"
-                    iconLeft={<i className="ti ti-code" />}
+                    iconLeft={<i className="ti ti-code" aria-hidden="true" />}
                     onClick={() => {
                       if (isEditing) {
                         setEditingChannelId(null);

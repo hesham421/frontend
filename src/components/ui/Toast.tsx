@@ -76,7 +76,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 textAlign: 'start',
               }}
             >
-              <i className={tone.icon} style={{ color: tone.color, fontSize: '18px', marginTop: '1px', flexShrink: 0 }} />
+              <i className={tone.icon} aria-hidden="true" style={{ color: tone.color, fontSize: '18px', marginTop: '1px', flexShrink: 0 }} />
               <div style={{ flex: 1, minWidth: 0, fontSize: 'var(--fs-sm, 13px)', color: tone.color, lineHeight: 1.5 }}>
                 {toast.message}
               </div>
@@ -86,7 +86,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 aria-label="Dismiss"
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: tone.color, fontSize: '14px', padding: 0, lineHeight: 1, flexShrink: 0 }}
               >
-                <i className="ti ti-x" />
+                <i className="ti ti-x" aria-hidden="true" />
               </button>
             </div>
           );

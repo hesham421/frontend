@@ -59,6 +59,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       >
         <i
           className={icon}
+          aria-hidden="true"
           style={{
             fontSize: '17px',
             width: '20px',
@@ -93,6 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <span>{label}</span>
         <i
           className={isExpanded ? 'ti ti-chevron-down' : 'ti ti-chevron-right'}
+          aria-hidden="true"
           style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}
         />
       </div>

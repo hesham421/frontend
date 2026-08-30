@@ -204,7 +204,7 @@ export const PagesRegistryPage: React.FC = () => {
         const secondary = lang === 'ar' ? s.nameEn : s.nameAr;
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-            <i className={s.icon || 'ti ti-file'} style={{ color: 'var(--brand-primary, #2466D8)', flexShrink: 0 }} />
+            <i className={s.icon || 'ti ti-file'} aria-hidden="true" style={{ color: 'var(--brand-primary, #2466D8)', flexShrink: 0 }} />
             <div style={{ minWidth: 0, maxWidth: '260px' }}>
               <div style={{ fontWeight: 600, color: 'var(--text-strong, #14222F)', fontSize: '14px', ...truncateStyle }} title={primary}>
                 {primary}
@@ -300,7 +300,7 @@ export const PagesRegistryPage: React.FC = () => {
           </h1>
         </div>
         {canCreate && (
-          <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+          <Button variant="primary" iconLeft={<i className="ti ti-plus" aria-hidden="true" />} onClick={handleOpenCreate}>
             {t('new')}
           </Button>
         )}
@@ -317,7 +317,7 @@ export const PagesRegistryPage: React.FC = () => {
                 setSearchText(e.target.value);
                 applySearch(e.target.value, moduleFilter, statusFilter);
               }}
-              iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+              iconLeft={<i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
           <div style={{ width: '180px' }}>

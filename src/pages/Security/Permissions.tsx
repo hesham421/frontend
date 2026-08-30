@@ -163,7 +163,7 @@ export const PermissionsPage: React.FC = () => {
             {t('secPermsTitle')}
           </h1>
         </div>
-        <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+        <Button variant="primary" iconLeft={<i className="ti ti-plus" aria-hidden="true" />} onClick={handleOpenCreate}>
           {t('new')}
         </Button>
       </div>
@@ -179,7 +179,7 @@ export const PermissionsPage: React.FC = () => {
                 setSearchText(e.target.value);
                 applySearch(e.target.value, moduleFilter);
               }}
-              iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+              iconLeft={<i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
           <div style={{ width: '180px' }}>

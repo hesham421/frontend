@@ -84,7 +84,7 @@ export const NotificationInboxPage: React.FC = () => {
         {unreadCount > 0 && (
           <Button
             variant="secondary"
-            iconLeft={<i className="ti ti-checks" />}
+            iconLeft={<i className="ti ti-checks" aria-hidden="true" />}
             onClick={() => {
               markAllAsRead();
               showToast(t('allReadSuccess'), 'success');
@@ -103,7 +103,7 @@ export const NotificationInboxPage: React.FC = () => {
               placeholder={t('searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+              iconLeft={<i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
           <div style={{ width: '180px' }}>

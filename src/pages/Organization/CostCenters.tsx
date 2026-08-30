@@ -201,7 +201,7 @@ export const CostCentersPage: React.FC = () => {
               }}
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--text-muted, #647488)', display: 'inline-flex' }}
             >
-              <i className={isExpanded ? 'ti ti-chevron-down' : 'ti ti-chevron-right'} style={{ fontSize: '14px' }} />
+              <i className={isExpanded ? 'ti ti-chevron-down' : 'ti ti-chevron-right'} aria-hidden="true" style={{ fontSize: '14px' }} />
             </button>
           ) : (
             <span style={{ width: '18px' }} />
@@ -209,6 +209,7 @@ export const CostCentersPage: React.FC = () => {
 
           <i
             className={node.nodeTypeId === 'SUMMARY' ? 'ti ti-folder' : 'ti ti-file-text'}
+            aria-hidden="true"
             style={{ color: node.nodeTypeId === 'SUMMARY' ? 'var(--brand-primary, #2466D8)' : 'var(--teal-400, #1FBBAD)', fontSize: '16px' }}
           />
 
@@ -299,7 +300,7 @@ export const CostCentersPage: React.FC = () => {
               <Button
                 variant="primary"
                 size="md"
-                iconLeft={<i className="ti ti-folder-plus" />}
+                iconLeft={<i className="ti ti-folder-plus" aria-hidden="true" />}
                 onClick={handleStartAddRoot}
                 disabled={!selectedBranchFk}
               >

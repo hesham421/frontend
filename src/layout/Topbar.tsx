@@ -137,7 +137,7 @@ export const Topbar: React.FC<TopbarProps> = ({
           borderRadius: 'var(--radius-md, 7px)',
         }}
       >
-        <i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)', fontSize: '16px' }} />
+        <i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)', fontSize: '16px' }} />
         <input
           placeholder={t('searchPlaceholder')}
           style={{
@@ -170,7 +170,7 @@ export const Topbar: React.FC<TopbarProps> = ({
       <Button
         variant="secondary"
         size="md"
-        iconLeft={<i className="ti ti-language" style={{ fontSize: '17px', color: 'var(--brand-primary, #2466D8)' }} />}
+        iconLeft={<i className="ti ti-language" aria-hidden="true" style={{ fontSize: '17px', color: 'var(--brand-primary, #2466D8)' }} />}
         onClick={toggleLanguage}
         title="Switch Language / تغيير اللغة"
       >

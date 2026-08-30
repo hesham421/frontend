@@ -111,7 +111,7 @@ export const DataScopeDrawer: React.FC<DataScopeDrawerProps> = ({ isOpen, onClos
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           <div>
             {scope && canDelete && (
-              <Button variant="danger" onClick={handleDelete} iconLeft={<i className="ti ti-trash" />}>
+              <Button variant="danger" onClick={handleDelete} iconLeft={<i className="ti ti-trash" aria-hidden="true" />}>
                 {t('delete')}
               </Button>
             )}

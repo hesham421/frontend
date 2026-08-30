@@ -53,6 +53,7 @@ export const Alert: React.FC<AlertProps> = ({
     >
       <i
         className={typeof icon === 'string' ? icon : t.i}
+        aria-hidden="true"
         style={{ color: t.c, fontSize: '18px', marginTop: '1px', flexShrink: 0 }}
       />
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -73,7 +74,7 @@ export const Alert: React.FC<AlertProps> = ({
           aria-label="Dismiss"
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: t.c, fontSize: '16px', padding: 0, lineHeight: 1 }}
         >
-          <i className="ti ti-x" />
+          <i className="ti ti-x" aria-hidden="true" />
         </button>
       )}
     </div>
@@ -134,7 +135,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           marginBottom: '16px',
         }}
       >
-        {typeof effectiveIcon === 'string' ? <i className={effectiveIcon} /> : effectiveIcon}
+        {typeof effectiveIcon === 'string' ? <i className={effectiveIcon} aria-hidden="true" /> : effectiveIcon}
       </span>
       {title && (
         <div
@@ -254,7 +255,7 @@ export const Tabs: React.FC<TabsProps> = ({
               transition: 'all 120ms ease-out',
             }}
           >
-            {tab.icon && (typeof tab.icon === 'string' ? <i className={tab.icon} /> : tab.icon)}
+            {tab.icon && (typeof tab.icon === 'string' ? <i className={tab.icon} aria-hidden="true" /> : tab.icon)}
             <span>{tab.label}</span>
             {tab.badge}
           </button>
@@ -288,7 +289,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items }) => {
     >
       {items.map((item, idx) => (
         <React.Fragment key={idx}>
-          {idx > 0 && <i className="ti ti-chevron-right" style={{ fontSize: '11px', color: 'var(--text-subtle, #8C9AAC)' }} />}
+          {idx > 0 && <i className="ti ti-chevron-right" aria-hidden="true" style={{ fontSize: '11px', color: 'var(--text-subtle, #8C9AAC)' }} />}
           {item.onClick ? (
             <span onClick={item.onClick} style={{ cursor: 'pointer', color: 'var(--text-muted, #647488)' }}>
               {item.label}
@@ -382,7 +383,7 @@ export const Dialog: React.FC<DialogProps> = ({
                 onClick={onClose}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-subtle, #8C9AAC)', fontSize: '18px', padding: 0 }}
               >
-                <i className="ti ti-x" />
+                <i className="ti ti-x" aria-hidden="true" />
               </button>
             )}
           </div>
@@ -485,7 +486,7 @@ export const Drawer: React.FC<DrawerProps> = ({
                 onClick={onClose}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-subtle, #8C9AAC)', fontSize: '18px', padding: 0 }}
               >
-                <i className="ti ti-x" />
+                <i className="ti ti-x" aria-hidden="true" />
               </button>
             )}
           </div>

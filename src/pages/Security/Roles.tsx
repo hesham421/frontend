@@ -265,7 +265,7 @@ export const RolesPage: React.FC = () => {
           </h1>
         </div>
         {canCreate && (
-          <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+          <Button variant="primary" iconLeft={<i className="ti ti-plus" aria-hidden="true" />} onClick={handleOpenCreate}>
             {t('new')}
           </Button>
         )}
@@ -282,7 +282,7 @@ export const RolesPage: React.FC = () => {
                 setSearchText(e.target.value);
                 applySearch(e.target.value);
               }}
-              iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+              iconLeft={<i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
           <div style={{ width: '180px' }}>
@@ -349,7 +349,7 @@ export const RolesPage: React.FC = () => {
                     variant="secondary"
                     size="sm"
                     onClick={() => setIsMatrixDrawerOpen(true)}
-                    iconLeft={<i className="ti ti-shield-lock" />}
+                    iconLeft={<i className="ti ti-shield-lock" aria-hidden="true" />}
                   >
                     {t('permissionMatrix')} →
                   </Button>
@@ -358,7 +358,7 @@ export const RolesPage: React.FC = () => {
                       variant="secondary"
                       size="sm"
                       onClick={() => setIsDataScopeDrawerOpen(true)}
-                      iconLeft={<i className="ti ti-building" />}
+                      iconLeft={<i className="ti ti-building" aria-hidden="true" />}
                     >
                       {t('dataScope')} →
                     </Button>

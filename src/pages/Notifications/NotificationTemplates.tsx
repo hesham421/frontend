@@ -152,7 +152,7 @@ export const NotificationTemplatesPage: React.FC = () => {
             {t('notifTemplatesTitle')}
           </h1>
         </div>
-        <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+        <Button variant="primary" iconLeft={<i className="ti ti-plus" aria-hidden="true" />} onClick={handleOpenCreate}>
           {t('new')}
         </Button>
       </div>
@@ -165,7 +165,7 @@ export const NotificationTemplatesPage: React.FC = () => {
               placeholder={t('searchPlaceholder')}
               value={templateSearch}
               onChange={(e) => setTemplateSearch(e.target.value)}
-              iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+              iconLeft={<i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
           <div style={{ width: '180px' }}>
@@ -378,8 +378,8 @@ export const NotificationTemplatesPage: React.FC = () => {
               <Tabs
                 variant="underline"
                 tabs={[
-                  { id: 'en', label: t('bodyEn'), icon: <i className="ti ti-language" /> },
-                  { id: 'ar', label: t('bodyAr'), icon: <i className="ti ti-language" /> },
+                  { id: 'en', label: t('bodyEn'), icon: <i className="ti ti-language" aria-hidden="true" /> },
+                  { id: 'ar', label: t('bodyAr'), icon: <i className="ti ti-language" aria-hidden="true" /> },
                 ]}
                 activeTab={bodyTab}
                 onChange={(id) => setBodyTab(id as 'en' | 'ar')}

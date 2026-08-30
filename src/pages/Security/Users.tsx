@@ -223,7 +223,7 @@ export const UsersPage: React.FC = () => {
           </h1>
         </div>
         {canCreate && (
-          <Button variant="primary" iconLeft={<i className="ti ti-plus" />} onClick={handleOpenCreate}>
+          <Button variant="primary" iconLeft={<i className="ti ti-plus" aria-hidden="true" />} onClick={handleOpenCreate}>
             {t('new')}
           </Button>
         )}
@@ -240,7 +240,7 @@ export const UsersPage: React.FC = () => {
                 setSearchText(e.target.value);
                 applySearch(e.target.value, statusFilter);
               }}
-              iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+              iconLeft={<i className="ti ti-search" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
           <div style={{ width: '180px' }}>
@@ -309,7 +309,7 @@ export const UsersPage: React.FC = () => {
                       variant="secondary"
                       size="sm"
                       onClick={() => setIsProfileDrawerOpen(true)}
-                      iconLeft={<i className="ti ti-id" />}
+                      iconLeft={<i className="ti ti-id" aria-hidden="true" />}
                     >
                       {t('userProfile')} →
                     </Button>
@@ -319,7 +319,7 @@ export const UsersPage: React.FC = () => {
                       variant="secondary"
                       size="sm"
                       onClick={() => setIsDataScopeDrawerOpen(true)}
-                      iconLeft={<i className="ti ti-shield" />}
+                      iconLeft={<i className="ti ti-shield" aria-hidden="true" />}
                       disabled={dataScopeRoleId == null}
                     >
                       {t('dataScope')} →
@@ -398,7 +398,7 @@ export const UsersPage: React.FC = () => {
                 variant="secondary"
                 size="sm"
                 onClick={() => setIsRoleDrawerOpen(true)}
-                iconLeft={<i className="ti ti-shield-plus" />}
+                iconLeft={<i className="ti ti-shield-plus" aria-hidden="true" />}
                 style={{ marginTop: '8px' }}
               >
                 {t('assignRoles')} →

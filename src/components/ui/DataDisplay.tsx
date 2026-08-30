@@ -203,7 +203,7 @@ export const Stat: React.FC<StatProps> = ({
         </span>
         {icon && (
           <span style={{ color: accents[accent], fontSize: '18px', display: 'inline-flex' }}>
-            {typeof icon === 'string' ? <i className={icon} /> : icon}
+            {typeof icon === 'string' ? <i className={icon} aria-hidden="true" /> : icon}
           </span>
         )}
       </div>

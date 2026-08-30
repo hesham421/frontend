@@ -309,7 +309,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
             variant="secondary"
             size="sm"
             onClick={toggleLanguage}
-            iconLeft={<i className="ti ti-language" style={{ fontSize: '15px' }} />}
+            iconLeft={<i className="ti ti-language" aria-hidden="true" style={{ fontSize: '15px' }} />}
           >
             {t('languageToggle')}
           </Button>
@@ -343,8 +343,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
               <Tabs
                 variant="underline"
                 tabs={[
-                  { id: 'login', label: t('login'), icon: <i className="ti ti-lock" /> },
-                  { id: 'signup', label: t('signup'), icon: <i className="ti ti-user-plus" /> },
+                  { id: 'login', label: t('login'), icon: <i className="ti ti-lock" aria-hidden="true" /> },
+                  { id: 'signup', label: t('signup'), icon: <i className="ti ti-user-plus" aria-hidden="true" /> },
                 ]}
                 activeTab={activeTab}
                 onChange={(id) => switchTab(id as AuthTab)}
@@ -373,7 +373,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
                   placeholder="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  iconLeft={<i className="ti ti-user" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+                  iconLeft={<i className="ti ti-user" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
                   error={fieldErrors.username}
                   required
                 />
@@ -383,7 +383,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin: propOnLogin }) => {
                   placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  iconLeft={<i className="ti ti-key" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
+                  iconLeft={<i className="ti ti-key" aria-hidden="true" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
                   error={fieldErrors.password}
                   required
                 />
