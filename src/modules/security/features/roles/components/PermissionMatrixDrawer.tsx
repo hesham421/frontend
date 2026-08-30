@@ -3,7 +3,7 @@ import { useLanguage } from '@/context/LanguageContext';
 import type { RoleDto } from '../api';
 import type { CrudPermission } from '../types';
 import type { PageResponse } from '../../pageRegistry';
-import { Drawer } from '@/components/ui/OverlaysAndFeedback';
+import { Drawer, Alert } from '@/components/ui/OverlaysAndFeedback';
 import { Button, IconButton } from '@/components/ui/Button';
 import { Input } from '@/components/ui/FormControls';
 
@@ -15,8 +15,11 @@ export interface PermissionMatrixDrawerProps {
   matrixDraft: Record<string, Set<CrudPermission>>;
   /** SEC-FE/SCR-SEC-003 — ROLE_UPDATE; false makes every control below read-only. */
   canEdit: boolean;
+  isSaving?: boolean;
+  errorMessage?: string | null;
+  onTogglePage: (pageCode: string, assigned: boolean) => void;
   onTogglePermission: (pageCode: string, type: CrudPermission, checked: boolean) => void;
-  onSyncAll: () => void;
+  onSave: () => void;
   onRemovePage: (pageCode: string) => void;
   copySourceRoleId: string;
   onCopySourceChange: (id: string) => void;
@@ -27,12 +30,9 @@ export interface PermissionMatrixDrawerProps {
 const CRUD_PERMISSIONS: CrudPermission[] = ['CREATE', 'UPDATE', 'DELETE'];
 
 /**
- * Per-page permission matrix as its own side drawer — same reasoning as
- * RoleAssignmentDrawer (Users.tsx): a potentially long list (every active
- * page, currently ~148) previously sat embedded inline in the Edit Role
- * dialog alongside unrelated role-metadata fields. Second confirmed instance
- * of the pattern; see skills/ui-ux/SKILL.md, "Secondary picker/matrix → side
- * drawer".
+ * Per-page permission matrix as its own side drawer.
+ * Allows toggling VIEW (page assignment) and CRUD operations, then persisting
+ * directly to the backend API via syncRolePages.
  */
 export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
   isOpen,
@@ -41,8 +41,11 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
   pages,
   matrixDraft,
   canEdit,
+  isSaving = false,
+  errorMessage = null,
+  onTogglePage,
   onTogglePermission,
-  onSyncAll,
+  onSave,
   onRemovePage,
   copySourceRoleId,
   onCopySourceChange,
@@ -72,14 +75,21 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
       subtitle={role ? `${role.roleName} — ${assignedCount} ${t('selected')}` : undefined}
       width="lg"
       footer={
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button variant="primary" onClick={onClose}>
-            {t('close')}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', width: '100%' }}>
+          <Button variant="secondary" onClick={onClose} disabled={isSaving}>
+            {t('cancel')}
           </Button>
+          {canEdit && (
+            <Button variant="primary" onClick={onSave} loading={isSaving}>
+              {t('save')}
+            </Button>
+          )}
         </div>
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {errorMessage && <Alert variant="danger" message={errorMessage} />}
+
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ flex: '1 1 220px', minWidth: '180px' }}>
             <Input
@@ -89,11 +99,6 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
               iconLeft={<i className="ti ti-search" style={{ color: 'var(--text-subtle, #8C9AAC)' }} />}
             />
           </div>
-          {canEdit && (
-            <Button variant="secondary" size="sm" onClick={onSyncAll}>
-              {t('syncAll')}
-            </Button>
-          )}
           {canEdit && copySourceOptions.length > 0 && (
             <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               <select
@@ -107,6 +112,7 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
                 }}
                 value={copySourceRoleId}
                 onChange={(e) => onCopySourceChange(e.target.value)}
+                disabled={isSaving}
               >
                 <option value="">-- {t('copyFrom')} --</option>
                 {copySourceOptions.map((opt) => (
@@ -116,7 +122,7 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
                 ))}
               </select>
               {copySourceRoleId && (
-                <Button variant="secondary" size="sm" onClick={onCopyFrom}>
+                <Button variant="secondary" size="sm" onClick={onCopyFrom} loading={isSaving}>
                   {t('confirm')}
                 </Button>
               )}
@@ -150,15 +156,20 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
                       <div style={{ fontSize: '11px', color: 'var(--text-muted, #647488)' }}>{pg.pageCode}</div>
                     </td>
                     <td style={{ padding: '8px 12px', textAlign: 'center' }}>
-                      {/* RULE-SEC-042 — VIEW is never independently togglable; it's implied by the page being assigned. */}
-                      <input type="checkbox" checked={isAssigned} disabled />
+                      <input
+                        type="checkbox"
+                        checked={isAssigned}
+                        disabled={!canEdit || isSaving}
+                        onChange={(e) => onTogglePage(pg.pageCode!, e.target.checked)}
+                        title={t('canView')}
+                      />
                     </td>
                     {CRUD_PERMISSIONS.map((type) => (
                       <td key={type} style={{ padding: '8px 12px', textAlign: 'center' }}>
                         <input
                           type="checkbox"
                           checked={perms?.has(type) ?? false}
-                          disabled={!canEdit}
+                          disabled={!canEdit || isSaving}
                           onChange={(e) => onTogglePermission(pg.pageCode!, type, e.target.checked)}
                         />
                       </td>
@@ -170,6 +181,7 @@ export const PermissionMatrixDrawer: React.FC<PermissionMatrixDrawerProps> = ({
                           label={t('delete')}
                           variant="ghost"
                           size="sm"
+                          disabled={isSaving}
                           onClick={() => onRemovePage(pg.pageCode!)}
                         />
                       )}

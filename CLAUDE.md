@@ -1,8 +1,33 @@
-# Frontend Governance — Housekeeping & Reporting
+# Frontend — Project Conventions
 
-This file documents two standing conventions for this repo's `governance/`
-tree, mirrored from `backend/CLAUDE.md`'s equivalent sections so both repos
-follow the same rules independently.
+Merged from `governance/CLAUDE.md` and the former
+`governance/.github/skills/frontend/CLAUDE.md` (that skill pack now lives at
+`.claude/skills/`, auto-discovered by Claude Code — no manual index needed
+here).
+
+## Key references
+
+- Binding architecture (wins over any skill on conflict):
+  [`.claude/skills/references/architecture.md`](.claude/skills/references/architecture.md)
+- Canonical rule IDs cited by skills:
+  [`.claude/skills/references/contract-rules.md`](.claude/skills/references/contract-rules.md)
+- Precedence when external React/library guidance conflicts with a project
+  rule: `erp-priority-override` skill
+
+## Skill Build Order
+
+Skills under `.claude/skills/` are auto-discovered, but the order they're
+meant to be applied in isn't — follow this sequence:
+
+```
+Phase 1 (once)   create-auth-session → create-error-handling → create-app-state
+
+Per feature      create-models → create-api-client → create-queries
+                   → create-forms → create-components → create-routing
+                     → create-confirm-actions → create-tests
+
+Review           enforce-* as needed → validate-frontend-feature
+```
 
 ---
 

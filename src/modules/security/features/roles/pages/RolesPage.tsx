@@ -58,6 +58,8 @@ export const RolesPage: React.FC = () => {
   const [isMatrixDrawerOpen, setIsMatrixDrawerOpen] = useState(false);
   const [confirmToggle, setConfirmToggle] = useState<{ role: RoleDto; activate: boolean } | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [matrixError, setMatrixError] = useState<string | null>(null);
+  const [isSavingPermissions, setIsSavingPermissions] = useState(false);
 
   const [roleCode, setRoleCode] = useState('');
   const [roleName, setRoleName] = useState('');
@@ -65,10 +67,9 @@ export const RolesPage: React.FC = () => {
   const [isActive, setIsActive] = useState(true);
   const [copySourceRoleId, setCopySourceRoleId] = useState('');
 
-  // Local draft of the permission matrix — RULE-SEC-042/043: VIEW is
-  // implicit (never a togglable column), only CREATE/UPDATE/DELETE toggle
-  // here; "Sync All" pushes the whole draft via the real bulk-replace
-  // endpoint (no per-cell PATCH exists on the real API).
+  // Local draft of the permission matrix — VIEW is implicit upon page assignment,
+  // CREATE/UPDATE/DELETE toggle within the row; "Save" pushes the draft
+  // directly to the backend API via syncRolePages.
   const [matrixDraft, setMatrixDraft] = useState<Record<string, Set<CrudPermission>>>({});
 
   useEffect(() => {
@@ -99,6 +100,7 @@ export const RolesPage: React.FC = () => {
     setDescription(role.description || '');
     setIsActive(role.active ?? true);
     setErrorMessage(null);
+    setMatrixError(null);
     selectRole(role);
     setIsRoleDialogOpen(true);
   };
@@ -140,6 +142,20 @@ export const RolesPage: React.FC = () => {
     setConfirmToggle(null);
   };
 
+  const togglePage = (pageCode: string, assigned: boolean) => {
+    setMatrixDraft((prev) => {
+      const next = { ...prev };
+      if (assigned) {
+        if (!next[pageCode]) {
+          next[pageCode] = new Set<CrudPermission>();
+        }
+      } else {
+        delete next[pageCode];
+      }
+      return next;
+    });
+  };
+
   const togglePermission = (pageCode: string, type: CrudPermission, checked: boolean) => {
     setMatrixDraft((prev) => {
       const next = { ...prev };
@@ -151,34 +167,47 @@ export const RolesPage: React.FC = () => {
     });
   };
 
-  const handleSyncAll = async () => {
+  const handleSavePermissions = async () => {
     if (!selectedRole?.id) return;
     try {
-      await syncRolePages(
-        selectedRole.id,
-        Object.entries(matrixDraft).map(([pageCode, perms]) => ({ pageCode, permissions: [...perms] })),
-      );
+      setIsSavingPermissions(true);
+      setMatrixError(null);
+      const assignments = Object.entries(matrixDraft)
+        .filter(([_, perms]) => perms !== undefined)
+        .map(([pageCode, perms]) => ({
+          pageCode,
+          permissions: [...perms],
+        }));
+      await syncRolePages(selectedRole.id, assignments);
+      showToast(t('permissionSavedSuccess'), 'success');
+      setIsMatrixDrawerOpen(false);
     } catch (err) {
-      setErrorMessage(mapApiError(err, t));
+      setMatrixError(mapApiError(err, t));
+    } finally {
+      setIsSavingPermissions(false);
     }
   };
 
-  const handleRemovePage = async (pageCode: string) => {
-    if (!selectedRole?.id) return;
-    try {
-      await removePageFromRole(selectedRole.id, pageCode);
-    } catch (err) {
-      setErrorMessage(mapApiError(err, t));
-    }
+  const handleRemovePage = (pageCode: string) => {
+    setMatrixDraft((prev) => {
+      const next = { ...prev };
+      delete next[pageCode];
+      return next;
+    });
   };
 
   const handleCopyFrom = async () => {
     if (!selectedRole?.id || !copySourceRoleId) return;
     try {
+      setMatrixError(null);
+      setIsSavingPermissions(true);
       await copyFromRole(selectedRole.id, Number(copySourceRoleId));
       setCopySourceRoleId('');
+      showToast(t('permissionSavedSuccess'), 'success');
     } catch (err) {
-      setErrorMessage(mapApiError(err, t));
+      setMatrixError(mapApiError(err, t));
+    } finally {
+      setIsSavingPermissions(false);
     }
   };
 
@@ -424,8 +453,11 @@ export const RolesPage: React.FC = () => {
         pages={activePages.data ?? []}
         matrixDraft={matrixDraft}
         canEdit={canEdit}
+        isSaving={isSavingPermissions}
+        errorMessage={matrixError}
+        onTogglePage={togglePage}
         onTogglePermission={togglePermission}
-        onSyncAll={handleSyncAll}
+        onSave={handleSavePermissions}
         onRemovePage={handleRemovePage}
         copySourceRoleId={copySourceRoleId}
         onCopySourceChange={setCopySourceRoleId}
